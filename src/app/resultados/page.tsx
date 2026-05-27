@@ -1,0 +1,43 @@
+import { prisma } from "@/lib/prisma";
+import { Container } from "@/components/container";
+import { NumberGrid } from "@/components/number-grid";
+import { SectionHeading } from "@/components/section-heading";
+
+export default async function ResultsPage() {
+  const results = await prisma.contestResult.findMany({
+    include: {
+      contest: {
+        include: {
+          lottery: true,
+          pools: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 10,
+  });
+
+  return (
+    <Container className="py-10 space-y-8">
+      <SectionHeading eyebrow="Resultados" title="Resultados e premiações" description="Quando o admin publica um resultado, o sistema confere automaticamente cada jogo do bolão, marca acertos e distribui o prêmio proporcionalmente às cotas." />
+      <div className="space-y-5">
+        {results.length === 0 ? (
+          <div className="rounded-[32px] border border-dashed border-fuchsia-200 bg-white/70 p-10 text-center text-slate-500">
+            Nenhum resultado foi lançado ainda no MVP.
+          </div>
+        ) : (
+          results.map((result) => (
+            <article key={result.id} className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">{result.contest.lottery.name}</p>
+              <h2 className="mt-2 text-2xl font-bold text-slate-900">Concurso #{result.contest.contestNumber}</h2>
+              <div className="mt-4">
+                <NumberGrid numbers={result.drawnNumbers} highlight={result.drawnNumbers} />
+              </div>
+            </article>
+          ))
+        )}
+      </div>
+    </Container>
+  );
+}
+

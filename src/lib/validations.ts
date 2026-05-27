@@ -1,0 +1,31 @@
+import { z } from "zod";
+
+export const registerSchema = z.object({
+  name: z.string().min(3, "Informe seu nome completo."),
+  email: z.email("Informe um e-mail valido."),
+  password: z.string().min(6, "A senha deve ter ao menos 6 caracteres."),
+});
+
+export const loginSchema = z.object({
+  email: z.email("Informe um e-mail valido."),
+  password: z.string().min(6, "Senha invalida."),
+});
+
+export const purchaseSchema = z.object({
+  poolId: z.string().min(1),
+  quantity: z.number().int().positive().max(50),
+});
+
+export const manualCreditSchema = z.object({
+  userId: z.string().min(1),
+  amount: z.number().positive().max(100000),
+  description: z.string().min(4).max(255),
+});
+
+export const resultSchema = z.object({
+  contestId: z.string().min(1),
+  drawnNumbers: z.array(z.number().int().min(1).max(99)).min(1),
+  prizeBreakdown: z.record(z.string(), z.number().nonnegative()),
+  source: z.string().min(2).max(255).optional(),
+});
+

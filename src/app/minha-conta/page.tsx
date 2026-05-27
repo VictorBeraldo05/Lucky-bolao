@@ -1,0 +1,37 @@
+import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/lib/auth";
+import { AccountShell } from "@/components/account-shell";
+import { StatCard } from "@/components/stat-card";
+import { formatCurrency } from "@/lib/utils";
+
+export default async function MyAccountPage() {
+  const user = await requireUser();
+
+  const [purchases, prizes, notifications] = await Promise.all([
+    prisma.purchase.count({ where: { userId: user.id } }),
+    prisma.prize.aggregate({ where: { userId: user.id }, _sum: { amount: true } }),
+    prisma.notification.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 5 }),
+  ]);
+
+  return (
+    <AccountShell currentPath="/minha-conta" title={`Olá, ${user.name}`} description="Sua visão geral de saldo, compras, prêmios e notificações.">
+      <div className="grid gap-4 md:grid-cols-3">
+        <StatCard label="Saldo atual" value={formatCurrency(user.wallet?.balance ?? 0)} />
+        <StatCard label="Compras" value={String(purchases)} />
+        <StatCard label="Prêmios" value={formatCurrency(prizes._sum.amount ?? 0)} />
+      </div>
+      <div className="rounded-[28px] border border-white/80 bg-white/90 p-6 shadow-sm">
+        <h2 className="text-xl font-bold text-slate-900">Ultimas notificações</h2>
+        <div className="mt-4 space-y-3">
+          {notifications.map((notification) => (
+            <div key={notification.id} className="rounded-2xl border border-fuchsia-100 bg-fuchsia-50/60 p-4">
+              <p className="font-semibold text-slate-900">{notification.title}</p>
+              <p className="mt-1 text-sm text-slate-600">{notification.message}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </AccountShell>
+  );
+}
+
