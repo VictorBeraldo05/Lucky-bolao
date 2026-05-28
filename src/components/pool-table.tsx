@@ -16,8 +16,8 @@ type PoolTableProps = {
 
 export function PoolTable({ pools }: PoolTableProps) {
   return (
-    <div className="overflow-hidden rounded-[32px] border border-white/80 bg-white/95 shadow-[0_20px_70px_rgba(188,131,230,0.12)]">
-      <div className="hidden grid-cols-[1.4fr_1.1fr_0.9fr_1fr_0.9fr_0.8fr_0.9fr] gap-4 border-b border-fuchsia-100 bg-linear-to-r from-fuchsia-50 via-white to-violet-50 px-6 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 lg:grid">
+    <div className="overflow-hidden rounded-[28px] border border-white/80 bg-white/95 shadow-[0_20px_70px_rgba(188,131,230,0.12)]">
+      <div className="hidden grid-cols-[1.45fr_1fr_0.75fr_0.95fr_0.8fr_0.7fr_0.85fr] gap-3 border-b border-fuchsia-100 bg-linear-to-r from-fuchsia-50 via-white to-violet-50 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 lg:grid">
         <div>Bolão</div>
         <div>Chances</div>
         <div>Valor</div>
@@ -38,42 +38,42 @@ export function PoolTable({ pools }: PoolTableProps) {
           });
 
           return (
-            <div key={pool.id} className="px-5 py-5 lg:px-6">
-              <div className="grid gap-5 lg:grid-cols-[1.4fr_1.1fr_0.9fr_1fr_0.9fr_0.8fr_0.9fr] lg:items-center">
-                <div className="space-y-2">
+            <div key={pool.id} className="px-4 py-4 lg:px-5">
+              <div className="grid gap-4 lg:grid-cols-[1.45fr_1fr_0.75fr_0.95fr_0.8fr_0.7fr_0.85fr] lg:items-center">
+                <div className="space-y-1.5">
                   <div className="flex items-center gap-3">
-                    <p className="text-lg font-bold text-fuchsia-700">{pool.code}</p>
+                    <p className="text-base font-bold text-fuchsia-700">{pool.code}</p>
                     <StatusBadge status={pool.status} />
                   </div>
-                  <p className="text-base font-semibold text-slate-900">{pool.title}</p>
+                  <p className="text-sm font-semibold leading-5 text-slate-900">{pool.title}</p>
                 </div>
 
-                <div className="space-y-1">
-                  <p className="text-base font-bold text-slate-900">{summary.gamesLabel}</p>
-                  <p className="text-sm text-slate-600">{summary.equivalentLabel ?? pool.relativeChance ?? "Cobertura ampliada"}</p>
+                <div className="space-y-0.5">
+                  <p className="text-sm font-bold text-slate-900">{summary.gamesLabel}</p>
+                  <p className="text-xs text-slate-600">{summary.equivalentLabel ?? pool.relativeChance ?? "Cobertura ampliada"}</p>
                 </div>
 
-                <div className="space-y-1">
-                  <p className="text-2xl font-black text-fuchsia-700">{formatCurrency(pool.sharePrice)}</p>
-                  <p className="text-sm text-slate-500">por cota</p>
+                <div className="space-y-0.5">
+                  <p className="text-xl font-black text-fuchsia-700">{formatCurrency(pool.sharePrice)}</p>
+                  <p className="text-xs text-slate-500">por cota</p>
                 </div>
 
-                <div className="space-y-1">
-                  <p className="text-base font-bold text-slate-900">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-bold text-slate-900">
                     {pool.availableShares}/{pool.totalShares}
                   </p>
-                  <p className="text-sm text-slate-500">cotas disponíveis</p>
+                  <p className="text-xs text-slate-500">cotas disponíveis</p>
                 </div>
 
-                <div className="space-y-1">
-                  <p className="text-base font-bold text-slate-900">{pool.games.length.toString().padStart(2, "0")}</p>
-                  <p className="text-sm text-slate-500">jogos no bolão</p>
+                <div className="space-y-0.5">
+                  <p className="text-sm font-bold text-slate-900">{pool.games.length.toString().padStart(2, "0")}</p>
+                  <p className="text-xs text-slate-500">jogos</p>
                 </div>
 
                 <div>
                   <Link
                     href={`/boloes/${pool.code}`}
-                    className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-fuchsia-200 bg-white text-xl font-bold text-fuchsia-700 shadow-sm transition hover:bg-fuchsia-50"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-fuchsia-200 bg-white text-lg font-bold text-fuchsia-700 shadow-sm transition hover:bg-fuchsia-50"
                     aria-label={`Ver números do bolão ${pool.code}`}
                   >
                     +
@@ -83,7 +83,7 @@ export function PoolTable({ pools }: PoolTableProps) {
                 <div>
                   <Link
                     href={`/boloes/${pool.code}`}
-                    className="inline-flex w-full items-center justify-center rounded-full bg-fuchsia-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800"
+                    className="inline-flex w-full items-center justify-center rounded-full bg-fuchsia-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-fuchsia-800"
                   >
                     Comprar
                   </Link>
