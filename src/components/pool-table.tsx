@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Contest, Lottery, LotteryGameType, Pool, PoolGame } from "@prisma/client";
-import { formatCurrency, formatDate, getPoolCommercialSummary } from "@/lib/utils";
+import { formatCurrency, getPoolCommercialSummary } from "@/lib/utils";
 import { StatusBadge } from "@/components/status-badge";
 
 type PoolTableProps = {
@@ -46,10 +46,6 @@ export function PoolTable({ pools }: PoolTableProps) {
                     <StatusBadge status={pool.status} />
                   </div>
                   <p className="text-base font-semibold text-slate-900">{pool.title}</p>
-                  <p className="text-sm text-slate-600">{pool.description}</p>
-                  <p className="text-xs text-slate-500">
-                    Concurso #{pool.contest.contestNumber} • {formatDate(pool.contest.drawDate)}
-                  </p>
                 </div>
 
                 <div className="space-y-1">
@@ -100,4 +96,3 @@ export function PoolTable({ pools }: PoolTableProps) {
     </div>
   );
 }
-
