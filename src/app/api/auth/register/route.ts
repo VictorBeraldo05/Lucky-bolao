@@ -20,6 +20,7 @@ export async function POST(request: Request) {
       data: {
         name: payload.name,
         email: payload.email,
+        cpf: payload.cpf,
         passwordHash,
         wallet: {
           create: {

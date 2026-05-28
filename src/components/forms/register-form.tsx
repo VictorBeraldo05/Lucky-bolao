@@ -19,6 +19,7 @@ export function RegisterForm() {
         name: formData.get("name"),
         email: formData.get("email"),
         password: formData.get("password"),
+        cpf: formData.get("cpf"),
       }),
     });
 
@@ -38,6 +39,7 @@ export function RegisterForm() {
     <form action={handleSubmit} className="space-y-4">
       <input name="name" type="text" placeholder="Seu nome completo" className="w-full rounded-2xl border border-fuchsia-100 bg-white px-4 py-3 outline-none" />
       <input name="email" type="email" placeholder="Seu e-mail" className="w-full rounded-2xl border border-fuchsia-100 bg-white px-4 py-3 outline-none" />
+      <input name="cpf" type="text" placeholder="CPF (somente números)" className="w-full rounded-2xl border border-fuchsia-100 bg-white px-4 py-3 outline-none" />
       <input name="password" type="password" placeholder="Crie uma senha" className="w-full rounded-2xl border border-fuchsia-100 bg-white px-4 py-3 outline-none" />
       {error ? <p className="text-sm font-medium text-rose-600">{error}</p> : null}
       <button disabled={loading} className="w-full rounded-full bg-fuchsia-600 px-5 py-3 font-semibold text-white transition hover:bg-fuchsia-700 disabled:opacity-70">

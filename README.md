@@ -83,6 +83,13 @@ npm install
 DATABASE_URL="postgresql://..."
 JWT_SECRET="uma-chave-forte"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+MERCADOPAGO_BASE_URL="https://api.mercadopago.com"
+MERCADOPAGO_ACCESS_TOKEN="seu-token-de-acesso-mercadopago"
+MERCADOPAGO_WEBHOOK_SECRET="seu-segredo-de-webhook"
+MERCADOPAGO_CHARGE_EXPIRATION_MINUTES="15"
+MERCADOPAGO_ALLOW_APPROVED_WITHOUT_CPF="false"
+MERCADOPAGO_ALLOW_APPROVED_WITH_MISMATCHED_CPF="false"
 ```
 
 3. Gere o client do Prisma:
@@ -133,6 +140,18 @@ npm run dev
 4. Sistema soma prêmio do bolão
 5. Sistema distribui o valor proporcionalmente às cotas compradas
 6. Sistema grava `Prize`, `WalletTransaction`, `Notification` e `AuditLog`
+
+## Integração Mercado Pago PIX
+
+O app já inclui o fluxo de depósito via Mercado Pago PIX na página de carteira.
+As variáveis necessárias são:
+
+- `MERCADOPAGO_BASE_URL` - URL da API do Mercado Pago (padrão: `https://api.mercadopago.com`).
+- `MERCADOPAGO_ACCESS_TOKEN` - token de acesso da conta Mercado Pago.
+- `MERCADOPAGO_WEBHOOK_SECRET` - segredo usado para validar webhooks de pagamento.
+- `MERCADOPAGO_CHARGE_EXPIRATION_MINUTES` - tempo em minutos para expirar a cobrança PIX.
+- `MERCADOPAGO_ALLOW_APPROVED_WITHOUT_CPF` - permite aprovar pagamentos sem CPF.
+- `MERCADOPAGO_ALLOW_APPROVED_WITH_MISMATCHED_CPF` - permite aprovar pagamentos com CPF divergente.
 
 ## Preparação para produção
 

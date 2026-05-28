@@ -14,6 +14,7 @@ async function main() {
     create: {
       name: "Admin Lucky",
       email: "admin@luckyboloes.com",
+      cpf: "11122233344",
       passwordHash,
       role: UserRole.ADMIN,
       wallet: { create: { balance: new Prisma.Decimal(5000) } },
@@ -27,6 +28,7 @@ async function main() {
     create: {
       name: "Cliente Demo",
       email: "cliente@luckyboloes.com",
+      cpf: "22233344455",
       passwordHash,
       wallet: { create: { balance: new Prisma.Decimal(250) } },
     },
@@ -132,6 +134,36 @@ async function main() {
       contestNumber: 3103,
       drawDate: addDays(new Date(), 8),
       status: "scheduled",
+    },
+  });
+
+  await prisma.walletPackage.upsert({
+    where: { title: "Pacote de R$ 50" },
+    update: {},
+    create: {
+      title: "Pacote de R$ 50",
+      description: "R$ 50 de saldo para comprar cotas com Pix.",
+      price: new Prisma.Decimal(50),
+    },
+  });
+
+  await prisma.walletPackage.upsert({
+    where: { title: "Pacote de R$ 100" },
+    update: {},
+    create: {
+      title: "Pacote de R$ 100",
+      description: "R$ 100 de saldo para participar de bolões maiores.",
+      price: new Prisma.Decimal(100),
+    },
+  });
+
+  await prisma.walletPackage.upsert({
+    where: { title: "Pacote de R$ 200" },
+    update: {},
+    create: {
+      title: "Pacote de R$ 200",
+      description: "R$ 200 de saldo para compras rápidas e múltiplas cotas.",
+      price: new Prisma.Decimal(200),
     },
   });
 

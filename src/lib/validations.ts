@@ -4,6 +4,11 @@ export const registerSchema = z.object({
   name: z.string().min(3, "Informe seu nome completo."),
   email: z.email("Informe um e-mail valido."),
   password: z.string().min(6, "A senha deve ter ao menos 6 caracteres."),
+  cpf: z
+    .string()
+    .min(1, "Informe seu CPF.")
+    .transform((value) => value.replace(/\D/g, ""))
+    .refine((value) => /^\d{11}$/.test(value), "Informe um CPF valido."),
 });
 
 export const loginSchema = z.object({
@@ -14,6 +19,18 @@ export const loginSchema = z.object({
 export const purchaseSchema = z.object({
   poolId: z.string().min(1),
   quantity: z.number().int().positive().max(50),
+});
+
+export const walletTopupSchema = z.object({
+  packageId: z.number().int().positive(),
+});
+
+export const profileCpfSchema = z.object({
+  cpf: z
+    .string()
+    .min(1, "Informe seu CPF.")
+    .transform((value) => value.replace(/\D/g, ""))
+    .refine((value) => /^\d{11}$/.test(value), "Informe um CPF valido."),
 });
 
 export const manualCreditSchema = z.object({

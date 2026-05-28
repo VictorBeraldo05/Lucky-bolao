@@ -57,6 +57,10 @@ export async function clearSessionCookie() {
   cookieStore.delete(COOKIE_NAME);
 }
 
+function getJwtSecretKey() {
+  return getJwtSecret();
+}
+
 export async function getSession() {
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_NAME)?.value;
@@ -64,8 +68,41 @@ export async function getSession() {
   if (!token) return null;
 
   try {
-    const { payload } = await jwtVerify(token, getJwtSecret());
+    const { payload } = await jwtVerify(token, getJwtSecretKey());
     return payload as SessionPayload;
+  } catch {
+    return null;
+  }
+}
+
+async function getSessionTokenFromRequest(request: Request) {
+  const authorization = request.headers.get("authorization")?.trim();
+  if (authorization?.toLowerCase().startsWith("bearer ")) {
+    return authorization.slice(7).trim();
+  }
+
+  const cookieHeader = request.headers.get("cookie") ?? "";
+  const cookieMatch = cookieHeader.match(new RegExp(`${COOKIE_NAME}=([^;]+)`));
+  return cookieMatch?.[1] ?? null;
+}
+
+export async function getCurrentUserFromRequest(request: Request) {
+  const token = await getSessionTokenFromRequest(request);
+  if (!token) return null;
+
+  try {
+    const { payload } = await jwtVerify(token, getJwtSecretKey());
+    return prisma.user.findUnique({
+      where: { id: payload.sub },
+      include: {
+        wallet: true,
+        notifications: {
+          where: { readAt: null },
+          take: 5,
+          orderBy: { createdAt: "desc" },
+        },
+      },
+    });
   } catch {
     return null;
   }

@@ -2,11 +2,13 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { AccountShell } from "@/components/account-shell";
 import { StatCard } from "@/components/stat-card";
+import { WalletTopupPanel } from "@/components/wallet-topup-panel";
 import { formatCurrency } from "@/lib/utils";
 
 export default async function WalletPage() {
   const user = await requireUser();
-  const [payments, transactions] = await Promise.all([
+  const [packages, payments, transactions] = await Promise.all([
+    prisma.walletPackage.findMany({ orderBy: { price: "asc" } }),
     prisma.payment.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 5 }),
     prisma.walletTransaction.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 5 }),
   ]);
@@ -18,7 +20,12 @@ export default async function WalletPage() {
         <StatCard label="Pagamentos aprovados" value={String(payments.filter((item) => item.status === "APPROVED").length)} />
         <StatCard label="Transações recentes" value={String(transactions.length)} />
       </div>
-      <div className="rounded-[28px] border border-white/80 bg-white/90 p-6 shadow-sm">
+
+      <div className="mt-6">
+        <WalletTopupPanel packages={packages} userCpf={user.cpf ?? null} />
+      </div>
+
+      <div className="mt-6 rounded-[28px] border border-white/80 bg-white/90 p-6 shadow-sm">
         <h2 className="text-xl font-bold text-slate-900">Ultimos créditos</h2>
         <div className="mt-4 space-y-3">
           {payments.map((payment) => (
