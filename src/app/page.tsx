@@ -39,24 +39,39 @@ export default async function Home() {
             </div>
             <div className="space-y-5">
               <h1 className="max-w-3xl text-5xl font-black tracking-tight text-slate-950 sm:text-6xl">
-                Entre nos melhores bolões online e acompanhe cada etapa com clareza.
+                Entre em bolões online com mais confiança e acompanhe tudo sem complicação.
               </h1>
               <p className="max-w-2xl text-lg leading-8 text-slate-600">
-                Escolha suas cotas, acompanhe concursos, confira comprovantes e tenha seu histórico sempre organizado na sua conta.
+                Escolha suas cotas, acompanhe concursos, confira comprovantes e consulte cada movimentação da sua conta sempre que quiser.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Link href="/loterias/lotofacil/boloes" className="inline-flex items-center justify-center rounded-full bg-fuchsia-600 px-6 py-3 font-semibold text-white shadow-lg shadow-fuchsia-200 hover:bg-fuchsia-700">
-                Escolher bolões
+              <Link
+                href="/loterias/lotofacil/boloes"
+                className="inline-flex items-center justify-center rounded-full bg-fuchsia-600 px-6 py-3 font-semibold text-white shadow-lg shadow-fuchsia-200 hover:bg-fuchsia-700"
+              >
+                Quero participar
               </Link>
-              <Link href="/cadastro" className="inline-flex items-center justify-center rounded-full border border-fuchsia-200 bg-white px-6 py-3 font-semibold text-fuchsia-700 hover:bg-fuchsia-50">
-                Abrir minha conta
+              <Link
+                href="/cadastro"
+                className="inline-flex items-center justify-center rounded-full border border-fuchsia-200 bg-white px-6 py-3 font-semibold text-fuchsia-700 hover:bg-fuchsia-50"
+              >
+                Criar conta grátis
               </Link>
+            </div>
+            <div className="flex flex-wrap gap-3 text-sm text-slate-500">
+              <span className="rounded-full bg-white/80 px-4 py-2 shadow-sm">Compra de cotas com saldo em conta</span>
+              <span className="rounded-full bg-white/80 px-4 py-2 shadow-sm">Comprovantes vinculados a cada bolão</span>
+              <span className="rounded-full bg-white/80 px-4 py-2 shadow-sm">Histórico claro de jogos e movimentações</span>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
               <StatCard label="Usuarios" value={String(totals[0])} helper="Contas ativas acompanhando seus jogos." />
               <StatCard label="Boloes" value={String(totals[1])} helper="Opcoes disponiveis para entrar online." />
-              <StatCard label="Vendido" value={`R$ ${Number(totals[2]._sum.totalAmount ?? 0).toFixed(2)}`} helper="Compras registradas com transparencia." />
+              <StatCard
+                label="Vendido"
+                value={`R$ ${Number(totals[2]._sum.totalAmount ?? 0).toFixed(2)}`}
+                helper="Compras registradas com transparencia."
+              />
             </div>
           </div>
 
@@ -69,9 +84,11 @@ export default async function Home() {
             <div className="mt-5 grid gap-4">
               {lottery?.contests.map((contest) => (
                 <div key={contest.id} className="rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/60 p-5">
-                  <p className="text-sm font-semibold text-fuchsia-500">Proximo sorteio</p>
+                  <p className="text-sm font-semibold text-fuchsia-500">Próximo sorteio</p>
                   <p className="mt-2 text-2xl font-bold text-slate-900">#{contest.contestNumber}</p>
-                  <p className="mt-1 text-sm text-slate-600">{new Intl.DateTimeFormat("pt-BR", { dateStyle: "full", timeStyle: "short" }).format(contest.drawDate)}</p>
+                  <p className="mt-1 text-sm text-slate-600">
+                    {new Intl.DateTimeFormat("pt-BR", { dateStyle: "full", timeStyle: "short" }).format(contest.drawDate)}
+                  </p>
                 </div>
               ))}
             </div>
@@ -83,7 +100,7 @@ export default async function Home() {
         <SectionHeading
           eyebrow="Em destaque"
           title="Bolões em destaque"
-          description="Compare opcoes, veja os numeros escolhidos e entre no bolao ideal para o proximo concurso."
+          description="Compare valores, veja as dezenas escolhidas e entre com mais segurança no bolão ideal para o próximo concurso."
           action={
             <Link href="/loterias/lotofacil/boloes" className="text-sm font-semibold text-fuchsia-600">
               Ver todos os bolões

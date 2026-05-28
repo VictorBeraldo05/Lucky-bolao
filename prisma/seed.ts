@@ -1,6 +1,7 @@
 import { PrismaClient, Prisma, UserRole, PoolStatus, WalletTransactionStatus, WalletTransactionType, PaymentStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { addDays, addHours } from "date-fns";
+import premium19Games from "./data/lf-3103-adv-01.json";
 
 const prisma = new PrismaClient();
 
@@ -112,58 +113,245 @@ async function main() {
     },
   });
 
+  const contestC = await prisma.contest.upsert({
+    where: { lotteryId_contestNumber: { lotteryId: lottery.id, contestNumber: 3102 } },
+    update: {},
+    create: {
+      lotteryId: lottery.id,
+      contestNumber: 3102,
+      drawDate: addDays(new Date(), 6),
+      status: "scheduled",
+    },
+  });
+
+  const contestD = await prisma.contest.upsert({
+    where: { lotteryId_contestNumber: { lotteryId: lottery.id, contestNumber: 3103 } },
+    update: {},
+    create: {
+      lotteryId: lottery.id,
+      contestNumber: 3103,
+      drawDate: addDays(new Date(), 8),
+      status: "scheduled",
+    },
+  });
+
+  const accessibleGames = [
+    { title: "Jogo 1", numbers: [1, 2, 3, 4, 5, 6, 8, 10, 11, 13, 14, 17, 21, 23, 24] },
+    { title: "Jogo 2", numbers: [1, 2, 3, 4, 5, 6, 8, 10, 11, 13, 17, 19, 21, 24, 25] },
+    { title: "Jogo 3", numbers: [1, 2, 3, 5, 6, 10, 11, 13, 14, 17, 19, 21, 23, 24, 25] },
+    { title: "Jogo 4", numbers: [2, 3, 4, 5, 8, 10, 11, 13, 14, 17, 19, 21, 23, 24, 25] },
+  ];
+
   const poolSimple = await prisma.pool.upsert({
     where: { code: "LF-3100-SIM-01" },
-    update: {},
+    update: {
+      title: "Lotofacil 3100 Fechamento 17 dezenas",
+      description: "Bolão mais acessível com 4 jogos de 15 dezenas, equivalente a 17 dezenas.",
+      totalValue: new Prisma.Decimal(40),
+      sharePrice: new Prisma.Decimal(4),
+      totalShares: 10,
+      availableShares: 10,
+      relativeChance: "4 jogos com equivalência de 17 dezenas",
+      status: PoolStatus.OPEN,
+    },
     create: {
       code: "LF-3100-SIM-01",
       lotteryId: lottery.id,
       gameTypeId: simpleType.id,
       contestId: contestA.id,
-      title: "Lotofacil 3100 Simples Premium",
-      description: "Bolao com 4 jogos simples, excelente equilibrio entre custo e cobertura.",
-      totalValue: new Prisma.Decimal(120),
-      sharePrice: new Prisma.Decimal(12),
+      title: "Lotofacil 3100 Fechamento 17 dezenas",
+      description: "Bolão mais acessível com 4 jogos de 15 dezenas, equivalente a 17 dezenas.",
+      totalValue: new Prisma.Decimal(40),
+      sharePrice: new Prisma.Decimal(4),
       totalShares: 10,
-      availableShares: 7,
-      relativeChance: "4x a aposta simples",
+      availableShares: 10,
+      relativeChance: "4 jogos com equivalência de 17 dezenas",
       ticketImageUrl: "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1200&q=80",
       status: PoolStatus.OPEN,
       games: {
-        create: [
-          { title: "Jogo 1", numbers: [1, 2, 3, 5, 6, 8, 9, 11, 12, 13, 15, 18, 20, 22, 24] },
-          { title: "Jogo 2", numbers: [2, 4, 5, 7, 8, 10, 11, 12, 14, 15, 17, 19, 21, 23, 25] },
-          { title: "Jogo 3", numbers: [1, 3, 4, 6, 7, 9, 10, 12, 13, 16, 18, 19, 22, 24, 25] },
-          { title: "Jogo 4", numbers: [2, 3, 5, 6, 8, 9, 11, 14, 15, 16, 18, 20, 21, 23, 24] },
-        ],
+        create: accessibleGames,
       },
     },
   });
 
-  await prisma.pool.upsert({
+  await prisma.poolGame.deleteMany({
+    where: { poolId: poolSimple.id },
+  });
+
+  await prisma.poolGame.createMany({
+    data: accessibleGames.map((game) => ({
+      poolId: poolSimple.id,
+      title: game.title,
+      numbers: game.numbers,
+    })),
+  });
+
+  const fixedGames = [
+    { title: "Jogo 1", numbers: [1, 2, 3, 4, 5, 6, 7, 9, 13, 14, 15, 19, 21, 24, 25] },
+    { title: "Jogo 2", numbers: [1, 2, 3, 4, 5, 6, 7, 9, 13, 14, 18, 19, 21, 23, 24] },
+    { title: "Jogo 3", numbers: [1, 2, 3, 4, 5, 6, 8, 9, 13, 15, 18, 21, 23, 24, 25] },
+    { title: "Jogo 4", numbers: [1, 2, 3, 4, 5, 6, 8, 13, 14, 15, 18, 21, 23, 24, 25] },
+    { title: "Jogo 5", numbers: [1, 2, 3, 4, 5, 7, 8, 9, 13, 14, 15, 19, 21, 23, 24] },
+    { title: "Jogo 6", numbers: [1, 2, 3, 4, 5, 7, 8, 9, 13, 14, 18, 19, 21, 24, 25] },
+    { title: "Jogo 7", numbers: [1, 2, 3, 5, 6, 7, 8, 13, 15, 18, 19, 21, 23, 24, 25] },
+    { title: "Jogo 8", numbers: [1, 2, 3, 5, 6, 8, 9, 13, 14, 15, 18, 21, 23, 24, 25] },
+    { title: "Jogo 9", numbers: [2, 3, 4, 5, 6, 7, 8, 9, 13, 14, 15, 18, 19, 21, 24] },
+    { title: "Jogo 10", numbers: [2, 3, 4, 5, 6, 7, 8, 9, 13, 14, 19, 21, 23, 24, 25] },
+    { title: "Jogo 11", numbers: [2, 3, 4, 5, 7, 9, 13, 14, 15, 18, 19, 21, 23, 24, 25] },
+  ];
+
+  const fixedPool = await prisma.pool.upsert({
     where: { code: "LF-3101-ADV-01" },
-    update: {},
+    update: {
+      title: "Lotofacil 3101 Fechamento 18 dezenas",
+      description: "Bolão fixo com 11 jogos de 15 dezenas, equivalente a 18 dezenas.",
+      totalValue: new Prisma.Decimal(60),
+      sharePrice: new Prisma.Decimal(6),
+      totalShares: 10,
+      availableShares: 10,
+      relativeChance: "11 jogos com equivalência de 18 dezenas",
+      ticketImageUrl: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1200&q=80",
+      status: PoolStatus.OPEN,
+    },
     create: {
       code: "LF-3101-ADV-01",
       lotteryId: lottery.id,
       gameTypeId: advancedType.id,
       contestId: contestB.id,
       title: "Lotofacil 3101 Fechamento 18 dezenas",
-      description: "Desdobramento inteligente com cobertura ampliada para 18 dezenas.",
-      totalValue: new Prisma.Decimal(300),
-      sharePrice: new Prisma.Decimal(25),
-      totalShares: 12,
-      availableShares: 12,
-      relativeChance: "cobertura elevada com fechamento",
+      description: "Bolão fixo com 11 jogos de 15 dezenas, equivalente a 18 dezenas.",
+      totalValue: new Prisma.Decimal(60),
+      sharePrice: new Prisma.Decimal(6),
+      totalShares: 10,
+      availableShares: 10,
+      relativeChance: "11 jogos com equivalência de 18 dezenas",
       ticketImageUrl: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1200&q=80",
       status: PoolStatus.OPEN,
       games: {
-        create: [
-          { title: "Fechamento A", numbers: [1, 2, 3, 4, 6, 7, 9, 10, 12, 13, 14, 17, 18, 20, 22, 23, 24, 25] },
-          { title: "Fechamento B", numbers: [2, 3, 5, 6, 8, 9, 10, 11, 13, 14, 16, 17, 19, 20, 21, 22, 24, 25] },
-        ],
+        create: fixedGames,
       },
     },
+  });
+
+  await prisma.poolGame.deleteMany({
+    where: { poolId: fixedPool.id },
+  });
+
+  await prisma.poolGame.createMany({
+    data: fixedGames.map((game) => ({
+      poolId: fixedPool.id,
+      title: game.title,
+      numbers: game.numbers,
+    })),
+  });
+
+  const premium18Games = [
+    { title: "Jogo 1", numbers: [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 19, 21, 23, 24, 25] },
+    { title: "Jogo 2", numbers: [1, 2, 3, 5, 6, 7, 9, 10, 13, 17, 19, 20, 21, 23, 24] },
+    { title: "Jogo 3", numbers: [1, 2, 3, 5, 6, 7, 9, 11, 13, 15, 17, 20, 23, 24, 25] },
+    { title: "Jogo 4", numbers: [1, 2, 3, 5, 6, 7, 11, 13, 15, 17, 19, 20, 21, 24, 25] },
+    { title: "Jogo 5", numbers: [1, 2, 3, 5, 6, 9, 10, 11, 13, 15, 17, 20, 23, 24, 25] },
+    { title: "Jogo 6", numbers: [1, 2, 3, 5, 6, 10, 11, 13, 15, 17, 19, 20, 21, 24, 25] },
+    { title: "Jogo 7", numbers: [1, 2, 3, 5, 7, 9, 10, 11, 13, 15, 17, 19, 20, 24, 25] },
+    { title: "Jogo 8", numbers: [1, 2, 3, 5, 7, 10, 11, 13, 15, 17, 20, 21, 23, 24, 25] },
+    { title: "Jogo 9", numbers: [1, 2, 3, 5, 9, 10, 11, 13, 17, 19, 20, 21, 23, 24, 25] },
+    { title: "Jogo 10", numbers: [1, 2, 5, 6, 7, 9, 10, 11, 13, 15, 17, 20, 21, 24, 25] },
+    { title: "Jogo 11", numbers: [1, 2, 5, 6, 7, 10, 11, 13, 15, 17, 19, 20, 23, 24, 25] },
+    { title: "Jogo 12", numbers: [1, 2, 5, 6, 9, 11, 13, 15, 17, 19, 20, 21, 23, 24, 25] },
+    { title: "Jogo 13", numbers: [1, 2, 5, 7, 9, 11, 13, 15, 17, 19, 20, 21, 23, 24, 25] },
+    { title: "Jogo 14", numbers: [1, 3, 5, 6, 7, 9, 10, 11, 13, 15, 17, 19, 21, 23, 24] },
+    { title: "Jogo 15", numbers: [1, 3, 5, 6, 7, 9, 10, 13, 15, 19, 20, 21, 23, 24, 25] },
+    { title: "Jogo 16", numbers: [2, 3, 5, 6, 7, 9, 10, 11, 13, 15, 19, 20, 21, 23, 24] },
+    { title: "Jogo 17", numbers: [2, 3, 5, 6, 7, 9, 10, 13, 15, 17, 19, 21, 23, 24, 25] },
+    { title: "Jogo 18", numbers: [3, 5, 6, 7, 9, 10, 11, 13, 17, 19, 20, 21, 23, 24, 25] },
+  ];
+
+  const premium18Pool = await prisma.pool.upsert({
+    where: { code: "LF-3102-ADV-01" },
+    update: {
+      title: "Lotofacil 3102 Fechamento 18 jogos",
+      description: "Bolão com 18 jogos de 15 dezenas, equivalente a 18 dezenas.",
+      totalValue: new Prisma.Decimal(100),
+      sharePrice: new Prisma.Decimal(10),
+      totalShares: 10,
+      availableShares: 10,
+      relativeChance: "18 jogos com equivalência de 18 dezenas",
+      status: PoolStatus.OPEN,
+    },
+    create: {
+      code: "LF-3102-ADV-01",
+      lotteryId: lottery.id,
+      gameTypeId: advancedType.id,
+      contestId: contestC.id,
+      title: "Lotofacil 3102 Fechamento 18 jogos",
+      description: "Bolão com 18 jogos de 15 dezenas, equivalente a 18 dezenas.",
+      totalValue: new Prisma.Decimal(100),
+      sharePrice: new Prisma.Decimal(10),
+      totalShares: 10,
+      availableShares: 10,
+      relativeChance: "18 jogos com equivalência de 18 dezenas",
+      ticketImageUrl: "https://images.unsplash.com/photo-1484482340112-e1e2682b4856?auto=format&fit=crop&w=1200&q=80",
+      status: PoolStatus.OPEN,
+      games: {
+        create: premium18Games,
+      },
+    },
+  });
+
+  await prisma.poolGame.deleteMany({
+    where: { poolId: premium18Pool.id },
+  });
+
+  await prisma.poolGame.createMany({
+    data: premium18Games.map((game) => ({
+      poolId: premium18Pool.id,
+      title: game.title,
+      numbers: game.numbers,
+    })),
+  });
+
+  const premium19Pool = await prisma.pool.upsert({
+    where: { code: "LF-3103-ADV-01" },
+    update: {
+      title: "Lotofacil 3103 Fechamento 19 dezenas",
+      description: "Bolão com 110 jogos de 15 dezenas, equivalente a 19 dezenas.",
+      totalValue: new Prisma.Decimal(500),
+      sharePrice: new Prisma.Decimal(10),
+      totalShares: 50,
+      availableShares: 50,
+      relativeChance: "110 jogos com equivalência de 19 dezenas",
+      status: PoolStatus.OPEN,
+    },
+    create: {
+      code: "LF-3103-ADV-01",
+      lotteryId: lottery.id,
+      gameTypeId: advancedType.id,
+      contestId: contestD.id,
+      title: "Lotofacil 3103 Fechamento 19 dezenas",
+      description: "Bolão com 110 jogos de 15 dezenas, equivalente a 19 dezenas.",
+      totalValue: new Prisma.Decimal(500),
+      sharePrice: new Prisma.Decimal(10),
+      totalShares: 50,
+      availableShares: 50,
+      relativeChance: "110 jogos com equivalência de 19 dezenas",
+      ticketImageUrl: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=80",
+      status: PoolStatus.OPEN,
+      games: {
+        create: premium19Games,
+      },
+    },
+  });
+
+  await prisma.poolGame.deleteMany({
+    where: { poolId: premium19Pool.id },
+  });
+
+  await prisma.poolGame.createMany({
+    data: premium19Games.map((game) => ({
+      poolId: premium19Pool.id,
+      title: game.title,
+      numbers: game.numbers,
+    })),
   });
 
   const existingShare = await prisma.poolShare.findFirst({
@@ -280,7 +468,7 @@ async function main() {
         action: "ADMIN_ACTION",
         entityType: "seed",
         entityId: `seed-${addHours(new Date(), 0).toISOString()}`,
-        newData: { lotteries: 1, contests: 2, pools: 2 },
+        newData: { lotteries: 1, contests: 4, pools: 4 },
       },
       {
         actorUserId: user.id,

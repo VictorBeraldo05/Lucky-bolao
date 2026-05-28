@@ -30,3 +30,30 @@ export function getErrorMessage(error: unknown) {
   if (error instanceof Error) return error.message;
   return "Ocorreu um erro inesperado.";
 }
+
+export function extractEquivalentNumbers(text?: string | null) {
+  if (!text) return null;
+
+  const match = text.match(/(\d+)\s*dezenas/i);
+  if (!match) return null;
+
+  return Number(match[1]);
+}
+
+export function getPoolCommercialSummary(input: {
+  relativeChance?: string | null;
+  description?: string | null;
+  totalShares: number;
+  sharePrice: number | string | { toString(): string };
+  gamesCount: number;
+}) {
+  const equivalentNumbers =
+    extractEquivalentNumbers(input.relativeChance) ?? extractEquivalentNumbers(input.description);
+
+  return {
+    gamesLabel: `${input.gamesCount} jogos`,
+    equivalentLabel: equivalentNumbers ? `${equivalentNumbers} dezenas` : null,
+    sharesLabel: `${input.totalShares} cotas`,
+    sharePriceLabel: `${formatCurrency(input.sharePrice)}/cota`,
+  };
+}
