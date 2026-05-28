@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Container } from "@/components/container";
-import { PoolCard } from "@/components/pool-card";
+import { PoolTable } from "@/components/pool-table";
 import { SectionHeading } from "@/components/section-heading";
-import { StatCard } from "@/components/stat-card";
 
 export default async function Home() {
-  const [lottery, featuredPools, totals] = await Promise.all([
+  const [lottery, featuredPools] = await Promise.all([
     prisma.lottery.findUnique({
       where: { slug: "lotofacil" },
       include: { contests: { take: 1, orderBy: { drawDate: "asc" } } },
@@ -22,11 +21,6 @@ export default async function Home() {
       take: 4,
       orderBy: [{ sharePrice: "asc" }, { createdAt: "desc" }],
     }),
-    prisma.$transaction([
-      prisma.user.count(),
-      prisma.pool.count(),
-      prisma.purchase.aggregate({ _sum: { totalAmount: true } }),
-    ]),
   ]);
 
   return (
@@ -82,23 +76,7 @@ export default async function Home() {
           }
         />
 
-        <div className="grid gap-5 lg:grid-cols-2 2xl:grid-cols-4">
-          {featuredPools.map((pool) => (
-            <PoolCard key={pool.id} pool={pool} />
-          ))}
-        </div>
-      </Container>
-
-      <Container className="pt-10">
-        <div className="grid gap-4 md:grid-cols-3">
-          <StatCard label="Usuarios" value={String(totals[0])} helper="Contas ativas acompanhando seus jogos." />
-          <StatCard label="Boloes" value={String(totals[1])} helper="Opções abertas para participação imediata." />
-          <StatCard
-            label="Vendido"
-            value={`R$ ${Number(totals[2]._sum.totalAmount ?? 0).toFixed(2)}`}
-            helper="Movimentação registrada com clareza."
-          />
-        </div>
+        <PoolTable pools={featuredPools} />
       </Container>
     </div>
   );
