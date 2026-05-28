@@ -68,7 +68,7 @@ export default async function PoolDetailPage({ params }: { params: Promise<{ cod
           <PurchaseForm poolId={pool.id} sharePrice={Number(pool.sharePrice)} availableShares={pool.availableShares} />
           <div className="rounded-[28px] border border-white/80 bg-white/90 p-5 shadow-sm">
             <h2 className="text-xl font-bold text-slate-900">Comprovante interno</h2>
-            <p className="mt-2 text-sm text-slate-600">O MVP já prevê upload/imagem do comprovante e histórico de alterações administrativas.</p>
+            <p className="mt-2 text-sm text-slate-600">Consulte o comprovante vinculado a este bolão sempre que quiser.</p>
             {pool.ticketImageUrl ? (
               <div className="relative mt-4 h-56 overflow-hidden rounded-[24px]">
                 <Image src={pool.ticketImageUrl} alt="Comprovante do bolao" fill className="object-cover" />

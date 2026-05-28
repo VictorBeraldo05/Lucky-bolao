@@ -12,7 +12,7 @@ export default async function AdminLogsPage() {
   });
 
   return (
-    <AdminShell currentPath="/admin/logs" title="Logs e auditoria" description="Registro de login, compras, alterações administrativas, resultados e saldos antes/depois.">
+    <AdminShell currentPath="/admin/logs" title="Logs e auditoria" description="Consulte o histórico de acessos, compras, alterações e movimentações registradas.">
       <div className="overflow-hidden rounded-[28px] border border-white/80 bg-white/90 shadow-sm">
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">

@@ -35,14 +35,14 @@ export default async function Home() {
         <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
           <div className="space-y-8">
             <div className="inline-flex rounded-full border border-fuchsia-200 bg-white/80 px-4 py-2 text-sm font-semibold text-fuchsia-600 shadow-sm">
-              MVP focado em Lotofacil e pronto para expandir
+              Bolões online com praticidade e segurança
             </div>
             <div className="space-y-5">
               <h1 className="max-w-3xl text-5xl font-black tracking-tight text-slate-950 sm:text-6xl">
-                Bolões online com visual premium, compra por carteira e operação pronta para escalar.
+                Participe de bolões online com rapidez, clareza e total controle dos seus jogos.
               </h1>
               <p className="max-w-2xl text-lg leading-8 text-slate-600">
-                Plataforma mobile-first para cadastro, compra de cotas, resultados, premiações, comprovantes e gestão administrativa centralizada.
+                Cadastre-se, escolha seus bolões, acompanhe resultados, consulte comprovantes e gerencie seu saldo em um só lugar.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -54,9 +54,9 @@ export default async function Home() {
               </Link>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
-              <StatCard label="Usuarios" value={String(totals[0])} helper="Estrutura individual por carteira e auditoria." />
-              <StatCard label="Boloes" value={String(totals[1])} helper="Modelagem pronta para novos jogos da Caixa." />
-              <StatCard label="Vendido" value={`R$ ${Number(totals[2]._sum.totalAmount ?? 0).toFixed(2)}`} helper="Fluxo de compras atômico via carteira." />
+              <StatCard label="Usuarios" value={String(totals[0])} helper="Contas com saldo e histórico individual." />
+              <StatCard label="Boloes" value={String(totals[1])} helper="Opções disponíveis para participar online." />
+              <StatCard label="Vendido" value={`R$ ${Number(totals[2]._sum.totalAmount ?? 0).toFixed(2)}`} helper="Movimentação registrada com clareza." />
             </div>
           </div>
 
@@ -83,7 +83,7 @@ export default async function Home() {
         <SectionHeading
           eyebrow="Marketplace"
           title="Bolões em destaque"
-          description="Cards pensados para desktop e celular, com leitura rápida de preço por cota, concurso, disponibilidade e dezenas."
+          description="Veja preço por cota, concurso, disponibilidade e dezenas de forma simples e rápida."
           action={
             <Link href="/loterias/lotofacil/boloes" className="text-sm font-semibold text-fuchsia-600">
               Ver todos

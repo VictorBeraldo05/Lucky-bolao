@@ -11,7 +11,7 @@ export default async function StatementPage() {
   });
 
   return (
-    <AccountShell currentPath="/extrato" title="Extrato financeiro" description="Cada movimentação guarda saldo antes/depois, referência e status para auditoria e suporte.">
+    <AccountShell currentPath="/extrato" title="Extrato financeiro" description="Consulte todas as movimentações da sua conta com datas, valores e descrições.">
       <div className="overflow-hidden rounded-[28px] border border-white/80 bg-white/90 shadow-sm">
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
@@ -43,4 +43,3 @@ export default async function StatementPage() {
     </AccountShell>
   );
 }
-

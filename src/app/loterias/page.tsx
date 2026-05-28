@@ -14,7 +14,7 @@ export default async function LoteriasPage() {
 
   return (
     <Container className="py-10 space-y-8">
-      <SectionHeading eyebrow="Loterias" title="Marketplace por modalidade" description="A arquitetura já está pronta para receber Mega-Sena, Quina, Lotomania, Timemania, Dia de Sorte e outras loterias." />
+      <SectionHeading eyebrow="Loterias" title="Escolha sua modalidade" description="Explore as opções disponíveis e acompanhe os bolões de cada loteria." />
       <div className="grid gap-6 lg:grid-cols-2">
         {lotteries.map((lottery) => (
           <article key={lottery.id} className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
@@ -35,4 +35,3 @@ export default async function LoteriasPage() {
     </Container>
   );
 }
-

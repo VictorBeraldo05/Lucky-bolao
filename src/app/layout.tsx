@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
-import { getCurrentUser } from "@/lib/auth";
+import { getHeaderUser } from "@/lib/auth";
 
 const headingFont = Space_Grotesk({
   variable: "--font-heading",
@@ -19,14 +19,12 @@ export const metadata: Metadata = {
   description: "Plataforma de bolões online para loterias da Caixa com foco inicial em Lotofácil.",
 };
 
-export const dynamic = "force-dynamic";
-
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await getCurrentUser();
+  const user = await getHeaderUser();
 
   return (
     <html

@@ -42,10 +42,9 @@ export function AdminCreditForm({ users }: AdminCreditFormProps) {
         ))}
       </select>
       <input name="amount" type="number" min={1} step="0.01" placeholder="Valor" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
-      <input name="description" type="text" placeholder="Descricao" defaultValue="Credito manual aprovado pelo admin" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
+      <input name="description" type="text" placeholder="Descricao" defaultValue="Credito adicionado à conta" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
       <button className="rounded-full bg-fuchsia-600 px-5 py-3 font-semibold text-white">Creditar carteira</button>
       {message ? <p className="lg:col-span-4 text-sm text-slate-600">{message}</p> : null}
     </form>
   );
 }
-

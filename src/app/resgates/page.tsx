@@ -11,7 +11,7 @@ export default async function WithdrawalsPage() {
   });
 
   return (
-    <AccountShell currentPath="/resgates" title="Resgates e prêmios" description="No MVP, o prêmio é creditado diretamente na carteira, mantendo rastreabilidade da distribuição.">
+    <AccountShell currentPath="/resgates" title="Resgates e prêmios" description="Acompanhe os valores recebidos e o histórico dos seus prêmios.">
       <div className="rounded-[28px] border border-white/80 bg-white/90 p-6 shadow-sm">
         <h2 className="text-xl font-bold text-slate-900">Histórico de prêmios</h2>
         <div className="mt-4 space-y-3">

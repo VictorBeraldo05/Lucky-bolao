@@ -19,7 +19,7 @@ export default async function LotofacilPage() {
 
   return (
     <Container className="py-10 space-y-8">
-      <SectionHeading eyebrow="Lotofacil" title="Primeira loteria do ecossistema" description="Começamos pela Lotofácil com dois tipos de bolão no MVP: simples e avançado, ambos prontos para compra por cota." />
+      <SectionHeading eyebrow="Lotofacil" title="Bolões da Lotofácil" description="Encontre bolões com diferentes composições para participar da Lotofácil do jeito que preferir." />
       <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
         <section className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
           <h2 className="text-2xl font-bold text-slate-900">Regras base</h2>
@@ -66,4 +66,3 @@ export default async function LotofacilPage() {
     </Container>
   );
 }
-

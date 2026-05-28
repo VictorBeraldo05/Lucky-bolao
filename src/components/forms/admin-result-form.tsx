@@ -57,7 +57,7 @@ export function AdminResultForm({ contests }: AdminResultFormProps) {
       <input name="prize13" type="number" min={0} step="0.01" placeholder="Premio 13 acertos" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
       <input name="prize14" type="number" min={0} step="0.01" placeholder="Premio 14 acertos" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
       <input name="prize15" type="number" min={0} step="0.01" placeholder="Premio 15 acertos" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
-      <input name="source" type="text" placeholder="Fonte ou observacao" defaultValue="Lancamento manual do admin" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
+      <input name="source" type="text" placeholder="Fonte ou observacao" defaultValue="Resultado conferido e publicado" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
       <button className="rounded-full bg-fuchsia-600 px-5 py-3 font-semibold text-white lg:col-span-3">Publicar resultado e distribuir premios</button>
       {message ? <p className="lg:col-span-3 text-sm text-slate-600">{message}</p> : null}
     </form>

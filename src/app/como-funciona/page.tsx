@@ -3,7 +3,7 @@ import { SectionHeading } from "@/components/section-heading";
 
 const steps = [
   "Cadastre-se e receba uma conta com carteira individual.",
-  "Adicione créditos manualmente via admin ou, no futuro, por gateway de pagamento.",
+  "Adicione saldo à sua conta para participar dos bolões.",
   "Escolha um bolão, defina quantas cotas deseja e finalize usando o saldo disponível.",
   "Acompanhe sorteios, acertos, prêmios, comprovantes e histórico completo de movimentações.",
 ];
@@ -11,7 +11,7 @@ const steps = [
 export default function HowItWorksPage() {
   return (
     <Container className="py-10 space-y-8">
-      <SectionHeading eyebrow="Fluxo" title="Como funciona" description="O produto foi pensado como um marketplace de bolões com experiência simples no celular e governança forte no backoffice." />
+      <SectionHeading eyebrow="Passo a passo" title="Como funciona" description="Tudo foi pensado para que sua participação nos bolões seja simples, rápida e transparente." />
       <div className="grid gap-5 lg:grid-cols-2">
         {steps.map((step, index) => (
           <div key={step} className="rounded-[30px] border border-white/80 bg-white/90 p-6 shadow-sm">
@@ -23,4 +23,3 @@ export default function HowItWorksPage() {
     </Container>
   );
 }
-

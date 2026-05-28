@@ -19,11 +19,11 @@ export default async function ResultsPage() {
 
   return (
     <Container className="py-10 space-y-8">
-      <SectionHeading eyebrow="Resultados" title="Resultados e premiações" description="Quando o admin publica um resultado, o sistema confere automaticamente cada jogo do bolão, marca acertos e distribui o prêmio proporcionalmente às cotas." />
+      <SectionHeading eyebrow="Resultados" title="Resultados e premiações" description="Consulte os números sorteados e acompanhe os bolões premiados de forma clara e organizada." />
       <div className="space-y-5">
         {results.length === 0 ? (
           <div className="rounded-[32px] border border-dashed border-fuchsia-200 bg-white/70 p-10 text-center text-slate-500">
-            Nenhum resultado foi lançado ainda no MVP.
+            Nenhum resultado foi publicado até o momento.
           </div>
         ) : (
           results.map((result) => (
@@ -40,4 +40,3 @@ export default async function ResultsPage() {
     </Container>
   );
 }
-

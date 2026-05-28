@@ -15,7 +15,7 @@ export default async function AdminDashboardPage() {
   ]);
 
   return (
-    <AdminShell currentPath="/admin" title="Dashboard administrativo" description="Visão resumida da operação, vendas, saldos e premiações do marketplace.">
+    <AdminShell currentPath="/admin" title="Dashboard administrativo" description="Acompanhe vendas, saldos, prêmios e indicadores gerais da operação.">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Usuarios" value={String(users)} />
         <StatCard label="Boloes" value={String(pools)} />
@@ -25,4 +25,3 @@ export default async function AdminDashboardPage() {
     </AdminShell>
   );
 }
-

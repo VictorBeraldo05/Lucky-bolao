@@ -89,6 +89,39 @@ export async function getCurrentUser() {
   });
 }
 
+export async function getHeaderUser() {
+  const session = await getSession();
+
+  if (!session?.sub) return null;
+
+  return prisma.user.findUnique({
+    where: { id: session.sub },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      isActive: true,
+      createdAt: true,
+      updatedAt: true,
+      wallet: {
+        select: {
+          id: true,
+          userId: true,
+          balance: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+      notifications: {
+        where: { readAt: null },
+        select: { id: true },
+        take: 1,
+      },
+    },
+  });
+}
+
 export async function requireUser() {
   const user = await getCurrentUser();
 
@@ -120,4 +153,3 @@ export async function getRequestMeta() {
     userAgent: headerList.get("user-agent"),
   };
 }
-

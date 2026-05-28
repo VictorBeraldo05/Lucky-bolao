@@ -9,7 +9,7 @@ export default async function AdminPaymentsPage() {
   const payments = await prisma.payment.findMany({ include: { user: true }, orderBy: { createdAt: "desc" } });
 
   return (
-    <AdminShell currentPath="/admin/pagamentos" title="Pagamentos e créditos" description="Modo manual de aprovação para o MVP, preparado para integrar gateway futuramente.">
+    <AdminShell currentPath="/admin/pagamentos" title="Pagamentos e créditos" description="Gerencie créditos, pagamentos e o histórico financeiro das contas.">
       <div className="overflow-hidden rounded-[28px] border border-white/80 bg-white/90 shadow-sm">
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
@@ -39,4 +39,3 @@ export default async function AdminPaymentsPage() {
     </AdminShell>
   );
 }
-

@@ -11,7 +11,7 @@ export default async function AdminPrizesPage() {
   });
 
   return (
-    <AdminShell currentPath="/admin/premios" title="Prêmios" description="Créditos distribuídos na carteira com rastreabilidade por bolão, usuário e acertos.">
+    <AdminShell currentPath="/admin/premios" title="Prêmios" description="Acompanhe os valores creditados e o histórico de premiações por usuário e bolão.">
       <div className="space-y-4">
         {prizes.map((prize) => (
           <div key={prize.id} className="rounded-[28px] border border-white/80 bg-white/90 p-5 shadow-sm">
@@ -31,4 +31,3 @@ export default async function AdminPrizesPage() {
     </AdminShell>
   );
 }
-

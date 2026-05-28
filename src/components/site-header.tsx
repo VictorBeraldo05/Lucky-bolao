@@ -1,11 +1,20 @@
 import Link from "next/link";
 import { Bell, CreditCard, ShoppingCart, UserCircle2 } from "lucide-react";
-import { User, Wallet, Notification } from "@prisma/client";
+import { Notification, UserRole, Wallet } from "@prisma/client";
 import { Container } from "@/components/container";
 import { formatCurrency } from "@/lib/utils";
 
 type SiteHeaderProps = {
-  user: (User & { wallet: Wallet | null; notifications: Notification[] }) | null;
+  user:
+    | {
+        id: string;
+        name: string;
+        email: string;
+        role: UserRole;
+        wallet: Wallet | null;
+        notifications: Pick<Notification, "id">[];
+      }
+    | null;
 };
 
 const publicLinks = [
@@ -27,7 +36,7 @@ export async function SiteHeader({ user }: SiteHeaderProps) {
             </div>
             <div>
               <p className="text-base font-black tracking-tight text-slate-900">Lucky Bolões</p>
-              <p className="text-xs text-slate-500">Marketplace de bolões online</p>
+              <p className="text-xs text-slate-500">Bolões online</p>
             </div>
           </Link>
 

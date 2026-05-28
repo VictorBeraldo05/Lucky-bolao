@@ -19,7 +19,7 @@ export default async function LotofacilPoolsPage() {
 
   return (
     <Container className="py-10 space-y-8">
-      <SectionHeading eyebrow="Bolões" title="Listagem da Lotofacil" description="Fluxo de compra já estruturado com controle de saldo, disponibilidade de cotas, histórico, comprovante interno e auditoria." />
+      <SectionHeading eyebrow="Bolões" title="Listagem da Lotofacil" description="Confira os bolões disponíveis, escolha suas cotas e acompanhe tudo pela sua conta." />
       <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
         {pools.map((pool) => (
           <PoolCard key={pool.id} pool={pool} />
@@ -28,4 +28,3 @@ export default async function LotofacilPoolsPage() {
     </Container>
   );
 }
-

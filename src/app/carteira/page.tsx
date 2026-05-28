@@ -12,7 +12,7 @@ export default async function WalletPage() {
   ]);
 
   return (
-    <AccountShell currentPath="/carteira" title="Carteira e créditos" description="Controle de saldo, aportes e movimentações preparado para integração futura com gateway.">
+    <AccountShell currentPath="/carteira" title="Carteira e créditos" description="Acompanhe seu saldo, créditos recebidos e movimentações da conta.">
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard label="Saldo disponível" value={formatCurrency(user.wallet?.balance ?? 0)} />
         <StatCard label="Pagamentos aprovados" value={String(payments.filter((item) => item.status === "APPROVED").length)} />
@@ -35,4 +35,3 @@ export default async function WalletPage() {
     </AccountShell>
   );
 }
-
