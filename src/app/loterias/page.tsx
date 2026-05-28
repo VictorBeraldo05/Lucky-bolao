@@ -14,7 +14,7 @@ export default async function LoteriasPage() {
 
   return (
     <Container className="py-10 space-y-8">
-      <SectionHeading eyebrow="Loterias" title="Escolha sua modalidade" description="Explore as opções disponíveis e acompanhe os bolões de cada loteria." />
+      <SectionHeading eyebrow="Loterias" title="Escolha sua modalidade" description="Encontre a loteria ideal para voce e acompanhe os bolões disponiveis em cada concurso." />
       <div className="grid gap-6 lg:grid-cols-2">
         {lotteries.map((lottery) => (
           <article key={lottery.id} className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
@@ -27,7 +27,7 @@ export default async function LoteriasPage() {
               <p><span className="font-semibold text-slate-900">Sorteios:</span> {lottery.drawDays.join(", ")}</p>
             </div>
             <Link href={lottery.slug === "lotofacil" ? "/loterias/lotofacil" : "/"} className="mt-5 inline-flex rounded-full bg-fuchsia-600 px-5 py-3 text-sm font-semibold text-white">
-              Explorar loteria
+              Ver bolões
             </Link>
           </article>
         ))}

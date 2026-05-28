@@ -19,10 +19,10 @@ export default async function LotofacilPage() {
 
   return (
     <Container className="py-10 space-y-8">
-      <SectionHeading eyebrow="Lotofacil" title="Bolões da Lotofácil" description="Encontre bolões com diferentes composições para participar da Lotofácil do jeito que preferir." />
+      <SectionHeading eyebrow="Lotofacil" title="Bolões da Lotofácil" description="Confira concursos, dezenas e opcoes de participação para entrar na Lotofácil com praticidade." />
       <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
         <section className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
-          <h2 className="text-2xl font-bold text-slate-900">Regras base</h2>
+          <h2 className="text-2xl font-bold text-slate-900">Como funciona a Lotofácil</h2>
           <div className="mt-4 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
             <p><span className="font-semibold text-slate-900">Numeros:</span> 1 a 25</p>
             <p><span className="font-semibold text-slate-900">Aposta:</span> 15 a 20 dezenas</p>
@@ -36,7 +36,7 @@ export default async function LotofacilPage() {
         </section>
 
         <section className="rounded-[32px] border border-fuchsia-100 bg-linear-to-b from-fuchsia-50 to-white p-6 shadow-sm">
-          <h2 className="text-2xl font-bold text-slate-900">Proximos concursos</h2>
+          <h2 className="text-2xl font-bold text-slate-900">Próximos concursos</h2>
           <div className="mt-4 space-y-4">
             {lottery?.contests.map((contest) => (
               <div key={contest.id} className="rounded-[24px] bg-white p-4 shadow-sm">
@@ -46,7 +46,7 @@ export default async function LotofacilPage() {
             ))}
           </div>
           <Link href="/loterias/lotofacil/boloes" className="mt-6 inline-flex rounded-full bg-fuchsia-600 px-5 py-3 text-sm font-semibold text-white">
-            Ver bolões disponiveis
+            Ver bolões disponíveis
           </Link>
         </section>
       </div>

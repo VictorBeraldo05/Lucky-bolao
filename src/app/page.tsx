@@ -35,41 +35,41 @@ export default async function Home() {
         <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
           <div className="space-y-8">
             <div className="inline-flex rounded-full border border-fuchsia-200 bg-white/80 px-4 py-2 text-sm font-semibold text-fuchsia-600 shadow-sm">
-              Bolões online com praticidade e segurança
+              Seus bolões, saldo e comprovantes em um só lugar
             </div>
             <div className="space-y-5">
               <h1 className="max-w-3xl text-5xl font-black tracking-tight text-slate-950 sm:text-6xl">
-                Participe de bolões online com rapidez, clareza e total controle dos seus jogos.
+                Entre nos melhores bolões online e acompanhe cada etapa com clareza.
               </h1>
               <p className="max-w-2xl text-lg leading-8 text-slate-600">
-                Cadastre-se, escolha seus bolões, acompanhe resultados, consulte comprovantes e gerencie seu saldo em um só lugar.
+                Escolha suas cotas, acompanhe concursos, confira comprovantes e tenha seu histórico sempre organizado na sua conta.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link href="/loterias/lotofacil/boloes" className="inline-flex items-center justify-center rounded-full bg-fuchsia-600 px-6 py-3 font-semibold text-white shadow-lg shadow-fuchsia-200 hover:bg-fuchsia-700">
-                Ver bolões da Lotofácil
+                Escolher bolões
               </Link>
               <Link href="/cadastro" className="inline-flex items-center justify-center rounded-full border border-fuchsia-200 bg-white px-6 py-3 font-semibold text-fuchsia-700 hover:bg-fuchsia-50">
-                Criar minha conta
+                Abrir minha conta
               </Link>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
-              <StatCard label="Usuarios" value={String(totals[0])} helper="Contas com saldo e histórico individual." />
-              <StatCard label="Boloes" value={String(totals[1])} helper="Opções disponíveis para participar online." />
-              <StatCard label="Vendido" value={`R$ ${Number(totals[2]._sum.totalAmount ?? 0).toFixed(2)}`} helper="Movimentação registrada com clareza." />
+              <StatCard label="Usuarios" value={String(totals[0])} helper="Contas ativas acompanhando seus jogos." />
+              <StatCard label="Boloes" value={String(totals[1])} helper="Opcoes disponiveis para entrar online." />
+              <StatCard label="Vendido" value={`R$ ${Number(totals[2]._sum.totalAmount ?? 0).toFixed(2)}`} helper="Compras registradas com transparencia." />
             </div>
           </div>
 
           <div className="rounded-[36px] border border-white/80 bg-white/85 p-6 shadow-[0_25px_90px_rgba(187,131,228,0.22)]">
             <div className="rounded-[28px] bg-linear-to-br from-fuchsia-600 via-violet-500 to-pink-500 p-6 text-white">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-fuchsia-100">Destaque</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-fuchsia-100">Loteria em destaque</p>
               <h2 className="mt-3 text-3xl font-bold">{lottery?.name}</h2>
               <p className="mt-3 max-w-md text-sm leading-6 text-fuchsia-50">{lottery?.description}</p>
             </div>
             <div className="mt-5 grid gap-4">
               {lottery?.contests.map((contest) => (
                 <div key={contest.id} className="rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/60 p-5">
-                  <p className="text-sm font-semibold text-fuchsia-500">Proximo concurso</p>
+                  <p className="text-sm font-semibold text-fuchsia-500">Proximo sorteio</p>
                   <p className="mt-2 text-2xl font-bold text-slate-900">#{contest.contestNumber}</p>
                   <p className="mt-1 text-sm text-slate-600">{new Intl.DateTimeFormat("pt-BR", { dateStyle: "full", timeStyle: "short" }).format(contest.drawDate)}</p>
                 </div>
@@ -81,12 +81,12 @@ export default async function Home() {
 
       <Container className="space-y-8">
         <SectionHeading
-          eyebrow="Marketplace"
+          eyebrow="Em destaque"
           title="Bolões em destaque"
-          description="Veja preço por cota, concurso, disponibilidade e dezenas de forma simples e rápida."
+          description="Compare opcoes, veja os numeros escolhidos e entre no bolao ideal para o proximo concurso."
           action={
             <Link href="/loterias/lotofacil/boloes" className="text-sm font-semibold text-fuchsia-600">
-              Ver todos
+              Ver todos os bolões
             </Link>
           }
         />
