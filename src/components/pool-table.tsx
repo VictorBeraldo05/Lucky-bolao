@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Contest, Lottery, LotteryGameType, Pool, PoolGame } from "@prisma/client";
 import { ArrowUpDown, Search, X } from "lucide-react";
 import { cn, formatCurrency, getPoolCommercialSummary } from "@/lib/utils";
-import { PurchaseForm } from "@/components/forms/purchase-form";
 import { StatusBadge } from "@/components/status-badge";
 import { NumberGrid } from "@/components/number-grid";
 
@@ -33,10 +32,6 @@ const sortOrder: SortMode[] = ["price-asc", "price-desc", "games-desc"];
 export function PoolTable({ pools }: PoolTableProps) {
   const [sortMode, setSortMode] = useState<SortMode>("price-asc");
   const [previewPool, setPreviewPool] = useState<PoolRow | null>(null);
-  const [purchasePool, setPurchasePool] = useState<PoolRow | null>(null);
-  const [inlineQuantities, setInlineQuantities] = useState<Record<string, number>>({});
-  const [inlineLoading, setInlineLoading] = useState<Record<string, boolean>>({});
-  const [inlineMessage, setInlineMessage] = useState<Record<string, string | null>>({});
 
   const sortedPools = useMemo(() => {
     const items = [...pools];
@@ -136,55 +131,12 @@ export function PoolTable({ pools }: PoolTableProps) {
                       <Search className="h-4 w-4" />
                       Ver números
                     </button>
-                    <div className="flex items-center gap-2">
-                      <label className="sr-only">Quantidade</label>
-                      <input
-                        type="number"
-                        min={1}
-                        max={pool.availableShares}
-                        value={inlineQuantities[pool.id] ?? 1}
-                        onChange={(e) => setInlineQuantities((s) => ({ ...s, [pool.id]: Math.max(1, Math.min(pool.availableShares, Number(e.target.value) || 1)) }))}
-                        className="w-24 rounded-2xl border border-fuchsia-100 bg-white px-4 py-2 text-sm outline-none shadow-sm"
-                        aria-label={`Quantidade de cotas para ${pool.code}`}
-                      />
-                      <button
-                        onClick={async () => {
-                          setInlineLoading((s) => ({ ...s, [pool.id]: true }));
-                          setInlineMessage((s) => ({ ...s, [pool.id]: null }));
-                          const qty = inlineQuantities[pool.id] ?? 1;
-                          try {
-                            const res = await fetch(`/api/pools/${pool.id}/purchase`, {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ quantity: qty }),
-                            });
-                            const data = await res.json();
-                            if (!res.ok) throw new Error(data.message || "Erro ao comprar");
-                            setInlineMessage((s) => ({ ...s, [pool.id]: "Compra concluída com sucesso." }));
-                            setInlineQuantities((s) => ({ ...s, [pool.id]: 1 }));
-                            window.location.reload();
-                          } catch (err: any) {
-                            setInlineMessage((s) => ({ ...s, [pool.id]: err?.message ?? "Erro" }));
-                          } finally {
-                            setInlineLoading((s) => ({ ...s, [pool.id]: false }));
-                          }
-                        }}
-                        disabled={inlineLoading[pool.id]}
-                        className="inline-flex items-center justify-center rounded-full bg-fuchsia-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-fuchsia-800 disabled:opacity-60"
-                      >
-                        {inlineLoading[pool.id] ? "Processando..." : "Comprar"}
-                      </button>
-                      <button
-                        onClick={() => setPurchasePool(pool)}
-                        className="inline-flex items-center justify-center rounded-full border border-fuchsia-200 bg-white px-3 py-2 text-sm font-semibold text-fuchsia-700 transition hover:bg-fuchsia-50"
-                        aria-label={`Abrir painel de compra ${pool.code}`}
-                      >
-                        Comprar avançado
-                      </button>
-                    </div>
-                    {inlineMessage[pool.id] ? (
-                      <p className="mt-2 text-sm font-medium text-slate-700">{inlineMessage[pool.id]}</p>
-                    ) : null}
+                    <Link
+                      href={`/boloes/${pool.code}`}
+                      className="inline-flex items-center justify-center rounded-full bg-fuchsia-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800"
+                    >
+                      Comprar
+                    </Link>
                   </div>
                 </div>
 
@@ -230,55 +182,12 @@ export function PoolTable({ pools }: PoolTableProps) {
                   </div>
 
                   <div className="hidden lg:block">
-                    <div className="flex items-center gap-2">
-                      <label className="sr-only">Quantidade</label>
-                      <input
-                        type="number"
-                        min={1}
-                        max={pool.availableShares}
-                        value={inlineQuantities[pool.id] ?? 1}
-                        onChange={(e) => setInlineQuantities((s) => ({ ...s, [pool.id]: Math.max(1, Math.min(pool.availableShares, Number(e.target.value) || 1)) }))}
-                        className="w-24 rounded-2xl border border-fuchsia-100 bg-white px-4 py-2 text-sm outline-none shadow-sm"
-                        aria-label={`Quantidade de cotas para ${pool.code}`}
-                      />
-                      <button
-                        onClick={async () => {
-                          setInlineLoading((s) => ({ ...s, [pool.id]: true }));
-                          setInlineMessage((s) => ({ ...s, [pool.id]: null }));
-                          const qty = inlineQuantities[pool.id] ?? 1;
-                          try {
-                            const res = await fetch(`/api/pools/${pool.id}/purchase`, {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ quantity: qty }),
-                            });
-                            const data = await res.json();
-                            if (!res.ok) throw new Error(data.message || "Erro ao comprar");
-                            setInlineMessage((s) => ({ ...s, [pool.id]: "Compra concluída com sucesso." }));
-                            setInlineQuantities((s) => ({ ...s, [pool.id]: 1 }));
-                            window.location.reload();
-                          } catch (err: any) {
-                            setInlineMessage((s) => ({ ...s, [pool.id]: err?.message ?? "Erro" }));
-                          } finally {
-                            setInlineLoading((s) => ({ ...s, [pool.id]: false }));
-                          }
-                        }}
-                        disabled={inlineLoading[pool.id]}
-                        className="inline-flex w-full items-center justify-center rounded-full bg-fuchsia-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-fuchsia-800 disabled:opacity-60"
-                      >
-                        {inlineLoading[pool.id] ? "Processando..." : "Comprar"}
-                      </button>
-                      <button
-                        onClick={() => setPurchasePool(pool)}
-                        className="inline-flex items-center justify-center rounded-full border border-fuchsia-200 bg-white px-3 py-2 text-sm font-semibold text-fuchsia-700 transition hover:bg-fuchsia-50"
-                        aria-label={`Abrir painel de compra ${pool.code}`}
-                      >
-                        Comprar avançado
-                      </button>
-                    </div>
-                    {inlineMessage[pool.id] ? (
-                      <p className="mt-2 text-sm font-medium text-slate-700">{inlineMessage[pool.id]}</p>
-                    ) : null}
+                    <Link
+                      href={`/boloes/${pool.code}`}
+                      className="inline-flex w-full items-center justify-center rounded-full bg-fuchsia-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-fuchsia-800"
+                    >
+                      Comprar
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -381,30 +290,6 @@ export function PoolTable({ pools }: PoolTableProps) {
                   </>
                 );
               })()}
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {purchasePool ? (
-        <div className="fixed inset-0 z-50 flex">
-          <div className="flex-1" onClick={() => setPurchasePool(null)} />
-          <div className="w-full max-w-md bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-fuchsia-100 px-5 py-4">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-fuchsia-500">Comprar cotas</p>
-                <h3 className="mt-1 text-lg font-bold text-slate-900">{purchasePool.title}</h3>
-              </div>
-              <button
-                onClick={() => setPurchasePool(null)}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition hover:bg-slate-200"
-                aria-label="Fechar compra"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="p-5">
-              <PurchaseForm poolId={purchasePool.id} sharePrice={Number(purchasePool.sharePrice)} availableShares={purchasePool.availableShares} />
             </div>
           </div>
         </div>
