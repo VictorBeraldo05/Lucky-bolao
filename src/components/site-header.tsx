@@ -75,13 +75,18 @@ export async function SiteHeader({ user }: SiteHeaderProps) {
           </button>
 
           {user ? (
-            <div className="flex items-center gap-2 rounded-full border border-white/70 bg-white px-3 py-2 shadow-sm">
-              <UserCircle2 className="h-5 w-5 text-fuchsia-600" />
-              <div className="hidden sm:block">
-                <p className="text-sm font-semibold text-slate-900">{user.name}</p>
-                <p className="text-xs text-slate-500">{user.role === "ADMIN" ? "Administrador" : "Cliente"}</p>
-              </div>
-            </div>
+            <>
+              <Link href="/perfil" className="flex items-center gap-2 rounded-full border border-white/70 bg-white px-3 py-2 shadow-sm transition hover:border-fuchsia-200">
+                <UserCircle2 className="h-5 w-5 text-fuchsia-600" />
+                <div className="hidden sm:block">
+                  <p className="text-sm font-semibold text-slate-900">{user.name}</p>
+                  <p className="text-xs text-slate-500">{user.role === "ADMIN" ? "Administrador" : "Cliente"}</p>
+                </div>
+              </Link>
+              <Link href="/logout" className="hidden rounded-full border border-fuchsia-200 bg-white px-4 py-2 text-sm font-semibold text-fuchsia-700 transition hover:bg-fuchsia-50 sm:inline-flex">
+                Sair
+              </Link>
+            </>
           ) : (
             <div className="flex items-center gap-2">
               <Link href="/login" className="rounded-full border border-fuchsia-200 px-4 py-2 text-sm font-semibold text-fuchsia-700 transition hover:bg-fuchsia-50">
@@ -99,6 +104,9 @@ export async function SiteHeader({ user }: SiteHeaderProps) {
           <Link href="/meus-jogos" className="rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm">
             Meus jogos
           </Link>
+          <Link href="/perfil" className="rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm">
+            Perfil
+          </Link>
           <Link href="/carteira" className="rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm">
             <span className="inline-flex items-center gap-2"><CreditCard className="h-4 w-4" /> Carteira</span>
           </Link>
@@ -107,6 +115,9 @@ export async function SiteHeader({ user }: SiteHeaderProps) {
               Admin
             </Link>
           ) : null}
+          <Link href="/logout" className="rounded-full bg-white px-4 py-2 text-sm font-medium text-fuchsia-700 shadow-sm transition hover:bg-fuchsia-50">
+            Sair
+          </Link>
         </Container>
       ) : null}
     </header>

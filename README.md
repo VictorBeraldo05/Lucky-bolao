@@ -170,6 +170,10 @@ As variáveis necessárias são:
 
 ### Vercel
 
+- Configure as mesmas variáveis de ambiente no painel do projeto
+- Garanta que o banco seja migrado com `npx prisma migrate deploy`
+- Se a Vercel não executar a migration automaticamente, adicione `npx prisma migrate deploy` antes do build
+
 - Também pode publicar tudo na Vercel se preferir manter app único
 - Configure as mesmas variáveis de ambiente
 - Se optar por front separado depois, a base atual já facilita a extração de backend
