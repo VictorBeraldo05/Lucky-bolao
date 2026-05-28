@@ -6,13 +6,13 @@ import { prisma } from "@/lib/prisma";
 import { purchaseSchema } from "@/lib/validations";
 
 export async function POST(request: Request, { params }: { params: Promise<{ poolId: string }> }) {
-  const currentUser = await getCurrentUser();
-
-  if (!currentUser?.wallet) {
-    return NextResponse.json({ message: "Voce precisa estar logado para comprar cotas." }, { status: 401 });
-  }
-
   try {
+    const currentUser = await getCurrentUser();
+
+    if (!currentUser?.wallet) {
+      return NextResponse.json({ message: "Voce precisa estar logado para comprar cotas." }, { status: 401 });
+    }
+
     const { poolId } = await params;
     const parsed = purchaseSchema.parse({
       poolId,
