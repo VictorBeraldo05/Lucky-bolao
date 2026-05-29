@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
-import { validateMercadoPagoSignature } from "@/lib/mercadopago";
+import { PaymentStatus } from "@prisma/client";
+import { fetchPixPaymentStatus, validateMercadoPagoSignature, determineTopupStatus } from "@/lib/mercadopago";
 import { prisma } from "@/lib/prisma";
 import { syncWalletTopup } from "@/lib/wallet";
+
+function mapToPaymentStatus(status: string) {
+  if (status === "PAID") return PaymentStatus.APPROVED;
+  if (status === "PENDING") return PaymentStatus.PENDING;
+  return PaymentStatus.CANCELED;
+}
 
 export async function POST(request: Request) {
   const bodyText = await request.text();
@@ -34,14 +41,42 @@ export async function POST(request: Request) {
   }
 
   const topup = await prisma.walletTopup.findFirst({ where: { providerChargeId: String(providerChargeId) } });
-  if (!topup) {
-    return NextResponse.json({ message: "Topup nao encontrado." }, { status: 404 });
+  if (topup) {
+    try {
+      const updatedTopup = await syncWalletTopup(topup.id, requestId ?? undefined);
+      return NextResponse.json({ topup: updatedTopup });
+    } catch (error) {
+      return NextResponse.json({ message: error instanceof Error ? error.message : "Falha ao sincronizar topup." }, { status: 400 });
+    }
+  }
+
+  const payment = await prisma.payment.findFirst({ where: { reference: String(providerChargeId), method: "pix" } });
+  if (!payment) {
+    return NextResponse.json({ message: "Pagamento nao encontrado." }, { status: 404 });
   }
 
   try {
-    const updatedTopup = await syncWalletTopup(topup.id, requestId ?? undefined);
-    return NextResponse.json({ topup: updatedTopup });
+    const providerPayment = await fetchPixPaymentStatus(String(providerChargeId));
+    const status = determineTopupStatus(providerPayment);
+    const paymentStatus = mapToPaymentStatus(status);
+
+    const updatedPayment = await prisma.payment.update({
+      where: { id: payment.id },
+      data: { status: paymentStatus },
+    });
+
+    if (paymentStatus === PaymentStatus.APPROVED) {
+      const cartId = payment.metadata?.cartId as string | undefined;
+      if (cartId) {
+        await prisma.cart.updateMany({
+          where: { id: cartId, status: "OPEN" },
+          data: { status: "CHECKED_OUT" },
+        });
+      }
+    }
+
+    return NextResponse.json({ payment: updatedPayment });
   } catch (error) {
-    return NextResponse.json({ message: error instanceof Error ? error.message : "Falha ao sincronizar topup." }, { status: 400 });
+    return NextResponse.json({ message: error instanceof Error ? error.message : "Falha ao sincronizar pagamento." }, { status: 400 });
   }
 }
