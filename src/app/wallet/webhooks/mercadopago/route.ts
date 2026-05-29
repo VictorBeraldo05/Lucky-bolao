@@ -12,6 +12,7 @@ function mapToPaymentStatus(status: string) {
 
 export async function POST(request: Request) {
   const bodyText = await request.text();
+  const url = new URL(request.url);
   const signature =
     request.headers.get("x-signature") ||
     request.headers.get("x-mercadopago-signature") ||
@@ -24,19 +25,39 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Assinatura invalida." }, { status: 403 });
   }
 
-  let payload: unknown;
-  try {
-    payload = JSON.parse(bodyText);
-  } catch {
-    return NextResponse.json({ message: "Payload invalido." }, { status: 400 });
+  let payload: unknown = null;
+  if (bodyText) {
+    try {
+      payload = JSON.parse(bodyText);
+    } catch {
+      return NextResponse.json({ message: "Payload invalido." }, { status: 400 });
+    }
   }
 
-  const event = payload as {
+  const event = {
+    data: (payload as any)?.data ?? undefined,
+    id: (payload as any)?.id ?? undefined,
+    resource: (payload as any)?.resource ?? undefined,
+    payment_id: (payload as any)?.payment_id ?? undefined,
+  } as {
     data?: { id?: string; object?: { id?: string } };
     id?: string;
     resource?: { id?: string };
     payment_id?: string;
   };
+
+  if (!event.data?.id && url.searchParams.has("data.id")) {
+    event.data = { ...event.data, id: url.searchParams.get("data.id") ?? undefined };
+  }
+  if (!event.id && url.searchParams.has("id")) {
+    event.id = url.searchParams.get("id") ?? undefined;
+  }
+  if (!event.resource?.id && url.searchParams.has("resource.id")) {
+    event.resource = { id: url.searchParams.get("resource.id") ?? undefined };
+  }
+  if (!event.payment_id && url.searchParams.has("payment_id")) {
+    event.payment_id = url.searchParams.get("payment_id") ?? undefined;
+  }
 
   const providerChargeId =
     event.data?.id || event.id || event.resource?.id || event.payment_id || event.data?.object?.id;
