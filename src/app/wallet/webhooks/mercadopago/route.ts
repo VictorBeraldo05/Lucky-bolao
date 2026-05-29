@@ -16,7 +16,8 @@ export async function POST(request: Request) {
     request.headers.get("x-signature") ||
     request.headers.get("x-mercadopago-signature") ||
     request.headers.get("x-meli-signature") ||
-    request.headers.get("x-hub-signature");
+    request.headers.get("x-hub-signature") ||
+    request.headers.get("x-hub-signature-256");
   const requestId = request.headers.get("x-request-id");
 
   if (!validateMercadoPagoSignature(signature, bodyText)) {

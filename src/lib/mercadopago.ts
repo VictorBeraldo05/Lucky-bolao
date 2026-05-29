@@ -60,11 +60,25 @@ export function allowApprovedWithMismatchedCpf() {
   return String(process.env.MERCADOPAGO_ALLOW_APPROVED_WITH_MISMATCHED_CPF ?? "false").toLowerCase() === "true";
 }
 
+function normalizeSignature(signature: string | null) {
+  if (!signature) return null;
+  const trimmed = signature.trim();
+  if (trimmed.startsWith("sha256=")) {
+    return trimmed.substring(7);
+  }
+  if (trimmed.startsWith("sha1=")) {
+    return trimmed.substring(5);
+  }
+  return trimmed;
+}
+
 export function validateMercadoPagoSignature(signature: string | null, payload: string) {
-  if (!signature) return false;
+  const normalized = normalizeSignature(signature);
+  if (!normalized) return false;
   const secret = getMercadoPagoWebhookSecret();
-  const digest = crypto.createHmac("sha256", secret).update(payload).digest("base64");
-  return signature === digest;
+  const digestBase64 = crypto.createHmac("sha256", secret).update(payload).digest("base64");
+  const digestHex = crypto.createHmac("sha256", secret).update(payload).digest("hex");
+  return normalized === digestBase64 || normalized === digestHex;
 }
 
 export async function createPixPayment(params: {
