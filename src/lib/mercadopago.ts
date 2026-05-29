@@ -80,6 +80,7 @@ export async function createPixPayment(params: {
     headers: {
       Authorization: `Bearer ${getMercadoPagoAccessToken()}`,
       "Content-Type": "application/json",
+      "X-Idempotency-Key": crypto.randomUUID(),
     },
     body: JSON.stringify({
       transaction_amount: Number(params.amount),
