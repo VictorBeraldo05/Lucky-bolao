@@ -21,6 +21,11 @@ export const purchaseSchema = z.object({
   quantity: z.number().int().positive().max(50),
 });
 
+export const cartItemSchema = z.object({
+  poolId: z.string().min(1),
+  quantity: z.number().int().positive().max(50),
+});
+
 export const walletTopupSchema = z.object({
   packageId: z.number().int().positive(),
 });

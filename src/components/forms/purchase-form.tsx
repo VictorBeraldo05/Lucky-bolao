@@ -17,14 +17,14 @@ export function PurchaseForm({ poolId, sharePrice, availableShares }: PurchaseFo
   const [message, setMessage] = useState<string | null>(null);
   const total = sharePrice * quantity;
 
-  async function handlePurchase() {
+  async function handleAddToCart() {
     setLoading(true);
     setMessage(null);
 
-    const response = await fetch(`/api/pools/${poolId}/purchase`, {
+    const response = await fetch(`/api/cart/items`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ quantity }),
+      body: JSON.stringify({ poolId, quantity }),
     });
 
     const data = await response.json();
@@ -35,8 +35,8 @@ export function PurchaseForm({ poolId, sharePrice, availableShares }: PurchaseFo
       return;
     }
 
-    setMessage("Compra concluida com sucesso.");
-    router.refresh();
+    setMessage("Item adicionado ao carrinho.");
+    router.push("/carrinho");
   }
 
   return (
@@ -61,14 +61,14 @@ export function PurchaseForm({ poolId, sharePrice, availableShares }: PurchaseFo
         </div>
       </div>
       <p className="mt-3 text-sm text-slate-500">Disponiveis: {availableShares} cotas</p>
-      <p className="mt-1 text-sm text-slate-500">Seu comprovante ficará disponível junto ao bolão após a compra.</p>
+      <p className="mt-1 text-sm text-slate-500">Depois de adicionar ao carrinho, finalize a compra no carrinho com PIX.</p>
       {message ? <p className="mt-3 text-sm font-medium text-slate-700">{message}</p> : null}
       <button
-        onClick={handlePurchase}
+        onClick={handleAddToCart}
         disabled={loading || availableShares < 1}
         className="mt-4 w-full rounded-full bg-fuchsia-600 px-5 py-3 font-semibold text-white transition hover:bg-fuchsia-700 disabled:opacity-60"
       >
-        {loading ? "Processando..." : "Confirmar participação"}
+        {loading ? "Processando..." : "Adicionar ao carrinho"}
       </button>
     </div>
   );

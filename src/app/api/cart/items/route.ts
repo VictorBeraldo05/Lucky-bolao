@@ -1,0 +1,72 @@
+import { NextResponse } from "next/server";
+import { getCurrentUserFromRequest } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { cartItemSchema } from "@/lib/validations";
+
+export async function POST(request: Request) {
+  const currentUser = await getCurrentUserFromRequest(request);
+  if (!currentUser) {
+    return NextResponse.json({ message: "Nao autenticado." }, { status: 401 });
+  }
+
+  try {
+    const payload = cartItemSchema.parse(await request.json());
+    const pool = await prisma.pool.findUnique({ where: { id: payload.poolId } });
+    if (!pool) {
+      return NextResponse.json({ message: "Bolao nao encontrado." }, { status: 404 });
+    }
+    if (pool.status !== "OPEN") {
+      return NextResponse.json({ message: "Este bolao nao esta disponivel para compra." }, { status: 400 });
+    }
+    if (pool.availableShares < payload.quantity) {
+      return NextResponse.json({ message: "Quantidade maior que o disponivel." }, { status: 400 });
+    }
+
+    const cart = await prisma.cart.upsert({
+      where: { userId: currentUser.id },
+      create: { userId: currentUser.id },
+      update: {},
+    });
+
+    const existingItem = await prisma.cartItem.findFirst({
+      where: { cartId: cart.id, poolId: payload.poolId },
+    });
+
+    const unitPrice = pool.sharePrice;
+    const totalPrice = unitPrice.mul(payload.quantity);
+
+    let item;
+    if (existingItem) {
+      const newQuantity = existingItem.quantity + payload.quantity;
+      if (pool.availableShares < newQuantity) {
+        return NextResponse.json({ message: "Quantidade no carrinho excede o disponivel." }, { status: 400 });
+      }
+      item = await prisma.cartItem.update({
+        where: { id: existingItem.id },
+        data: {
+          quantity: newQuantity,
+          totalPrice: unitPrice.mul(newQuantity),
+          updatedAt: new Date(),
+        },
+      });
+    } else {
+      item = await prisma.cartItem.create({
+        data: {
+          cartId: cart.id,
+          poolId: payload.poolId,
+          quantity: payload.quantity,
+          unitPrice,
+          totalPrice,
+        },
+      });
+    }
+
+    return NextResponse.json({ item, cart });
+  } catch (error) {
+    return NextResponse.json({ message: error instanceof Error ? error.message : "Falha ao adicionar ao carrinho." }, { status: 400 });
+  }
+}
+
+export async function GET() {
+  return NextResponse.json({ message: "Metodo nao suportado." }, { status: 405 });
+}

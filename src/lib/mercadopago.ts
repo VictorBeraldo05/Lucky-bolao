@@ -72,8 +72,8 @@ export async function createPixPayment(params: {
   name: string;
   cpf: string;
   title: string;
-  packageId: number;
-  price: number | string;
+  amount: number | string;
+  referenceId?: string;
 }) {
   const result = await fetch(`${getMercadoPagoBaseUrl()}/v1/payments`, {
     method: "POST",
@@ -82,7 +82,7 @@ export async function createPixPayment(params: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      transaction_amount: Number(params.price),
+      transaction_amount: Number(params.amount),
       description: params.title,
       payment_method_id: "pix",
       payer: {
@@ -96,11 +96,11 @@ export async function createPixPayment(params: {
       additional_info: {
         items: [
           {
-            id: String(params.packageId),
+            id: params.referenceId ? String(params.referenceId) : "0",
             title: params.title,
-            description: `Top-up ${params.title}`,
+            description: params.referenceId ? `Checkout ${params.referenceId}` : params.title,
             quantity: 1,
-            unit_price: Number(params.price),
+            unit_price: Number(params.amount),
           },
         ],
       },

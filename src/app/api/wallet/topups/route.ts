@@ -26,8 +26,8 @@ export async function POST(request: Request) {
       name: currentUser.name,
       cpf: currentUser.cpf,
       title: walletPackage.title,
-      packageId: walletPackage.id,
-      price: Number(walletPackage.price),
+      amount: Number(walletPackage.price),
+      referenceId: `topup-${walletPackage.id}`,
     });
 
     const paymentData = parsePaymentTopupData(payment);

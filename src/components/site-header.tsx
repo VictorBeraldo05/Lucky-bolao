@@ -66,9 +66,9 @@ export async function SiteHeader({ user }: SiteHeaderProps) {
             </div>
           ) : null}
 
-          <button className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white text-slate-600 shadow-sm">
+          <Link href="/carrinho" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white text-slate-600 shadow-sm transition hover:border-fuchsia-200">
             <ShoppingCart className="h-5 w-5" />
-          </button>
+          </Link>
           <button className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white text-slate-600 shadow-sm">
             <Bell className="h-5 w-5" />
             {user?.notifications.length ? <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-fuchsia-500" /> : null}

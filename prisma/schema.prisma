@@ -44,6 +44,12 @@ enum WalletTopupStatus {
   MANUAL_REVIEW
 }
 
+enum CartStatus {
+  OPEN
+  CHECKED_OUT
+  CANCELLED
+}
+
 enum PoolStatus {
   OPEN
   SOLD_OUT
@@ -91,6 +97,7 @@ model User {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   wallet            Wallet?
+  cart              Cart?
   purchases         Purchase[]
   poolShares        PoolShare[]
   topups            WalletTopup[]
@@ -100,6 +107,30 @@ model User {
   auditLogs         AuditLog[]
   authoredLogs      AuditLog[]          @relation("AuditActor")
   WalletTransaction WalletTransaction[]
+}
+
+model Cart {
+  id         String      @id @default(cuid())
+  userId     String      @unique
+  status     CartStatus  @default(OPEN)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  items      CartItem[]
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CartItem {
+  id         String   @id @default(cuid())
+  cartId     String
+  poolId     String
+  quantity   Int
+  unitPrice  Decimal  @db.Decimal(12, 2)
+  totalPrice Decimal  @db.Decimal(12, 2)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  cart Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  pool Pool @relation(fields: [poolId], references: [id], onDelete: Restrict)
 }
 
 model Wallet {
@@ -256,6 +287,7 @@ model Pool {
   games           PoolGame[]
   shares          PoolShare[]
   purchaseItems   PurchaseItem[]
+  cartItems       CartItem[]
   Prize           Prize[]
 
   @@index([lotteryId, contestId, status])
