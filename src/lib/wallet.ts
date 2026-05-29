@@ -71,3 +71,19 @@ export async function syncWalletTopup(topupId: string, correlationId?: string) {
     return updatedTopup;
   });
 }
+
+export async function syncPendingWalletTopupsForUser(userId: string) {
+  const pendingTopups = await prisma.walletTopup.findMany({
+    where: { userId, status: "PENDING", providerChargeId: { not: null } },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+  });
+
+  for (const topup of pendingTopups) {
+    try {
+      await syncWalletTopup(topup.id);
+    } catch {
+      // ignore failures here so page still renders
+    }
+  }
+}

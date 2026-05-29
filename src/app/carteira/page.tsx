@@ -4,9 +4,11 @@ import { AccountShell } from "@/components/account-shell";
 import { StatCard } from "@/components/stat-card";
 import { WalletTopupPanel } from "@/components/wallet-topup-panel";
 import { formatCurrency } from "@/lib/utils";
+import { syncPendingWalletTopupsForUser } from "@/lib/wallet";
 
 export default async function WalletPage() {
   const user = await requireUser();
+  await syncPendingWalletTopupsForUser(user.id);
   const [packages, payments, transactions] = await Promise.all([
     prisma.walletPackage.findMany({ orderBy: { price: "asc" } }),
     prisma.payment.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 5 }),
