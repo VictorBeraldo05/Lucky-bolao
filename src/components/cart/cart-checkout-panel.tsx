@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -73,7 +72,7 @@ export function CartCheckoutPanel({ total, userCpf }: CartCheckoutPanelProps) {
         <div className="mt-6 rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/70 p-4">
           {paymentData.qrCodeImageBase64 ? (
             <div className="rounded-[24px] bg-white p-4 text-center">
-              <Image src={paymentData.qrCodeImageBase64} alt="QR code PIX" width={320} height={320} className="mx-auto max-h-72" unoptimized />
+              <img src={paymentData.qrCodeImageBase64} alt="QR code PIX" className="mx-auto max-h-72" />
             </div>
           ) : null}
           {paymentData.qrCodeText ? (

@@ -172,11 +172,12 @@ export function determineTopupStatus(payment: MercadoPagoPayment, expectedCpf?: 
 
 export function parsePaymentTopupData(payment: MercadoPagoPayment) {
   const interaction = payment.point_of_interaction?.transaction_data;
+  const qrCodeBase64 = interaction?.qr_code_base64 ? `data:image/png;base64,${interaction.qr_code_base64}` : "";
   return {
     providerChargeId: String(payment.id ?? ""),
     qrCodeText: String(interaction?.qr_code ?? ""),
-    qrCodeImageBase64: String(interaction?.qr_code_base64 ?? ""),
-    paymentLinkUrl: String(payment.transaction_details?.external_resource_url ?? interaction?.qr_code_base64 ?? ""),
+    qrCodeImageBase64: qrCodeBase64,
+    paymentLinkUrl: String(payment.transaction_details?.external_resource_url ?? ""),
     expiresAt: interaction?.expiration_date ? new Date(interaction.expiration_date).toISOString() : null,
     providerPayload: payment,
   };
