@@ -12,7 +12,11 @@ function mapToPaymentStatus(status: string) {
 
 export async function POST(request: Request) {
   const bodyText = await request.text();
-  const signature = request.headers.get("x-signature");
+  const signature =
+    request.headers.get("x-signature") ||
+    request.headers.get("x-mercadopago-signature") ||
+    request.headers.get("x-meli-signature") ||
+    request.headers.get("x-hub-signature");
   const requestId = request.headers.get("x-request-id");
 
   if (!validateMercadoPagoSignature(signature, bodyText)) {
@@ -66,7 +70,8 @@ export async function POST(request: Request) {
     });
 
     if (paymentStatus === PaymentStatus.APPROVED) {
-      const cartId = payment.metadata?.cartId as string | undefined;
+      const metadata = payment.metadata as { cartId?: string } | null | undefined;
+      const cartId = metadata?.cartId;
       if (cartId) {
         await prisma.cart.updateMany({
           where: { id: cartId, status: "OPEN" },

@@ -22,11 +22,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Quantidade maior que o disponivel." }, { status: 400 });
     }
 
-    const cart = await prisma.cart.upsert({
-      where: { userId: currentUser.id },
-      create: { userId: currentUser.id },
-      update: {},
+    let cart = await prisma.cart.findFirst({
+      where: { userId: currentUser.id, status: "OPEN" },
     });
+
+    if (!cart) {
+      cart = await prisma.cart.create({
+        data: { userId: currentUser.id },
+      });
+    }
 
     const existingItem = await prisma.cartItem.findFirst({
       where: { cartId: cart.id, poolId: payload.poolId },
