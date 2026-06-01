@@ -1,5 +1,7 @@
 import crypto from "crypto";
-import { Prisma } from "@prisma/client";
+
+const LEGACY_PAYMENT_BASE_URL = "https://click-royale-backend.onrender.com";
+const CURRENT_PAYMENT_BASE_URL = "https://lucky-bolao-backend.onrender.com";
 
 type MercadoPagoPayment = {
   id?: string;
@@ -36,7 +38,16 @@ export function normalizeCpf(cpf: string) {
 }
 
 export function getMercadoPagoBaseUrl() {
-  return process.env.MERCADOPAGO_BASE_URL ?? "https://api.mercadopago.com";
+  const configuredUrl = process.env.MERCADOPAGO_BASE_URL?.trim();
+  if (!configuredUrl) {
+    return CURRENT_PAYMENT_BASE_URL;
+  }
+
+  if (configuredUrl.startsWith(LEGACY_PAYMENT_BASE_URL)) {
+    return configuredUrl.replace(LEGACY_PAYMENT_BASE_URL, CURRENT_PAYMENT_BASE_URL);
+  }
+
+  return configuredUrl;
 }
 
 export function getMercadoPagoAccessToken() {

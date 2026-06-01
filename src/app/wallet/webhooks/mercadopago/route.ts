@@ -4,6 +4,13 @@ import { fetchPixPaymentStatus, validateMercadoPagoSignature, determineTopupStat
 import { prisma } from "@/lib/prisma";
 import { syncWalletTopup } from "@/lib/wallet";
 
+type MercadoPagoWebhookPayload = {
+  data?: { id?: string; object?: { id?: string } };
+  id?: string;
+  resource?: { id?: string };
+  payment_id?: string;
+};
+
 function mapToPaymentStatus(status: string) {
   if (status === "PAID") return PaymentStatus.APPROVED;
   if (status === "PENDING") return PaymentStatus.PENDING;
@@ -34,17 +41,7 @@ export async function POST(request: Request) {
     }
   }
 
-  const event = {
-    data: (payload as any)?.data ?? undefined,
-    id: (payload as any)?.id ?? undefined,
-    resource: (payload as any)?.resource ?? undefined,
-    payment_id: (payload as any)?.payment_id ?? undefined,
-  } as {
-    data?: { id?: string; object?: { id?: string } };
-    id?: string;
-    resource?: { id?: string };
-    payment_id?: string;
-  };
+  const event = (payload && typeof payload === "object" ? payload : {}) as MercadoPagoWebhookPayload;
 
   if (!event.data?.id && url.searchParams.has("data.id")) {
     event.data = { ...event.data, id: url.searchParams.get("data.id") ?? undefined };

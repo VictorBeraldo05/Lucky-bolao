@@ -3,7 +3,6 @@ import { requireUser } from "@/lib/auth";
 import { AccountShell } from "@/components/account-shell";
 import { CartItemsTable } from "@/components/cart/cart-items-table";
 import { CartCheckoutPanel } from "@/components/cart/cart-checkout-panel";
-import { formatCurrency } from "@/lib/utils";
 
 export default async function CartPage() {
   const user = await requireUser();

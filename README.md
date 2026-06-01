@@ -84,7 +84,7 @@ DATABASE_URL="postgresql://..."
 JWT_SECRET="uma-chave-forte"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
-MERCADOPAGO_BASE_URL="https://api.mercadopago.com"
+MERCADOPAGO_BASE_URL="https://lucky-bolao-backend.onrender.com"
 MERCADOPAGO_ACCESS_TOKEN="seu-token-de-acesso-mercadopago"
 MERCADOPAGO_WEBHOOK_SECRET="seu-segredo-de-webhook"
 MERCADOPAGO_CHARGE_EXPIRATION_MINUTES="15"
@@ -146,7 +146,7 @@ npm run dev
 O app já inclui o fluxo de depósito via Mercado Pago PIX na página de carteira.
 As variáveis necessárias são:
 
-- `MERCADOPAGO_BASE_URL` - URL da API do Mercado Pago (padrão: `https://api.mercadopago.com`).
+- `MERCADOPAGO_BASE_URL` - URL do backend de pagamentos PIX (padrão: `https://lucky-bolao-backend.onrender.com`).
 - `MERCADOPAGO_ACCESS_TOKEN` - token de acesso da conta Mercado Pago.
 - `MERCADOPAGO_WEBHOOK_SECRET` - segredo usado para validar webhooks de pagamento.
 - `MERCADOPAGO_CHARGE_EXPIRATION_MINUTES` - tempo em minutos para expirar a cobrança PIX.
