@@ -82,7 +82,13 @@ export default async function PoolDetailPage({ params }: { params: Promise<{ cod
         </section>
 
         <aside className="space-y-6">
-          <PurchaseForm poolId={pool.id} sharePrice={Number(pool.sharePrice)} availableShares={pool.availableShares} />
+          <PurchaseForm
+            poolId={pool.id}
+            poolTitle={pool.title}
+            poolCode={pool.code}
+            sharePrice={Number(pool.sharePrice)}
+            availableShares={pool.availableShares}
+          />
           <div className="rounded-[28px] border border-white/80 bg-white/90 p-5 shadow-sm">
             <h2 className="text-xl font-bold text-slate-900">Comprovante do bolão</h2>
             <p className="mt-2 text-sm text-slate-600">O comprovante fica vinculado ao bolão para consulta rápida sempre que você precisar.</p>

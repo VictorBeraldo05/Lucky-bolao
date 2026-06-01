@@ -6,11 +6,13 @@ import { formatCurrency } from "@/lib/utils";
 
 type PurchaseFormProps = {
   poolId: string;
+  poolTitle: string;
+  poolCode: string;
   sharePrice: number;
   availableShares: number;
 };
 
-export function PurchaseForm({ poolId, sharePrice, availableShares }: PurchaseFormProps) {
+export function PurchaseForm({ poolId, poolTitle, poolCode, sharePrice, availableShares }: PurchaseFormProps) {
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -40,6 +42,13 @@ export function PurchaseForm({ poolId, sharePrice, availableShares }: PurchaseFo
       new CustomEvent("cart:updated", {
         detail: {
           openDesktopDrawer: true,
+          addedItem: {
+            title: poolTitle,
+            code: poolCode,
+            quantity,
+            total,
+            href: `/boloes/${poolCode}`,
+          },
         },
       }),
     );
