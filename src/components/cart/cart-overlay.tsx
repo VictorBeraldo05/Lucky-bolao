@@ -15,6 +15,7 @@ type CartItem = {
     id: string;
     title: string;
     code: string;
+    availableShares: number;
   };
 };
 
@@ -40,6 +41,8 @@ export function CartOverlay({ userCpf, isAuthenticated }: CartOverlayProps) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [quickAddLoadingId, setQuickAddLoadingId] = useState<string | null>(null);
+  const [quickAddMessage, setQuickAddMessage] = useState<string | null>(null);
   const [recentlyAdded, setRecentlyAdded] = useState<CartUpdateDetail["addedItem"] | null>(null);
 
   const itemCount = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items]);
@@ -129,6 +132,40 @@ export function CartOverlay({ userCpf, isAuthenticated }: CartOverlayProps) {
     await loadCart();
   }
 
+  async function addMoreOfSamePool(item: CartItem, quantity: number) {
+    setQuickAddLoadingId(item.id);
+    setQuickAddMessage(null);
+
+    try {
+      const response = await fetch("/api/cart/items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ poolId: item.pool.id, quantity }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        setQuickAddMessage(data.message ?? "Nao foi possivel adicionar mais cotas agora.");
+        return;
+      }
+
+      setRecentlyAdded({
+        title: item.pool.title,
+        code: item.pool.code,
+        quantity,
+        total: Number(item.unitPrice) * quantity,
+        href: `/boloes/${item.pool.code}`,
+      });
+      setQuickAddMessage(`Mais ${quantity} cota(s) adicionada(s) ao carrinho.`);
+      await loadCart();
+      window.dispatchEvent(new CustomEvent("cart:updated"));
+    } catch {
+      setQuickAddMessage("Erro de rede ao tentar adicionar mais cotas.");
+    } finally {
+      setQuickAddLoadingId(null);
+    }
+  }
+
   if (!isAuthenticated) {
     return null;
   }
@@ -203,6 +240,28 @@ export function CartOverlay({ userCpf, isAuthenticated }: CartOverlayProps) {
                         <span>{item.quantity} cota(s)</span>
                         <span className="font-semibold text-slate-900">{formatCurrency(item.totalPrice)}</span>
                       </div>
+                      <div className="mt-4 flex flex-wrap items-center gap-2">
+                        <span className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Adicionar mais</span>
+                        <button
+                          type="button"
+                          onClick={() => void addMoreOfSamePool(item, 1)}
+                          disabled={quickAddLoadingId === item.id || item.pool.availableShares - item.quantity < 1}
+                          className="rounded-full border border-fuchsia-200 bg-white px-3 py-1.5 text-xs font-semibold text-fuchsia-700 transition hover:bg-fuchsia-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          +1 cota
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void addMoreOfSamePool(item, 2)}
+                          disabled={quickAddLoadingId === item.id || item.pool.availableShares - item.quantity < 2}
+                          className="rounded-full border border-fuchsia-200 bg-white px-3 py-1.5 text-xs font-semibold text-fuchsia-700 transition hover:bg-fuchsia-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          +2 cotas
+                        </button>
+                        <span className="text-xs text-slate-500">
+                          Restantes para este bolao: {Math.max(item.pool.availableShares - item.quantity, 0)}
+                        </span>
+                      </div>
                     </div>
                   ))
                 ) : (
@@ -248,6 +307,8 @@ export function CartOverlay({ userCpf, isAuthenticated }: CartOverlayProps) {
                   </div>
                 </div>
               ) : null}
+
+              {quickAddMessage ? <p className="mt-4 text-sm font-medium text-fuchsia-700">{quickAddMessage}</p> : null}
 
               <div className="mt-6">
                 <CartCheckoutPanel total={total} userCpf={userCpf} onApproved={() => void loadCart()} />

@@ -105,6 +105,7 @@ export async function GET(request: Request) {
         id: item.pool.id,
         title: item.pool.title,
         code: item.pool.code,
+        availableShares: item.pool.availableShares,
       },
     })) ?? [];
 
