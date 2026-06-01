@@ -137,6 +137,7 @@ export async function getHeaderUser() {
       id: true,
       name: true,
       email: true,
+      cpf: true,
       role: true,
       isActive: true,
       createdAt: true,

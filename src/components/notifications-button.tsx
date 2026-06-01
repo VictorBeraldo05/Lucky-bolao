@@ -27,9 +27,9 @@ export function NotificationsButton({ notifications }: { notifications: HeaderNo
       </button>
 
       {isOpen ? (
-        <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/30 backdrop-blur-sm" onClick={() => setIsOpen(false)}>
+        <div className="fixed inset-0 z-[73] flex justify-end bg-slate-950/45 backdrop-blur-sm" onClick={() => setIsOpen(false)}>
           <div
-            className="h-full w-full max-w-md border-l border-white/80 bg-white/95 p-5 shadow-2xl"
+            className="ml-auto h-full w-full max-w-lg border-l border-white/80 bg-white/98 p-5 shadow-2xl sm:p-6"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4">
@@ -46,7 +46,7 @@ export function NotificationsButton({ notifications }: { notifications: HeaderNo
               </button>
             </div>
 
-            <div className="mt-6 space-y-3">
+            <div className="mt-6 max-h-[calc(100vh-220px)] space-y-3 overflow-y-auto pr-1">
               {notifications.length ? (
                 notifications.map((notification) => (
                   <div key={notification.id} className="rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/60 p-4">
@@ -62,7 +62,7 @@ export function NotificationsButton({ notifications }: { notifications: HeaderNo
               )}
             </div>
 
-            <div className="mt-6">
+            <div className="mt-6 border-t border-fuchsia-100 pt-5">
               <Link
                 href="/notificacoes"
                 onClick={() => setIsOpen(false)}

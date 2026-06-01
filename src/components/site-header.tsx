@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { CreditCard, ShoppingCart, UserCircle2 } from "lucide-react";
+import { CreditCard, UserCircle2 } from "lucide-react";
 import { Notification, UserRole, Wallet } from "@prisma/client";
 import { Container } from "@/components/container";
+import { CartTriggerButton } from "@/components/cart/cart-trigger-button";
 import { LogoutButton } from "@/components/logout-button";
 import { NotificationsButton } from "@/components/notifications-button";
 import { formatCurrency } from "@/lib/utils";
@@ -68,9 +69,7 @@ export async function SiteHeader({ user }: SiteHeaderProps) {
             </div>
           ) : null}
 
-          <Link href="/carrinho" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white text-slate-600 shadow-sm transition hover:border-fuchsia-200">
-            <ShoppingCart className="h-5 w-5" />
-          </Link>
+          <CartTriggerButton />
           <NotificationsButton
             notifications={(user?.notifications ?? []).map((notification) => ({
               ...notification,

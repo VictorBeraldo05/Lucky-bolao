@@ -71,6 +71,35 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
-  return NextResponse.json({ message: "Metodo nao suportado." }, { status: 405 });
+export async function GET(request: Request) {
+  const currentUser = await getCurrentUserFromRequest(request);
+  if (!currentUser) {
+    return NextResponse.json({ message: "Nao autenticado." }, { status: 401 });
+  }
+
+  const cart = await prisma.cart.findFirst({
+    where: { userId: currentUser.id, status: "OPEN" },
+    include: { items: { include: { pool: true } } },
+  });
+
+  const items =
+    cart?.items.map((item) => ({
+      id: item.id,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice.toString(),
+      totalPrice: item.totalPrice.toString(),
+      pool: {
+        id: item.pool.id,
+        title: item.pool.title,
+        code: item.pool.code,
+      },
+    })) ?? [];
+
+  const total = items.reduce((sum, item) => sum + Number(item.totalPrice), 0);
+
+  return NextResponse.json({
+    cartId: cart?.id ?? null,
+    items,
+    total,
+  });
 }

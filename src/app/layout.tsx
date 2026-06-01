@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, DM_Sans } from "next/font/google";
 import "./globals.css";
+import { CartOverlay } from "@/components/cart/cart-overlay";
 import { SiteHeader } from "@/components/site-header";
 import { getHeaderUser } from "@/lib/auth";
 
@@ -35,6 +36,7 @@ export default async function RootLayout({
         <div className="flex min-h-screen flex-col">
           <SiteHeader user={user} />
           <main className="flex-1">{children}</main>
+          <CartOverlay isAuthenticated={Boolean(user)} userCpf={user?.cpf ?? null} />
         </div>
       </body>
     </html>

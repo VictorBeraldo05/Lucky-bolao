@@ -15,9 +15,10 @@ type PaymentData = {
 type CartCheckoutPanelProps = {
   total: number;
   userCpf?: string | null;
+  onApproved?: () => void;
 };
 
-export function CartCheckoutPanel({ total, userCpf }: CartCheckoutPanelProps) {
+export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPanelProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -34,6 +35,7 @@ export function CartCheckoutPanel({ total, userCpf }: CartCheckoutPanelProps) {
 
         if (data.payment.status === "APPROVED") {
           setStatusMessage("Pagamento aprovado. Suas cotas foram liberadas.");
+          onApproved?.();
           router.refresh();
           window.clearInterval(interval);
           return;
@@ -49,7 +51,7 @@ export function CartCheckoutPanel({ total, userCpf }: CartCheckoutPanelProps) {
     }, 5000);
 
     return () => window.clearInterval(interval);
-  }, [paymentData, router]);
+  }, [paymentData, router, onApproved]);
 
   async function handleCheckout() {
     if (!userCpf) {

@@ -44,6 +44,7 @@ export function CartItemsTable({ initialItems, onCartChange }: CartItemsTablePro
       const nextItems = items.map((item) => (item.id === itemId ? { ...item, quantity: data.item.quantity, totalPrice: data.item.totalPrice } : item));
       setItems(nextItems);
       onCartChange?.(nextItems);
+      window.dispatchEvent(new CustomEvent("cart:updated"));
     } catch {
       setMessage("Erro de rede ao atualizar item.");
     } finally {
@@ -64,6 +65,7 @@ export function CartItemsTable({ initialItems, onCartChange }: CartItemsTablePro
       const nextItems = items.filter((item) => item.id !== itemId);
       setItems(nextItems);
       onCartChange?.(nextItems);
+      window.dispatchEvent(new CustomEvent("cart:updated"));
     } catch {
       setMessage("Erro de rede ao remover item.");
     } finally {

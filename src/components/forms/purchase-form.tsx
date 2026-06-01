@@ -36,7 +36,14 @@ export function PurchaseForm({ poolId, sharePrice, availableShares }: PurchaseFo
     }
 
     setMessage("Item adicionado ao carrinho.");
-    router.push("/carrinho");
+    window.dispatchEvent(
+      new CustomEvent("cart:updated", {
+        detail: {
+          openDesktopDrawer: true,
+        },
+      }),
+    );
+    router.refresh();
   }
 
   return (
