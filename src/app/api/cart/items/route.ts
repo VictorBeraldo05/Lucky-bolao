@@ -22,39 +22,50 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Quantidade maior que o disponivel." }, { status: 400 });
     }
 
-    let cart = await prisma.cart.findFirst({
-      where: { userId: currentUser.id, status: "OPEN" },
-    });
-
-    if (!cart) {
-      cart = await prisma.cart.create({
-        data: { userId: currentUser.id },
-      });
-    }
-
-    const existingItem = await prisma.cartItem.findFirst({
-      where: { cartId: cart.id, poolId: payload.poolId },
-    });
-
     const unitPrice = pool.sharePrice;
     const totalPrice = unitPrice.mul(payload.quantity);
 
-    let item;
-    if (existingItem) {
-      const newQuantity = existingItem.quantity + payload.quantity;
-      if (pool.availableShares < newQuantity) {
-        return NextResponse.json({ message: "Quantidade no carrinho excede o disponivel." }, { status: 400 });
-      }
-      item = await prisma.cartItem.update({
-        where: { id: existingItem.id },
-        data: {
-          quantity: newQuantity,
-          totalPrice: unitPrice.mul(newQuantity),
-          updatedAt: new Date(),
+    const { cart, item } = await prisma.$transaction(async (tx) => {
+      const baseCart = await tx.cart.upsert({
+        where: { userId: currentUser.id },
+        update: {},
+        create: {
+          userId: currentUser.id,
+          status: "OPEN",
         },
       });
-    } else {
-      item = await prisma.cartItem.create({
+
+      const cart =
+        baseCart.status === "OPEN"
+          ? baseCart
+          : await tx.cart.update({
+              where: { id: baseCart.id },
+              data: { status: "OPEN" },
+            });
+
+      const existingItem = await tx.cartItem.findFirst({
+        where: { cartId: cart.id, poolId: payload.poolId },
+      });
+
+      if (existingItem) {
+        const newQuantity = existingItem.quantity + payload.quantity;
+        if (pool.availableShares < newQuantity) {
+          throw new Error("Quantidade no carrinho excede o disponivel.");
+        }
+
+        const item = await tx.cartItem.update({
+          where: { id: existingItem.id },
+          data: {
+            quantity: newQuantity,
+            totalPrice: unitPrice.mul(newQuantity),
+            updatedAt: new Date(),
+          },
+        });
+
+        return { cart, item };
+      }
+
+      const item = await tx.cartItem.create({
         data: {
           cartId: cart.id,
           poolId: payload.poolId,
@@ -63,7 +74,9 @@ export async function POST(request: Request) {
           totalPrice,
         },
       });
-    }
+
+      return { cart, item };
+    });
 
     return NextResponse.json({ item, cart });
   } catch (error) {
