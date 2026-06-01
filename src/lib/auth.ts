@@ -152,8 +152,14 @@ export async function getHeaderUser() {
       },
       notifications: {
         where: { readAt: null },
-        select: { id: true },
-        take: 1,
+        select: {
+          id: true,
+          title: true,
+          message: true,
+          createdAt: true,
+        },
+        take: 5,
+        orderBy: { createdAt: "desc" },
       },
     },
   });

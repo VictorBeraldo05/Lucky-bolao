@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Trophy, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trophy, X } from "lucide-react";
 import { NumberGrid } from "@/components/number-grid";
 import { StatusBadge } from "@/components/status-badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -30,7 +30,8 @@ type MyGameRow = {
   };
 };
 
-type ActiveTab = "resumo" | "sorteio" | "premiados";
+type ActiveTab = "resumo" | "sorteio" | "premiados" | "todos";
+const GAMES_PER_PAGE = 8;
 
 function SummaryCard({ label, value }: { label: string; value: string }) {
   return (
@@ -44,6 +45,7 @@ function SummaryCard({ label, value }: { label: string; value: string }) {
 export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
   const [selectedShare, setSelectedShare] = useState<MyGameRow | null>(null);
   const [activeTab, setActiveTab] = useState<ActiveTab>("resumo");
+  const [gamesPage, setGamesPage] = useState(0);
 
   const awardedGames = useMemo(
     () =>
@@ -57,7 +59,15 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
   function openShareDetails(share: MyGameRow) {
     setSelectedShare(share);
     setActiveTab("resumo");
+    setGamesPage(0);
   }
+
+  const paginatedGames = useMemo(() => {
+    if (!selectedShare) return [];
+    return selectedShare.pool.games.slice(gamesPage * GAMES_PER_PAGE, gamesPage * GAMES_PER_PAGE + GAMES_PER_PAGE);
+  }, [gamesPage, selectedShare]);
+
+  const totalGamePages = selectedShare ? Math.max(1, Math.ceil(selectedShare.pool.games.length / GAMES_PER_PAGE)) : 1;
 
   return (
     <>
@@ -133,6 +143,7 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
                   { id: "resumo", label: "Resumo" },
                   { id: "sorteio", label: "Sorteio" },
                   { id: "premiados", label: "Premiados" },
+                  { id: "todos", label: "Todos os jogos" },
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -265,6 +276,72 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
                       Ainda não há bilhetes premiados vinculados a este bolão.
                     </div>
                   )}
+                </div>
+              ) : null}
+
+              {activeTab === "todos" ? (
+                <div className="space-y-5">
+                  <div className="rounded-[28px] border border-fuchsia-100 bg-fuchsia-50/40 p-5">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-900">Todos os jogos do bolão</h3>
+                        <p className="mt-1 text-sm text-slate-600">
+                          Navegue pelos jogos em blocos menores. Os números destacados representam as dezenas sorteadas neste concurso.
+                        </p>
+                      </div>
+                      <div className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm">
+                        Página {gamesPage + 1} de {totalGamePages}
+                      </div>
+                    </div>
+
+                    <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                      {paginatedGames.map((game) => (
+                        <div key={game.id} className="rounded-[24px] border border-white/80 bg-white p-4 shadow-sm">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="font-semibold text-slate-900">{game.title}</p>
+                            {game.hits !== null ? (
+                              <span className="rounded-full bg-fuchsia-50 px-3 py-1 text-xs font-semibold text-fuchsia-700">
+                                {game.hits} acertos
+                              </span>
+                            ) : null}
+                          </div>
+                          <div className="mt-4">
+                            <NumberGrid numbers={game.numbers} highlight={selectedShare?.pool.resultNumbers ?? []} size="sm" />
+                          </div>
+                          {Number(game.prizeAmount ?? 0) > 0 ? (
+                            <p className="mt-4 text-sm font-semibold text-emerald-700">Premiado: {formatCurrency(game.prizeAmount ?? 0)}</p>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-sm text-slate-500">
+                        Exibindo jogos {gamesPage * GAMES_PER_PAGE + 1} a {Math.min((gamesPage + 1) * GAMES_PER_PAGE, selectedShare?.pool.games.length ?? 0)} de{" "}
+                        {selectedShare?.pool.games.length ?? 0}.
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setGamesPage((page) => Math.max(0, page - 1))}
+                          disabled={gamesPage === 0}
+                          className="inline-flex items-center gap-2 rounded-full border border-fuchsia-200 bg-white px-4 py-2 text-sm font-semibold text-fuchsia-700 transition hover:bg-fuchsia-50 disabled:opacity-50"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                          Anterior
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setGamesPage((page) => Math.min(totalGamePages - 1, page + 1))}
+                          disabled={gamesPage >= totalGamePages - 1}
+                          className="inline-flex items-center gap-2 rounded-full bg-fuchsia-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-fuchsia-700 disabled:opacity-50"
+                        >
+                          Próxima
+                          <ChevronRight className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ) : null}
             </div>

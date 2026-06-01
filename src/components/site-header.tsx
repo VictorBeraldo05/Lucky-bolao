@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { Bell, CreditCard, ShoppingCart, UserCircle2 } from "lucide-react";
+import { CreditCard, ShoppingCart, UserCircle2 } from "lucide-react";
 import { Notification, UserRole, Wallet } from "@prisma/client";
 import { Container } from "@/components/container";
 import { LogoutButton } from "@/components/logout-button";
+import { NotificationsButton } from "@/components/notifications-button";
 import { formatCurrency } from "@/lib/utils";
 
 type SiteHeaderProps = {
@@ -13,7 +14,7 @@ type SiteHeaderProps = {
         email: string;
         role: UserRole;
         wallet: Wallet | null;
-        notifications: Pick<Notification, "id">[];
+        notifications: Pick<Notification, "id" | "title" | "message" | "createdAt">[];
       }
     | null;
 };
@@ -70,10 +71,12 @@ export async function SiteHeader({ user }: SiteHeaderProps) {
           <Link href="/carrinho" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white text-slate-600 shadow-sm transition hover:border-fuchsia-200">
             <ShoppingCart className="h-5 w-5" />
           </Link>
-          <button className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white text-slate-600 shadow-sm">
-            <Bell className="h-5 w-5" />
-            {user?.notifications.length ? <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-fuchsia-500" /> : null}
-          </button>
+          <NotificationsButton
+            notifications={(user?.notifications ?? []).map((notification) => ({
+              ...notification,
+              createdAt: notification.createdAt.toISOString(),
+            }))}
+          />
 
           {user ? (
             <>
