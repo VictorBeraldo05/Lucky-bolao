@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Bell, CreditCard, ShoppingCart, UserCircle2 } from "lucide-react";
 import { Notification, UserRole, Wallet } from "@prisma/client";
 import { Container } from "@/components/container";
+import { LogoutButton } from "@/components/logout-button";
 import { formatCurrency } from "@/lib/utils";
 
 type SiteHeaderProps = {
@@ -83,9 +84,7 @@ export async function SiteHeader({ user }: SiteHeaderProps) {
                   <p className="text-xs text-slate-500">{user.role === "ADMIN" ? "Administrador" : "Cliente"}</p>
                 </div>
               </Link>
-              <Link href="/logout" className="hidden rounded-full border border-fuchsia-200 bg-white px-4 py-2 text-sm font-semibold text-fuchsia-700 transition hover:bg-fuchsia-50 sm:inline-flex">
-                Sair
-              </Link>
+              <LogoutButton className="hidden rounded-full border border-fuchsia-200 bg-white px-4 py-2 text-sm font-semibold text-fuchsia-700 transition hover:bg-fuchsia-50 sm:inline-flex disabled:opacity-60" />
             </>
           ) : (
             <div className="flex items-center gap-2">
@@ -115,9 +114,7 @@ export async function SiteHeader({ user }: SiteHeaderProps) {
               Admin
             </Link>
           ) : null}
-          <Link href="/logout" className="rounded-full bg-white px-4 py-2 text-sm font-medium text-fuchsia-700 shadow-sm transition hover:bg-fuchsia-50">
-            Sair
-          </Link>
+          <LogoutButton className="rounded-full bg-white px-4 py-2 text-sm font-medium text-fuchsia-700 shadow-sm transition hover:bg-fuchsia-50 disabled:opacity-60" />
         </Container>
       ) : null}
     </header>
