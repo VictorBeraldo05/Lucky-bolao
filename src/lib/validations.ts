@@ -30,6 +30,19 @@ export const walletTopupSchema = z.object({
   packageId: z.number().int().positive(),
 });
 
+export const pixPaymentSchema = z.object({
+  email: z.email("Informe um e-mail valido."),
+  name: z.string().min(2, "Informe o nome."),
+  cpf: z
+    .string()
+    .min(1, "Informe o CPF.")
+    .transform((value) => value.replace(/\D/g, ""))
+    .refine((value) => /^\d{11}$/.test(value), "Informe um CPF valido."),
+  title: z.string().min(2).max(255),
+  amount: z.coerce.number().positive().max(1000000),
+  referenceId: z.string().min(1).max(255).optional(),
+});
+
 export const profileCpfSchema = z.object({
   cpf: z
     .string()
@@ -50,4 +63,3 @@ export const resultSchema = z.object({
   prizeBreakdown: z.record(z.string(), z.number().nonnegative()),
   source: z.string().min(2).max(255).optional(),
 });
-

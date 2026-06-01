@@ -84,7 +84,9 @@ DATABASE_URL="postgresql://..."
 JWT_SECRET="uma-chave-forte"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
-MERCADOPAGO_BASE_URL="https://lucky-bolao-backend.onrender.com"
+PAYMENT_BACKEND_BASE_URL="https://lucky-bolao-backend.onrender.com"
+PAYMENT_BACKEND_API_KEY="segredo-compartilhado-opcional"
+MERCADOPAGO_BASE_URL="https://api.mercadopago.com"
 MERCADOPAGO_ACCESS_TOKEN="seu-token-de-acesso-mercadopago"
 MERCADOPAGO_WEBHOOK_SECRET="seu-segredo-de-webhook"
 MERCADOPAGO_CHARGE_EXPIRATION_MINUTES="15"
@@ -146,12 +148,20 @@ npm run dev
 O app já inclui o fluxo de depósito via Mercado Pago PIX na página de carteira.
 As variáveis necessárias são:
 
-- `MERCADOPAGO_BASE_URL` - URL do backend de pagamentos PIX (padrão: `https://lucky-bolao-backend.onrender.com`).
+- `PAYMENT_BACKEND_BASE_URL` - URL pública do backend de pagamentos no Render.
+- `PAYMENT_BACKEND_API_KEY` - segredo opcional para proteger as rotas do backend de pagamentos.
+- `MERCADOPAGO_BASE_URL` - URL da API oficial do Mercado Pago (padrão: `https://api.mercadopago.com`).
 - `MERCADOPAGO_ACCESS_TOKEN` - token de acesso da conta Mercado Pago.
 - `MERCADOPAGO_WEBHOOK_SECRET` - segredo usado para validar webhooks de pagamento.
 - `MERCADOPAGO_CHARGE_EXPIRATION_MINUTES` - tempo em minutos para expirar a cobrança PIX.
 - `MERCADOPAGO_ALLOW_APPROVED_WITHOUT_CPF` - permite aprovar pagamentos sem CPF.
 - `MERCADOPAGO_ALLOW_APPROVED_WITH_MISMATCHED_CPF` - permite aprovar pagamentos com CPF divergente.
+
+### Contrato do backend de pagamentos
+
+- `POST /v1/payments` - cria a cobrança PIX no Mercado Pago e devolve o payload bruto do pagamento.
+- `GET /v1/payments/:paymentId` - consulta o pagamento no Mercado Pago e devolve o payload atualizado.
+- `POST /wallet/webhooks/mercadopago` - recebe o webhook do Mercado Pago, valida assinatura e sincroniza carteira, pagamentos e carrinho no banco.
 
 ## Preparação para produção
 
@@ -164,13 +174,14 @@ As variáveis necessárias são:
 ### Render
 
 - Pode hospedar o app Next.js diretamente no Render
-- Configure `DATABASE_URL`, `JWT_SECRET` e `NEXT_PUBLIC_APP_URL`
+- Configure `DATABASE_URL`, `JWT_SECRET`, `NEXT_PUBLIC_APP_URL`, `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET` e, se quiser, `PAYMENT_BACKEND_API_KEY`
 - Build command: `npm install && npm run prisma:generate && npm run build`
 - Start command: `npm start`
+- Aponte o webhook do Mercado Pago para `https://SEU-RENDER.onrender.com/wallet/webhooks/mercadopago`
 
 ### Vercel
 
-- Configure as mesmas variáveis de ambiente no painel do projeto
+- Configure `DATABASE_URL`, `JWT_SECRET`, `NEXT_PUBLIC_APP_URL`, `PAYMENT_BACKEND_BASE_URL` e, se estiver usando, `PAYMENT_BACKEND_API_KEY`
 - Garanta que o banco seja migrado com `npx prisma migrate deploy`
 - Se a Vercel não executar a migration automaticamente, adicione `npx prisma migrate deploy` antes do build
 

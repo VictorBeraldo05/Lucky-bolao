@@ -1,8 +1,5 @@
 import crypto from "crypto";
 
-const LEGACY_PAYMENT_BASE_URL = "https://click-royale-backend.onrender.com";
-const CURRENT_PAYMENT_BASE_URL = "https://lucky-bolao-backend.onrender.com";
-
 type MercadoPagoPayment = {
   id?: string;
   status?: string;
@@ -38,16 +35,15 @@ export function normalizeCpf(cpf: string) {
 }
 
 export function getMercadoPagoBaseUrl() {
-  const configuredUrl = process.env.MERCADOPAGO_BASE_URL?.trim();
-  if (!configuredUrl) {
-    return CURRENT_PAYMENT_BASE_URL;
-  }
+  return process.env.MERCADOPAGO_BASE_URL?.trim() || "https://api.mercadopago.com";
+}
 
-  if (configuredUrl.startsWith(LEGACY_PAYMENT_BASE_URL)) {
-    return configuredUrl.replace(LEGACY_PAYMENT_BASE_URL, CURRENT_PAYMENT_BASE_URL);
-  }
+export function getPaymentBackendBaseUrl() {
+  return process.env.PAYMENT_BACKEND_BASE_URL?.trim() || "";
+}
 
-  return configuredUrl;
+export function getPaymentBackendApiKey() {
+  return process.env.PAYMENT_BACKEND_API_KEY?.trim() || "";
 }
 
 export function getMercadoPagoAccessToken() {
@@ -71,6 +67,24 @@ export function allowApprovedWithMismatchedCpf() {
   return String(process.env.MERCADOPAGO_ALLOW_APPROVED_WITH_MISMATCHED_CPF ?? "false").toLowerCase() === "true";
 }
 
+function getPaymentBackendHeaders() {
+  const apiKey = getPaymentBackendApiKey();
+  const headers: Record<string, string> = {};
+  if (apiKey) {
+    headers["x-payment-backend-key"] = apiKey;
+  }
+  return headers;
+}
+
+async function parseBackendResponse(result: Response) {
+  if (!result.ok) {
+    const payload = await result.text();
+    throw new Error(`Backend de pagamentos retornou erro: ${result.status} ${payload}`);
+  }
+
+  return result.json() as Promise<MercadoPagoPayment>;
+}
+
 function normalizeSignature(signature: string | null) {
   if (!signature) return null;
   const trimmed = signature.trim();
@@ -92,7 +106,7 @@ export function validateMercadoPagoSignature(signature: string | null, payload: 
   return normalized === digestBase64 || normalized === digestHex;
 }
 
-export async function createPixPayment(params: {
+export async function createPixPaymentDirect(params: {
   email: string;
   name: string;
   cpf: string;
@@ -142,6 +156,48 @@ export async function createPixPayment(params: {
 }
 
 export async function fetchPixPaymentStatus(providerChargeId: string) {
+  const backendBaseUrl = getPaymentBackendBaseUrl();
+  if (backendBaseUrl) {
+    const result = await fetch(`${backendBaseUrl}/v1/payments/${providerChargeId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...getPaymentBackendHeaders(),
+      },
+    });
+
+    return parseBackendResponse(result);
+  }
+
+  return fetchPixPaymentStatusDirect(providerChargeId);
+}
+
+export async function createPixPayment(params: {
+  email: string;
+  name: string;
+  cpf: string;
+  title: string;
+  amount: number | string;
+  referenceId?: string;
+}) {
+  const backendBaseUrl = getPaymentBackendBaseUrl();
+  if (backendBaseUrl) {
+    const result = await fetch(`${backendBaseUrl}/v1/payments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getPaymentBackendHeaders(),
+      },
+      body: JSON.stringify(params),
+    });
+
+    return parseBackendResponse(result);
+  }
+
+  return createPixPaymentDirect(params);
+}
+
+export async function fetchPixPaymentStatusDirect(providerChargeId: string) {
   const result = await fetch(`${getMercadoPagoBaseUrl()}/v1/payments/${providerChargeId}`, {
     method: "GET",
     headers: {
