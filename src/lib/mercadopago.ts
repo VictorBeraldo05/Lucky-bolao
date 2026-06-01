@@ -2,9 +2,11 @@ import crypto from "crypto";
 
 type MercadoPagoPayment = {
   id?: string;
+  external_reference?: string;
   status?: string;
   status_detail?: string;
   transaction_amount?: number;
+  date_of_expiration?: string;
   payer?: {
     identification?: {
       number?: string;
@@ -15,6 +17,7 @@ type MercadoPagoPayment = {
       qr_code?: string;
       qr_code_base64?: string;
       expiration_date?: string;
+      ticket_url?: string;
     };
   };
   transaction_details?: {
@@ -44,6 +47,10 @@ export function getPaymentBackendBaseUrl() {
 
 export function getPaymentBackendApiKey() {
   return process.env.PAYMENT_BACKEND_API_KEY?.trim() || "";
+}
+
+export function getBackendPublicUrl() {
+  return process.env.BACKEND_PUBLIC_URL?.trim() || process.env.NEXT_PUBLIC_APP_URL?.trim() || "";
 }
 
 export function getMercadoPagoAccessToken() {
@@ -85,25 +92,29 @@ async function parseBackendResponse(result: Response) {
   return result.json() as Promise<MercadoPagoPayment>;
 }
 
-function normalizeSignature(signature: string | null) {
-  if (!signature) return null;
-  const trimmed = signature.trim();
-  if (trimmed.startsWith("sha256=")) {
-    return trimmed.substring(7);
-  }
-  if (trimmed.startsWith("sha1=")) {
-    return trimmed.substring(5);
-  }
-  return trimmed;
-}
-
-export function validateMercadoPagoSignature(signature: string | null, payload: string) {
-  const normalized = normalizeSignature(signature);
-  if (!normalized) return false;
+export function validateMercadoPagoSignature(signature: string | null, requestId: string | null, fullUrl: string) {
+  if (!signature || !requestId) return false;
   const secret = getMercadoPagoWebhookSecret();
-  const digestBase64 = crypto.createHmac("sha256", secret).update(payload).digest("base64");
-  const digestHex = crypto.createHmac("sha256", secret).update(payload).digest("hex");
-  return normalized === digestBase64 || normalized === digestHex;
+  const parts = Object.fromEntries(
+    signature
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .map((part) => {
+        const [key, ...rest] = part.split("=");
+        return [key, rest.join("=")];
+      }),
+  );
+
+  const ts = parts.ts;
+  const v1 = parts.v1;
+  if (!ts || !v1) return false;
+
+  const url = new URL(fullUrl);
+  const dataId = (url.searchParams.get("data.id") || url.searchParams.get("id") || "").toLowerCase();
+  const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`;
+  const expected = crypto.createHmac("sha256", secret).update(manifest).digest("hex");
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(v1));
 }
 
 export async function createPixPaymentDirect(params: {
@@ -114,6 +125,11 @@ export async function createPixPaymentDirect(params: {
   amount: number | string;
   referenceId?: string;
 }) {
+  const backendPublicUrl = getBackendPublicUrl();
+  if (!backendPublicUrl) {
+    throw new Error("BACKEND_PUBLIC_URL ou NEXT_PUBLIC_APP_URL nao configurado para o webhook do Mercado Pago.");
+  }
+
   const result = await fetch(`${getMercadoPagoBaseUrl()}/v1/payments`, {
     method: "POST",
     headers: {
@@ -125,6 +141,8 @@ export async function createPixPaymentDirect(params: {
       transaction_amount: Number(params.amount),
       description: params.title,
       payment_method_id: "pix",
+      external_reference: params.referenceId ? String(params.referenceId) : undefined,
+      notification_url: `${backendPublicUrl.replace(/\/$/, "")}/wallet/webhooks/mercadopago`,
       payer: {
         email: params.email,
         first_name: params.name,
@@ -258,8 +276,8 @@ export function parsePaymentTopupData(payment: MercadoPagoPayment) {
     providerChargeId: String(payment.id ?? ""),
     qrCodeText: String(interaction?.qr_code ?? ""),
     qrCodeImageBase64: qrCodeBase64,
-    paymentLinkUrl: String(payment.transaction_details?.external_resource_url ?? ""),
-    expiresAt: interaction?.expiration_date ? new Date(interaction.expiration_date).toISOString() : null,
+    paymentLinkUrl: String(interaction?.ticket_url ?? payment.transaction_details?.external_resource_url ?? ""),
+    expiresAt: payment.date_of_expiration || interaction?.expiration_date ? new Date(payment.date_of_expiration ?? interaction?.expiration_date ?? "").toISOString() : null,
     providerPayload: payment,
   };
 }

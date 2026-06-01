@@ -3,9 +3,11 @@ import { requireUser } from "@/lib/auth";
 import { AccountShell } from "@/components/account-shell";
 import { CartItemsTable } from "@/components/cart/cart-items-table";
 import { CartCheckoutPanel } from "@/components/cart/cart-checkout-panel";
+import { syncPendingCartPaymentsForUser } from "@/lib/cart";
 
 export default async function CartPage() {
   const user = await requireUser();
+  await syncPendingCartPaymentsForUser(user.id);
   const cart = await prisma.cart.findUnique({
     where: { userId: user.id },
     include: { items: { include: { pool: true } } },

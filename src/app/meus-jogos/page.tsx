@@ -3,10 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { AccountShell } from "@/components/account-shell";
 import { StatusBadge } from "@/components/status-badge";
+import { syncPendingCartPaymentsForUser } from "@/lib/cart";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 export default async function MyGamesPage() {
   const user = await requireUser();
+  await syncPendingCartPaymentsForUser(user.id);
   const shares = await prisma.poolShare.findMany({
     where: { userId: user.id },
     include: {
@@ -63,4 +65,3 @@ export default async function MyGamesPage() {
     </AccountShell>
   );
 }
-

@@ -2,10 +2,12 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { AccountShell } from "@/components/account-shell";
 import { StatCard } from "@/components/stat-card";
+import { syncPendingCartPaymentsForUser } from "@/lib/cart";
 import { formatCurrency } from "@/lib/utils";
 
 export default async function MyAccountPage() {
   const user = await requireUser();
+  await syncPendingCartPaymentsForUser(user.id);
 
   const [purchases, prizes, notifications] = await Promise.all([
     prisma.purchase.count({ where: { userId: user.id } }),
@@ -34,4 +36,3 @@ export default async function MyAccountPage() {
     </AccountShell>
   );
 }
-

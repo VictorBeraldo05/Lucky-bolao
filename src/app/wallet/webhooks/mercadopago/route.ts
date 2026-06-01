@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { PaymentStatus } from "@prisma/client";
 import { fetchPixPaymentStatus, validateMercadoPagoSignature, determineTopupStatus } from "@/lib/mercadopago";
 import { prisma } from "@/lib/prisma";
+import { finalizeApprovedCartPayment } from "@/lib/cart";
 import { syncWalletTopup } from "@/lib/wallet";
 
 type MercadoPagoWebhookPayload = {
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
     request.headers.get("x-hub-signature-256");
   const requestId = request.headers.get("x-request-id");
 
-  if (!validateMercadoPagoSignature(signature, bodyText)) {
+  if (!validateMercadoPagoSignature(signature, requestId, request.url)) {
     return NextResponse.json({ message: "Assinatura invalida." }, { status: 403 });
   }
 
@@ -85,18 +86,11 @@ export async function POST(request: Request) {
 
     const updatedPayment = await prisma.payment.update({
       where: { id: payment.id },
-      data: { status: paymentStatus },
+      data: { status: paymentStatus, metadata: { ...(payment.metadata as object | null ?? {}), providerPayload: providerPayment } },
     });
 
     if (paymentStatus === PaymentStatus.APPROVED) {
-      const metadata = payment.metadata as { cartId?: string } | null | undefined;
-      const cartId = metadata?.cartId;
-      if (cartId) {
-        await prisma.cart.updateMany({
-          where: { id: cartId, status: "OPEN" },
-          data: { status: "CHECKED_OUT" },
-        });
-      }
+      await finalizeApprovedCartPayment(updatedPayment.id, requestId ?? undefined);
     }
 
     return NextResponse.json({ payment: updatedPayment });

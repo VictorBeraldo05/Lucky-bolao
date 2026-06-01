@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 type PaymentData = {
@@ -17,9 +18,38 @@ type CartCheckoutPanelProps = {
 };
 
 export function CartCheckoutPanel({ total, userCpf }: CartCheckoutPanelProps) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
+
+  useEffect(() => {
+    if (!paymentData) return;
+
+    const interval = window.setInterval(async () => {
+      try {
+        const response = await fetch("/api/cart/checkout/status");
+        const data = await response.json();
+        if (!response.ok || !data.payment) return;
+
+        if (data.payment.status === "APPROVED") {
+          setStatusMessage("Pagamento aprovado. Suas cotas foram liberadas.");
+          router.refresh();
+          window.clearInterval(interval);
+          return;
+        }
+
+        if (data.payment.status === "CANCELED") {
+          setStatusMessage("O pagamento foi cancelado ou expirou.");
+          window.clearInterval(interval);
+        }
+      } catch {
+        // ignore polling errors
+      }
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, [paymentData, router]);
 
   async function handleCheckout() {
     if (!userCpf) {
