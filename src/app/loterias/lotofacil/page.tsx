@@ -18,13 +18,13 @@ export default async function LotofacilPage() {
   ]);
 
   return (
-    <Container className="py-10 space-y-8">
-      <SectionHeading eyebrow="Lotofacil" title="Bolões da Lotofácil" description="Confira concursos, dezenas e opcoes de participação para entrar na Lotofácil com praticidade." />
+    <Container className="space-y-8 py-10">
+      <SectionHeading eyebrow="Lotofácil" title="Bolões da Lotofácil" description="Confira concursos, dezenas e opções de participação para entrar na Lotofácil com praticidade." />
       <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
         <section className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
           <h2 className="text-2xl font-bold text-slate-900">Como funciona a Lotofácil</h2>
           <div className="mt-4 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-            <p><span className="font-semibold text-slate-900">Numeros:</span> 1 a 25</p>
+            <p><span className="font-semibold text-slate-900">Números:</span> 1 a 25</p>
             <p><span className="font-semibold text-slate-900">Aposta:</span> 15 a 20 dezenas</p>
             <p><span className="font-semibold text-slate-900">Tipos ativos:</span> {lottery?.gameTypes.length ?? 0}</p>
             <p><span className="font-semibold text-slate-900">Dias:</span> {lottery?.drawDays.join(", ")}</p>

@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET(request: Request) {
   const currentUser = await getCurrentUserFromRequest(request);
   if (!currentUser) {
-    return NextResponse.json({ message: "Nao autenticado." }, { status: 401 });
+    return NextResponse.json({ message: "Não autenticado." }, { status: 401 });
   }
 
   await syncPendingCartPaymentsForUser(currentUser.id);

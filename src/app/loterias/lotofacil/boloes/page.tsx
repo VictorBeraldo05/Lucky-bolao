@@ -18,8 +18,8 @@ export default async function LotofacilPoolsPage() {
   });
 
   return (
-    <Container className="py-10 space-y-8">
-      <SectionHeading eyebrow="Bolões" title="Listagem da Lotofacil" description="Confira os bolões disponíveis, escolha suas cotas e acompanhe tudo pela sua conta." />
+    <Container className="space-y-8 py-10">
+      <SectionHeading eyebrow="Bolões" title="Listagem da Lotofácil" description="Confira os bolões disponíveis, escolha suas cotas e acompanhe tudo pela sua conta." />
       <PoolTable pools={pools} />
     </Container>
   );

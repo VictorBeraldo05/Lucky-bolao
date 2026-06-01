@@ -8,7 +8,7 @@ const links = [
   { href: "/carteira", label: "Carteira" },
   { href: "/extrato", label: "Extrato" },
   { href: "/perfil", label: "Perfil" },
-  { href: "/notificacoes", label: "Notificacoes" },
+  { href: "/notificacoes", label: "Notificações" },
   { href: "/comprovantes", label: "Comprovantes" },
   { href: "/resgates", label: "Resgates" },
 ];
@@ -28,7 +28,7 @@ export function AccountShell({
     <Container className="py-10">
       <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
         <aside className="rounded-[28px] border border-white/80 bg-white/90 p-4 shadow-sm">
-          <p className="px-3 pb-3 text-sm font-semibold uppercase tracking-[0.25em] text-fuchsia-500">Area logada</p>
+          <p className="px-3 pb-3 text-sm font-semibold uppercase tracking-[0.25em] text-fuchsia-500">Área logada</p>
           <nav className="space-y-1">
             {links.map((link) => (
               <Link
@@ -55,4 +55,3 @@ export function AccountShell({
     </Container>
   );
 }
-

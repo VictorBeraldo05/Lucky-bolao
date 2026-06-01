@@ -7,7 +7,7 @@ export async function GET(request: Request, context: { params: Promise<{ topupId
   const { topupId } = await context.params;
   const currentUser = await getCurrentUserFromRequest(request);
   if (!currentUser) {
-    return NextResponse.json({ message: "Nao autenticado." }, { status: 401 });
+    return NextResponse.json({ message: "Não autenticado." }, { status: 401 });
   }
 
   const topup = await prisma.walletTopup.findUnique({
@@ -16,7 +16,7 @@ export async function GET(request: Request, context: { params: Promise<{ topupId
   });
 
   if (!topup || topup.userId !== currentUser.id) {
-    return NextResponse.json({ message: "Topup nao encontrado." }, { status: 404 });
+    return NextResponse.json({ message: "Topup não encontrado." }, { status: 404 });
   }
 
   if (topup.status === "PENDING" && topup.providerChargeId) {

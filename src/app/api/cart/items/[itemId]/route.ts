@@ -11,7 +11,7 @@ const updateQuantitySchema = z.object({
 export async function PATCH(request: Request, { params }: { params: Promise<{ itemId: string }> }) {
   const currentUser = await getCurrentUserFromRequest(request);
   if (!currentUser) {
-    return NextResponse.json({ message: "Nao autenticado." }, { status: 401 });
+    return NextResponse.json({ message: "Não autenticado." }, { status: 401 });
   }
 
   try {
@@ -19,10 +19,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ it
     const payload = updateQuantitySchema.parse(await request.json());
     const item = await prisma.cartItem.findUnique({ where: { id: itemId }, include: { cart: true, pool: true } });
     if (!item || item.cart.userId !== currentUser.id) {
-      return NextResponse.json({ message: "Item do carrinho nao encontrado." }, { status: 404 });
+      return NextResponse.json({ message: "Item do carrinho não encontrado." }, { status: 404 });
     }
     if (item.pool.availableShares < payload.quantity) {
-      return NextResponse.json({ message: "Quantidade maior que o disponivel." }, { status: 400 });
+      return NextResponse.json({ message: "Quantidade maior que o disponível." }, { status: 400 });
     }
 
     const updatedItem = await prisma.cartItem.update({
@@ -42,13 +42,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ it
 export async function DELETE(request: Request, { params }: { params: Promise<{ itemId: string }> }) {
   const currentUser = await getCurrentUserFromRequest(request);
   if (!currentUser) {
-    return NextResponse.json({ message: "Nao autenticado." }, { status: 401 });
+    return NextResponse.json({ message: "Não autenticado." }, { status: 401 });
   }
 
   const { itemId } = await params;
   const item = await prisma.cartItem.findUnique({ where: { id: itemId }, include: { cart: true } });
   if (!item || item.cart.userId !== currentUser.id) {
-    return NextResponse.json({ message: "Item do carrinho nao encontrado." }, { status: 404 });
+    return NextResponse.json({ message: "Item do carrinho não encontrado." }, { status: 404 });
   }
 
   await prisma.cartItem.delete({ where: { id: item.id } });

@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     const existing = await prisma.user.findUnique({ where: { email: payload.email } });
 
     if (existing) {
-      return NextResponse.json({ message: "Este e-mail ja esta em uso." }, { status: 409 });
+      return NextResponse.json({ message: "Este e-mail já está em uso." }, { status: 409 });
     }
 
     const passwordHash = await hashPassword(payload.password);
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
         notifications: {
           create: {
             title: "Conta criada",
-            message: "Sua conta foi criada com sucesso. Agora voce ja pode receber creditos e participar dos bolões.",
+            message: "Sua conta foi criada com sucesso. Agora você já pode receber créditos e participar dos bolões.",
             type: "SUCCESS",
           },
         },
@@ -60,4 +60,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: error instanceof Error ? error.message : "Falha ao criar conta." }, { status: 400 });
   }
 }
-

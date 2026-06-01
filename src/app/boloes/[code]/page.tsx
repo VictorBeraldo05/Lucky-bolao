@@ -54,19 +54,19 @@ export default async function PoolDetailPage({ params }: { params: Promise<{ cod
               <StatusBadge status={pool.status} />
             </div>
             <div className="mt-6 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-              <p><span className="font-semibold text-slate-900">Codigo:</span> {pool.code}</p>
+              <p><span className="font-semibold text-slate-900">Código:</span> {pool.code}</p>
               <p><span className="font-semibold text-slate-900">Tipo:</span> {pool.gameType.name}</p>
               <p><span className="font-semibold text-slate-900">Concurso:</span> {pool.contest.contestNumber}</p>
               <p><span className="font-semibold text-slate-900">Sorteio:</span> {formatDate(pool.contest.drawDate)}</p>
               <p><span className="font-semibold text-slate-900">Valor total:</span> {formatCurrency(pool.totalValue)}</p>
               <p><span className="font-semibold text-slate-900">Por cota:</span> {formatCurrency(pool.sharePrice)}</p>
-              <p><span className="font-semibold text-slate-900">Cotas:</span> {pool.availableShares}/{pool.totalShares} disponiveis</p>
+              <p><span className="font-semibold text-slate-900">Cotas:</span> {pool.availableShares}/{pool.totalShares} disponíveis</p>
               <p><span className="font-semibold text-slate-900">Chance:</span> {pool.relativeChance ?? "Ampliada"}</p>
             </div>
           </div>
 
           <div className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
-            <h2 className="text-2xl font-bold text-slate-900">Jogos do bolao</h2>
+            <h2 className="text-2xl font-bold text-slate-900">Jogos do bolão</h2>
             <div className="mt-5 space-y-5">
               {pool.games.map((game) => (
                 <div key={game.id} className="rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/60 p-4">
@@ -94,7 +94,7 @@ export default async function PoolDetailPage({ params }: { params: Promise<{ cod
             <p className="mt-2 text-sm text-slate-600">O comprovante fica vinculado ao bolão para consulta rápida sempre que você precisar.</p>
             {pool.ticketImageUrl ? (
               <div className="relative mt-4 h-56 overflow-hidden rounded-[24px]">
-                <Image src={pool.ticketImageUrl} alt="Comprovante do bolao" fill className="object-cover" />
+                <Image src={pool.ticketImageUrl} alt="Comprovante do bolão" fill className="object-cover" />
               </div>
             ) : null}
           </div>

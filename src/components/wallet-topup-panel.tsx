@@ -50,12 +50,12 @@ export function WalletTopupPanel({ packages, userCpf }: WalletTopupPanelProps) {
 
       const data = await response.json();
       if (!response.ok) {
-        setStatusMessage(data.message ?? "Falha ao criar deposito.");
+        setStatusMessage(data.message ?? "Falha ao criar depósito.");
         return;
       }
 
       setTopup(data.topup);
-      setStatusMessage("Topup criado. Aguarde a confirmacao do pagamento.");
+      setStatusMessage("Topup criado. Aguarde a confirmação do pagamento.");
     } catch {
       setStatusMessage("Erro ao criar topup. Tente novamente.");
     } finally {
@@ -84,7 +84,7 @@ export function WalletTopupPanel({ packages, userCpf }: WalletTopupPanelProps) {
   function handleCopy(value: string | null | undefined) {
     if (!value) return;
     navigator.clipboard.writeText(value);
-    setStatusMessage("Texto copiado para a area de transferencia.");
+    setStatusMessage("Texto copiado para a área de transferência.");
   }
 
   return (
@@ -99,9 +99,9 @@ export function WalletTopupPanel({ packages, userCpf }: WalletTopupPanelProps) {
         </div>
         <div className="rounded-[24px] bg-fuchsia-50/60 p-4">
           <p className="text-sm font-semibold text-slate-700">CPF cadastrado</p>
-          <p className="mt-2 text-lg font-bold text-slate-900">{userCpf ?? "Nao cadastrado"}</p>
+          <p className="mt-2 text-lg font-bold text-slate-900">{userCpf ?? "Não cadastrado"}</p>
           {!userCpf ? (
-            <p className="mt-2 text-sm text-rose-600">Atualize seu CPF em Perfil para usar o deposito.</p>
+            <p className="mt-2 text-sm text-rose-600">Atualize seu CPF em Perfil para usar o depósito.</p>
           ) : null}
         </div>
       </div>
@@ -115,7 +115,7 @@ export function WalletTopupPanel({ packages, userCpf }: WalletTopupPanelProps) {
             className={`rounded-[24px] border p-4 text-left transition ${selectedPackageId === item.id ? "border-fuchsia-300 bg-fuchsia-50 shadow-sm" : "border-fuchsia-100 bg-white hover:border-fuchsia-200"}`}
           >
             <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-            <p className="mt-2 text-sm text-slate-500">{item.description ?? "Credito de carteira."}</p>
+            <p className="mt-2 text-sm text-slate-500">{item.description ?? "Crédito de carteira."}</p>
             <p className="mt-4 text-2xl font-black text-fuchsia-700">{formatCurrency(item.price)}</p>
           </button>
         ))}
@@ -173,7 +173,7 @@ export function WalletTopupPanel({ packages, userCpf }: WalletTopupPanelProps) {
                   onClick={() => handleCopy(topup.qrCodeText)}
                   className="inline-flex items-center justify-center rounded-full border border-fuchsia-200 bg-white px-4 py-3 text-sm font-semibold text-fuchsia-700 transition hover:bg-fuchsia-50"
                 >
-                  Copiar codigo Pix
+                  Copiar código Pix
                 </button>
                 {topup.paymentLinkUrl ? (
                   <a

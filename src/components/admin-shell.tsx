@@ -4,14 +4,14 @@ import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/admin", label: "Dashboard" },
-  { href: "/admin/usuarios", label: "Usuarios" },
+  { href: "/admin/usuarios", label: "Usuários" },
   { href: "/admin/loterias", label: "Loterias" },
   { href: "/admin/concursos", label: "Concursos" },
-  { href: "/admin/boloes", label: "Boloes" },
+  { href: "/admin/boloes", label: "Bolões" },
   { href: "/admin/compras", label: "Compras" },
   { href: "/admin/pagamentos", label: "Pagamentos" },
   { href: "/admin/resultados", label: "Resultados" },
-  { href: "/admin/premios", label: "Premios" },
+  { href: "/admin/premios", label: "Prêmios" },
   { href: "/admin/logs", label: "Logs" },
 ];
 
@@ -57,4 +57,3 @@ export function AdminShell({
     </Container>
   );
 }
-

@@ -7,18 +7,18 @@ import { createPixPayment, normalizeCpf, parsePaymentTopupData, determineTopupSt
 export async function POST(request: Request) {
   const currentUser = await getCurrentUserFromRequest(request);
   if (!currentUser) {
-    return NextResponse.json({ message: "Nao autenticado." }, { status: 401 });
+    return NextResponse.json({ message: "Não autenticado." }, { status: 401 });
   }
 
   if (!currentUser.cpf) {
-    return NextResponse.json({ message: "CPF necessario para criar depositos." }, { status: 400 });
+    return NextResponse.json({ message: "CPF necessário para criar depósitos." }, { status: 400 });
   }
 
   try {
     const payload = walletTopupSchema.parse(await request.json());
     const walletPackage = await prisma.walletPackage.findUnique({ where: { id: payload.packageId } });
     if (!walletPackage) {
-      return NextResponse.json({ message: "Pacote nao encontrado." }, { status: 404 });
+      return NextResponse.json({ message: "Pacote não encontrado." }, { status: 404 });
     }
 
     const payment = await createPixPayment({

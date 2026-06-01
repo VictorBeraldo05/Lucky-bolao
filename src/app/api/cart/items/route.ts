@@ -6,20 +6,20 @@ import { cartItemSchema } from "@/lib/validations";
 export async function POST(request: Request) {
   const currentUser = await getCurrentUserFromRequest(request);
   if (!currentUser) {
-    return NextResponse.json({ message: "Nao autenticado." }, { status: 401 });
+    return NextResponse.json({ message: "Não autenticado." }, { status: 401 });
   }
 
   try {
     const payload = cartItemSchema.parse(await request.json());
     const pool = await prisma.pool.findUnique({ where: { id: payload.poolId } });
     if (!pool) {
-      return NextResponse.json({ message: "Bolao nao encontrado." }, { status: 404 });
+      return NextResponse.json({ message: "Bolão não encontrado." }, { status: 404 });
     }
     if (pool.status !== "OPEN") {
-      return NextResponse.json({ message: "Este bolao nao esta disponivel para compra." }, { status: 400 });
+      return NextResponse.json({ message: "Este bolão não está disponível para compra." }, { status: 400 });
     }
     if (pool.availableShares < payload.quantity) {
-      return NextResponse.json({ message: "Quantidade maior que o disponivel." }, { status: 400 });
+      return NextResponse.json({ message: "Quantidade maior que o disponível." }, { status: 400 });
     }
 
     const unitPrice = pool.sharePrice;
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
       if (existingItem) {
         const newQuantity = existingItem.quantity + payload.quantity;
         if (pool.availableShares < newQuantity) {
-          throw new Error("Quantidade no carrinho excede o disponivel.");
+          throw new Error("Quantidade no carrinho excede o disponível.");
         }
 
         const item = await tx.cartItem.update({
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   const currentUser = await getCurrentUserFromRequest(request);
   if (!currentUser) {
-    return NextResponse.json({ message: "Nao autenticado." }, { status: 401 });
+    return NextResponse.json({ message: "Não autenticado." }, { status: 401 });
   }
 
   const cart = await prisma.cart.findFirst({

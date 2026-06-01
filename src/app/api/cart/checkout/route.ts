@@ -13,11 +13,11 @@ function mapToPaymentStatus(status: string) {
 export async function POST(request: Request) {
   const currentUser = await getCurrentUserFromRequest(request);
   if (!currentUser) {
-    return NextResponse.json({ message: "Nao autenticado." }, { status: 401 });
+    return NextResponse.json({ message: "Não autenticado." }, { status: 401 });
   }
 
   if (!currentUser.cpf) {
-    return NextResponse.json({ message: "CPF necessario para finalizar o pagamento." }, { status: 400 });
+    return NextResponse.json({ message: "CPF necessário para finalizar o pagamento." }, { status: 400 });
   }
 
   const cart = await prisma.cart.findUnique({
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
 
   const invalidPool = cart.items.find((item) => item.pool.status !== "OPEN" || item.pool.availableShares < item.quantity);
   if (invalidPool) {
-    return NextResponse.json({ message: "Um dos boloes no carrinho nao esta mais disponivel." }, { status: 400 });
+    return NextResponse.json({ message: "Um dos bolões no carrinho não está mais disponível." }, { status: 400 });
   }
 
   const amount = cart.items.reduce((sum, item) => sum + Number(item.totalPrice), 0);

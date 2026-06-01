@@ -145,7 +145,7 @@ export function CartOverlay({ userCpf, isAuthenticated }: CartOverlayProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        setQuickAddMessage(data.message ?? "Nao foi possivel adicionar mais cotas agora.");
+        setQuickAddMessage(data.message ?? "Não foi possível adicionar mais cotas agora.");
         return;
       }
 
@@ -211,7 +211,7 @@ export function CartOverlay({ userCpf, isAuthenticated }: CartOverlayProps) {
                       <p className="mt-1 text-sm font-medium text-slate-900">
                         {recentlyAdded.quantity} cota(s) de {recentlyAdded.title}
                       </p>
-                      <p className="mt-1 text-sm text-slate-600">Total incluido agora: {formatCurrency(recentlyAdded.total)}</p>
+                      <p className="mt-1 text-sm text-slate-600">Total incluído agora: {formatCurrency(recentlyAdded.total)}</p>
                     </div>
                   </div>
                 </div>
@@ -226,7 +226,7 @@ export function CartOverlay({ userCpf, isAuthenticated }: CartOverlayProps) {
                       <div className="flex items-start justify-between gap-4">
                         <div>
                           <p className="font-semibold text-slate-900">{item.pool.title}</p>
-                          <p className="mt-1 text-sm text-slate-500">Bolao {item.pool.code}</p>
+                          <p className="mt-1 text-sm text-slate-500">Bolão {item.pool.code}</p>
                         </div>
                         <button
                           type="button"
@@ -259,14 +259,14 @@ export function CartOverlay({ userCpf, isAuthenticated }: CartOverlayProps) {
                           +2 cotas
                         </button>
                         <span className="text-xs text-slate-500">
-                          Restantes para este bolao: {Math.max(item.pool.availableShares - item.quantity, 0)}
+                          Restantes para este bolão: {Math.max(item.pool.availableShares - item.quantity, 0)}
                         </span>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="rounded-[24px] border border-dashed border-fuchsia-200 bg-white p-6 text-sm text-slate-500">
-                    Seu carrinho esta vazio no momento.
+                    Seu carrinho está vazio no momento.
                   </div>
                 )}
               </div>
@@ -281,7 +281,7 @@ export function CartOverlay({ userCpf, isAuthenticated }: CartOverlayProps) {
                       <p className="text-sm font-semibold uppercase tracking-[0.16em] text-fuchsia-500">Continue comprando</p>
                       <h3 className="mt-2 text-lg font-bold text-slate-900">Quer aumentar suas chances neste concurso?</h3>
                       <p className="mt-2 text-sm leading-6 text-slate-600">
-                        Seu carrinho ja tem {itemCount} cota(s). Voce pode incluir mais opcoes antes de finalizar o PIX.
+                        Seu carrinho já tem {itemCount} cota(s). Você pode incluir mais opções antes de finalizar o PIX.
                       </p>
                       <div className="mt-4 flex flex-wrap gap-3">
                         <button
@@ -300,7 +300,7 @@ export function CartOverlay({ userCpf, isAuthenticated }: CartOverlayProps) {
                           onClick={closeDrawer}
                           className="rounded-full border border-fuchsia-200 px-4 py-2 text-sm font-semibold text-fuchsia-700 transition hover:bg-fuchsia-50"
                         >
-                          Ver mais boloes
+                          Ver mais bolões
                         </Link>
                       </div>
                     </div>

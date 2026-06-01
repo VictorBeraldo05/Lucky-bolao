@@ -51,15 +51,15 @@ export function AdminResultForm({ contests }: AdminResultFormProps) {
           </option>
         ))}
       </select>
-      <input name="drawnNumbers" type="text" placeholder="Numeros sorteados separados por virgula" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3 lg:col-span-2" />
-      <input name="prize11" type="number" min={0} step="0.01" placeholder="Premio 11 acertos" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
-      <input name="prize12" type="number" min={0} step="0.01" placeholder="Premio 12 acertos" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
-      <input name="prize13" type="number" min={0} step="0.01" placeholder="Premio 13 acertos" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
-      <input name="prize14" type="number" min={0} step="0.01" placeholder="Premio 14 acertos" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
-      <input name="prize15" type="number" min={0} step="0.01" placeholder="Premio 15 acertos" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
-      <input name="source" type="text" placeholder="Fonte ou observacao" defaultValue="Resultado conferido e publicado" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
-      <button className="rounded-full bg-fuchsia-600 px-5 py-3 font-semibold text-white lg:col-span-3">Publicar resultado e distribuir premios</button>
-      {message ? <p className="lg:col-span-3 text-sm text-slate-600">{message}</p> : null}
+      <input name="drawnNumbers" type="text" placeholder="Números sorteados separados por vírgula" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3 lg:col-span-2" />
+      <input name="prize11" type="number" min={0} step="0.01" placeholder="Prêmio 11 acertos" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
+      <input name="prize12" type="number" min={0} step="0.01" placeholder="Prêmio 12 acertos" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
+      <input name="prize13" type="number" min={0} step="0.01" placeholder="Prêmio 13 acertos" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
+      <input name="prize14" type="number" min={0} step="0.01" placeholder="Prêmio 14 acertos" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
+      <input name="prize15" type="number" min={0} step="0.01" placeholder="Prêmio 15 acertos" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
+      <input name="source" type="text" placeholder="Fonte ou observação" defaultValue="Resultado conferido e publicado" className="rounded-2xl border border-fuchsia-100 bg-white px-4 py-3" />
+      <button className="rounded-full bg-fuchsia-600 px-5 py-3 font-semibold text-white lg:col-span-3">Publicar resultado e distribuir prêmios</button>
+      {message ? <p className="text-sm text-slate-600 lg:col-span-3">{message}</p> : null}
     </form>
   );
 }

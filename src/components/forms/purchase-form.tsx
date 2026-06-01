@@ -76,7 +76,7 @@ export function PurchaseForm({ poolId, poolTitle, poolCode, sharePrice, availabl
           <p className="text-2xl font-bold text-slate-900">{formatCurrency(total)}</p>
         </div>
       </div>
-      <p className="mt-3 text-sm text-slate-500">Disponiveis: {availableShares} cotas</p>
+      <p className="mt-3 text-sm text-slate-500">Disponíveis: {availableShares} cotas</p>
       <p className="mt-1 text-sm text-slate-500">Depois de adicionar ao carrinho, finalize a compra no carrinho com PIX.</p>
       {message ? <p className="mt-3 text-sm font-medium text-slate-700">{message}</p> : null}
       <button

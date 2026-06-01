@@ -13,8 +13,8 @@ export default async function LoteriasPage() {
   });
 
   return (
-    <Container className="py-10 space-y-8">
-      <SectionHeading eyebrow="Loterias" title="Escolha sua modalidade" description="Encontre a loteria ideal para voce e acompanhe os bolões disponiveis em cada concurso." />
+    <Container className="space-y-8 py-10">
+      <SectionHeading eyebrow="Loterias" title="Escolha sua modalidade" description="Encontre a loteria ideal para você e acompanhe os bolões disponíveis em cada concurso." />
       <div className="grid gap-6 lg:grid-cols-2">
         {lotteries.map((lottery) => (
           <article key={lottery.id} className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">

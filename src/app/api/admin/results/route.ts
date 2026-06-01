@@ -35,7 +35,7 @@ export async function POST(request: Request) {
         },
       });
 
-      if (!contest) throw new Error("Concurso nao encontrado.");
+      if (!contest) throw new Error("Concurso não encontrado.");
 
       await tx.contestResult.upsert({
         where: { contestId: contest.id },
@@ -111,7 +111,7 @@ export async function POST(request: Request) {
                 poolShareId: groupedShare.shareIds[0],
                 amount: proportionalAmount,
                 hitCount: Math.max(...hitsByGame),
-                description: `Premio proporcional do bolao ${pool.code}`,
+                description: `Prêmio proporcional do bolão ${pool.code}`,
               },
             });
 
@@ -124,7 +124,7 @@ export async function POST(request: Request) {
                 amount: proportionalAmount,
                 balanceBefore: wallet.balance,
                 balanceAfter: updatedWallet.balance,
-                description: `Credito de premio do bolao ${pool.code}`,
+                description: `Crédito de prêmio do bolão ${pool.code}`,
                 referenceType: "pool",
                 referenceId: pool.id,
               },
@@ -134,8 +134,8 @@ export async function POST(request: Request) {
               data: {
                 userId,
                 type: "SUCCESS",
-                title: "Premio creditado",
-                message: `Seu premio do bolao ${pool.code} foi creditado na carteira.`,
+                title: "Prêmio creditado",
+                message: `Seu prêmio do bolão ${pool.code} foi creditado na carteira.`,
               },
             });
           }

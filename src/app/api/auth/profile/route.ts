@@ -7,7 +7,7 @@ import { normalizeCpf } from "@/lib/mercadopago";
 export async function PATCH(request: Request) {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
-    return NextResponse.json({ message: "Nao autenticado." }, { status: 401 });
+    return NextResponse.json({ message: "Não autenticado." }, { status: 401 });
   }
 
   try {

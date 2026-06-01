@@ -2,15 +2,15 @@ import { Container } from "@/components/container";
 import { SectionHeading } from "@/components/section-heading";
 
 const steps = [
-  "Crie sua conta em poucos instantes e acesse sua area pessoal.",
-  "Adicione saldo para comprar cotas dos bolões disponiveis.",
-  "Escolha o bolão, defina a quantidade de cotas e confirme sua participacao.",
-  "Acompanhe sorteios, resultados, premios, comprovantes e movimentacoes sempre que quiser.",
+  "Crie sua conta em poucos instantes e acesse sua área pessoal.",
+  "Adicione saldo para comprar cotas dos bolões disponíveis.",
+  "Escolha o bolão, defina a quantidade de cotas e confirme sua participação.",
+  "Acompanhe sorteios, resultados, prêmios, comprovantes e movimentações sempre que quiser.",
 ];
 
 export default function HowItWorksPage() {
   return (
-    <Container className="py-10 space-y-8">
+    <Container className="space-y-8 py-10">
       <SectionHeading eyebrow="Passo a passo" title="Como funciona" description="Da escolha do bolão ao acompanhamento do resultado, tudo acontece de forma simples e organizada." />
       <div className="grid gap-5 lg:grid-cols-2">
         {steps.map((step, index) => (

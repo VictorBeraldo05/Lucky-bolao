@@ -35,8 +35,8 @@ export function NotificationsButton({ notifications }: { notifications: HeaderNo
             >
               <div className="flex items-start justify-between gap-4 border-b border-fuchsia-100 px-5 py-5 sm:px-6">
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">Notificacoes</p>
-                  <h2 className="mt-2 text-2xl font-bold text-slate-900">Atualizacoes da sua conta</h2>
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">Notificações</p>
+                  <h2 className="mt-2 text-2xl font-bold text-slate-900">Atualizações da sua conta</h2>
                 </div>
                 <button
                   type="button"
@@ -59,7 +59,7 @@ export function NotificationsButton({ notifications }: { notifications: HeaderNo
                     ))
                   ) : (
                     <div className="rounded-[24px] border border-dashed border-fuchsia-200 bg-white p-6 text-sm text-slate-500">
-                      Voce nao tem notificacoes novas no momento.
+                      Você não tem notificações novas no momento.
                     </div>
                   )}
                 </div>
@@ -71,7 +71,7 @@ export function NotificationsButton({ notifications }: { notifications: HeaderNo
                   onClick={() => setIsOpen(false)}
                   className="inline-flex w-full items-center justify-center rounded-full bg-fuchsia-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-700"
                 >
-                  Ver todas as notificacoes
+                  Ver todas as notificações
                 </Link>
               </div>
             </div>

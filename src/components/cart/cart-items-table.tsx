@@ -74,7 +74,7 @@ export function CartItemsTable({ initialItems, onCartChange }: CartItemsTablePro
   }
 
   if (items.length === 0) {
-    return <p className="rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/70 p-6 text-center text-sm text-slate-600">Seu carrinho esta vazio.</p>;
+    return <p className="rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/70 p-6 text-center text-sm text-slate-600">Seu carrinho está vazio.</p>;
   }
 
   return (

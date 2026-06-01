@@ -9,13 +9,13 @@ function isAuthorized(request: Request) {
 
 export async function GET(request: Request, { params }: { params: Promise<{ paymentId: string }> }) {
   if (!isAuthorized(request)) {
-    return NextResponse.json({ message: "Nao autorizado." }, { status: 401 });
+    return NextResponse.json({ message: "Não autorizado." }, { status: 401 });
   }
 
   try {
     const { paymentId } = await params;
     if (!paymentId) {
-      return NextResponse.json({ message: "Pagamento nao informado." }, { status: 400 });
+      return NextResponse.json({ message: "Pagamento não informado." }, { status: 400 });
     }
 
     const payment = await fetchPixPaymentStatusDirect(paymentId);

@@ -10,7 +10,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ poo
     const currentUser = await getCurrentUser();
 
     if (!currentUser?.wallet) {
-      return NextResponse.json({ message: "Voce precisa estar logado para comprar cotas." }, { status: 401 });
+      return NextResponse.json({ message: "Você precisa estar logado para comprar cotas." }, { status: 401 });
     }
 
     const { poolId } = await params;
@@ -27,12 +27,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ poo
         include: { contest: true },
       });
 
-      if (!pool) throw new Error("Bolao nao encontrado.");
-      if (pool.status !== "OPEN") throw new Error("Este bolao nao esta disponivel para compra.");
+      if (!pool) throw new Error("Bolão não encontrado.");
+      if (pool.status !== "OPEN") throw new Error("Este bolão não está disponível para compra.");
 
       const total = new Prisma.Decimal(pool.sharePrice).mul(parsed.quantity);
       const wallet = await tx.wallet.findUnique({ where: { userId: currentUser.id } });
-      if (!wallet) throw new Error("Carteira nao encontrada.");
+      if (!wallet) throw new Error("Carteira não encontrada.");
       if (wallet.balance.lessThan(total)) throw new Error("Saldo insuficiente.");
 
       const walletUpdateResult = await tx.wallet.updateMany({
@@ -56,7 +56,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ poo
         },
       });
 
-      if (poolUpdateResult.count === 0) throw new Error("Nao ha cotas suficientes disponiveis.");
+      if (poolUpdateResult.count === 0) throw new Error("Não há cotas suficientes disponíveis.");
 
       const [updatedWallet, updatedPool] = await Promise.all([
         tx.wallet.findUniqueOrThrow({ where: { id: wallet.id } }),
@@ -107,7 +107,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ poo
           amount: total.negated(),
           balanceBefore: wallet.balance,
           balanceAfter: updatedWallet.balance,
-          description: `Compra de ${parsed.quantity} cota(s) no bolao ${pool.code}`,
+          description: `Compra de ${parsed.quantity} cota(s) no bolão ${pool.code}`,
           referenceType: "purchase",
           referenceId: purchase.id,
           metadata: { poolCode: pool.code, quantity: parsed.quantity },
@@ -119,7 +119,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ poo
           userId: currentUser.id,
           type: "SUCCESS",
           title: "Compra confirmada",
-          message: `Voce comprou ${parsed.quantity} cota(s) do bolao ${pool.code}.`,
+          message: `Você comprou ${parsed.quantity} cota(s) do bolão ${pool.code}.`,
         },
       });
 
@@ -159,6 +159,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ poo
 
     return NextResponse.json({ message: "Compra realizada com sucesso.", purchaseId: result.id });
   } catch (error) {
-    return NextResponse.json({ message: error instanceof Error ? error.message : "Nao foi possivel concluir a compra." }, { status: 400 });
+    return NextResponse.json({ message: error instanceof Error ? error.message : "Não foi possível concluir a compra." }, { status: 400 });
   }
 }

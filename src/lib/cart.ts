@@ -28,7 +28,7 @@ export async function finalizeApprovedCartPayment(paymentId: string, correlation
   });
 
   if (!payment) {
-    throw new Error("Pagamento nao encontrado.");
+    throw new Error("Pagamento não encontrado.");
   }
 
   const metadata = ((payment.metadata as PaymentMetadata | null) ?? {});
@@ -43,7 +43,7 @@ export async function finalizeApprovedCartPayment(paymentId: string, correlation
   return prisma.$transaction(async (tx) => {
     const lockedPayment = await tx.payment.findUnique({ where: { id: payment.id } });
     const lockedMetadata = ((lockedPayment?.metadata as PaymentMetadata | null) ?? {});
-    if (!lockedPayment) throw new Error("Pagamento nao encontrado.");
+    if (!lockedPayment) throw new Error("Pagamento não encontrado.");
     if (lockedMetadata.purchaseId) return lockedPayment;
     if (lockedPayment.status !== PaymentStatus.APPROVED) return lockedPayment;
 
@@ -53,7 +53,7 @@ export async function finalizeApprovedCartPayment(paymentId: string, correlation
     });
 
     if (!cart) {
-      throw new Error("Carrinho nao encontrado.");
+      throw new Error("Carrinho não encontrado.");
     }
 
     if (cart.items.length === 0) {
@@ -78,9 +78,9 @@ export async function finalizeApprovedCartPayment(paymentId: string, correlation
 
     for (const item of cart.items) {
       const pool = await tx.pool.findUnique({ where: { id: item.poolId } });
-      if (!pool) throw new Error("Bolao nao encontrado para concluir pagamento.");
+      if (!pool) throw new Error("Bolão não encontrado para concluir pagamento.");
       if (pool.status !== "OPEN" && pool.status !== "SOLD_OUT") {
-        throw new Error("Bolao indisponivel para concluir pagamento.");
+        throw new Error("Bolão indisponível para concluir pagamento.");
       }
 
       const poolUpdate = await tx.pool.updateMany({
@@ -94,7 +94,7 @@ export async function finalizeApprovedCartPayment(paymentId: string, correlation
       });
 
       if (poolUpdate.count === 0) {
-        throw new Error(`Nao ha cotas suficientes para concluir o bolao ${pool.code}.`);
+        throw new Error(`Não há cotas suficientes para concluir o bolão ${pool.code}.`);
       }
 
       const purchaseItem = await tx.purchaseItem.create({
@@ -129,7 +129,7 @@ export async function finalizeApprovedCartPayment(paymentId: string, correlation
 
     const wallet = payment.user.wallet;
     if (!wallet) {
-      throw new Error("Carteira nao encontrada para concluir a compra.");
+      throw new Error("Carteira não encontrada para concluir a compra.");
     }
 
     await tx.walletTransaction.create({
@@ -153,7 +153,7 @@ export async function finalizeApprovedCartPayment(paymentId: string, correlation
         userId: payment.userId,
         type: "SUCCESS",
         title: "Pagamento aprovado",
-        message: "Seu pagamento PIX foi aprovado e suas cotas ja foram reservadas.",
+        message: "Seu pagamento PIX foi aprovado e suas cotas já foram reservadas.",
       },
     });
 
