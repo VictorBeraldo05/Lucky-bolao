@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 function mapToPaymentStatus(status: string) {
   if (status === "PAID") return PaymentStatus.APPROVED;
   if (status === "PENDING") return PaymentStatus.PENDING;
+  if (status === "MANUAL_REVIEW") return PaymentStatus.PENDING;
   return PaymentStatus.CANCELED;
 }
 

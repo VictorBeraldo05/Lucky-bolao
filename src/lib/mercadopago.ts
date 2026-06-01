@@ -239,19 +239,11 @@ export function determineTopupStatus(payment: MercadoPagoPayment, expectedCpf?: 
   const statusDetail = String(payment.status_detail ?? "").toLowerCase();
 
   if (status === "approved") {
-    if (!payerCpf) {
-      return allowApprovedWithoutCpf() ? "PAID" : "MANUAL_REVIEW";
-    }
-
-    if (!normalizedExpected) {
-      return allowApprovedWithoutCpf() ? "PAID" : "MANUAL_REVIEW";
-    }
-
-    if (payerCpf === normalizedExpected) {
+    if (!payerCpf || !normalizedExpected || payerCpf === normalizedExpected) {
       return "PAID";
     }
 
-    return allowApprovedWithMismatchedCpf() ? "PAID" : "REJECTED";
+    return allowApprovedWithMismatchedCpf() ? "PAID" : "MANUAL_REVIEW";
   }
 
   if (status === "pending" || status === "in_process" || status === "in_mediation") {

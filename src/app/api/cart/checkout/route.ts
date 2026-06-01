@@ -6,6 +6,7 @@ import { createPixPayment, parsePaymentTopupData, determineTopupStatus } from "@
 function mapToPaymentStatus(status: string) {
   if (status === "PAID") return "APPROVED";
   if (status === "PENDING") return "PENDING";
+  if (status === "MANUAL_REVIEW") return "PENDING";
   return "CANCELED";
 }
 
