@@ -30,10 +30,6 @@ export async function POST(request: Request) {
     request.headers.get("x-hub-signature-256");
   const requestId = request.headers.get("x-request-id");
 
-  if (!validateMercadoPagoSignature(signature, requestId, request.url)) {
-    return NextResponse.json({ message: "Assinatura invalida." }, { status: 403 });
-  }
-
   let payload: unknown = null;
   if (bodyText) {
     try {
@@ -44,6 +40,20 @@ export async function POST(request: Request) {
   }
 
   const event = (payload && typeof payload === "object" ? payload : {}) as MercadoPagoWebhookPayload;
+  const payloadType =
+    (payload && typeof payload === "object" && "type" in payload ? String((payload as { type?: string }).type ?? "") : "") ||
+    (payload && typeof payload === "object" && "topic" in payload ? String((payload as { topic?: string }).topic ?? "") : "");
+
+  const payloadDataId =
+    event.data?.id || event.id || event.resource?.id || event.payment_id || event.data?.object?.id || null;
+
+  if (!validateMercadoPagoSignature(signature, requestId, request.url, payloadDataId)) {
+    return NextResponse.json({ message: "Assinatura invalida." }, { status: 403 });
+  }
+
+  if (payloadType && payloadType !== "payment") {
+    return NextResponse.json({ ok: true, ignored: "unsupported_type" });
+  }
 
   if (!event.data?.id && url.searchParams.has("data.id")) {
     event.data = { ...event.data, id: url.searchParams.get("data.id") ?? undefined };
@@ -58,8 +68,7 @@ export async function POST(request: Request) {
     event.payment_id = url.searchParams.get("payment_id") ?? undefined;
   }
 
-  const providerChargeId =
-    event.data?.id || event.id || event.resource?.id || event.payment_id || event.data?.object?.id;
+  const providerChargeId = payloadDataId;
 
   if (!providerChargeId) {
     return NextResponse.json({ message: "ID de pagamento nao encontrado." }, { status: 400 });

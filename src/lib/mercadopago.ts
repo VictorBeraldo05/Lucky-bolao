@@ -92,7 +92,7 @@ async function parseBackendResponse(result: Response) {
   return result.json() as Promise<MercadoPagoPayment>;
 }
 
-export function validateMercadoPagoSignature(signature: string | null, requestId: string | null, fullUrl: string) {
+export function validateMercadoPagoSignature(signature: string | null, requestId: string | null, fullUrl: string, payloadDataId?: string | null) {
   if (!signature || !requestId) return false;
   const secret = getMercadoPagoWebhookSecret();
   const parts = Object.fromEntries(
@@ -111,7 +111,7 @@ export function validateMercadoPagoSignature(signature: string | null, requestId
   if (!ts || !v1) return false;
 
   const url = new URL(fullUrl);
-  const dataId = (url.searchParams.get("data.id") || url.searchParams.get("id") || "").toLowerCase();
+  const dataId = (payloadDataId || url.searchParams.get("data.id") || url.searchParams.get("id") || "").toLowerCase();
   const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`;
   const expected = crypto.createHmac("sha256", secret).update(manifest).digest("hex");
   return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(v1));
