@@ -1,5 +1,4 @@
 import { Prisma, PaymentStatus, PurchaseStatus, WalletTransactionStatus, WalletTransactionType } from "@prisma/client";
-import { revalidatePath } from "next/cache";
 import { fetchPixPaymentStatus, determineTopupStatus } from "@/lib/mercadopago";
 import { prisma } from "@/lib/prisma";
 
@@ -232,9 +231,4 @@ export async function syncPendingCartPaymentsForUser(userId: string) {
       // ignore sync failures on page load
     }
   }
-
-  revalidatePath("/carrinho");
-  revalidatePath("/meus-jogos");
-  revalidatePath("/minha-conta");
-  revalidatePath("/carteira");
 }

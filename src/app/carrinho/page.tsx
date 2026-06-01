@@ -7,7 +7,11 @@ import { syncPendingCartPaymentsForUser } from "@/lib/cart";
 
 export default async function CartPage() {
   const user = await requireUser();
-  await syncPendingCartPaymentsForUser(user.id);
+  try {
+    await syncPendingCartPaymentsForUser(user.id);
+  } catch {
+    // keep cart page available even if payment sync fails
+  }
   const cart = await prisma.cart.findUnique({
     where: { userId: user.id },
     include: { items: { include: { pool: true } } },
