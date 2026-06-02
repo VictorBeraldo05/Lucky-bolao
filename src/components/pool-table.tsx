@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Contest, Lottery, LotteryGameType, Pool, PoolGame } from "@prisma/client";
 import { ArrowUpDown, Search, X } from "lucide-react";
+import { AuthRequiredDialog } from "@/components/auth-required-dialog";
 import { cn, formatCurrency, getPoolCommercialSummary } from "@/lib/utils";
 import { StatusBadge } from "@/components/status-badge";
 import { NumberGrid } from "@/components/number-grid";
@@ -17,6 +18,7 @@ type PoolRow = Pool & {
 
 type PoolTableProps = {
   pools: PoolRow[];
+  isAuthenticated?: boolean;
 };
 
 type SortMode = "price-asc" | "price-desc" | "games-desc";
@@ -29,9 +31,11 @@ const sortLabels: Record<SortMode, string> = {
 
 const sortOrder: SortMode[] = ["price-asc", "price-desc", "games-desc"];
 
-export function PoolTable({ pools }: PoolTableProps) {
+export function PoolTable({ pools, isAuthenticated = false }: PoolTableProps) {
+  const router = useRouter();
   const [sortMode, setSortMode] = useState<SortMode>("price-asc");
   const [previewPool, setPreviewPool] = useState<PoolRow | null>(null);
+  const [authTargetCode, setAuthTargetCode] = useState<string | null>(null);
 
   const sortedPools = useMemo(() => {
     const items = [...pools];
@@ -49,6 +53,15 @@ export function PoolTable({ pools }: PoolTableProps) {
     const currentIndex = sortOrder.indexOf(sortMode);
     const nextIndex = (currentIndex + 1) % sortOrder.length;
     setSortMode(sortOrder[nextIndex]);
+  }
+
+  function handleBuyClick(poolCode: string) {
+    if (!isAuthenticated) {
+      setAuthTargetCode(poolCode);
+      return;
+    }
+
+    router.push(`/boloes/${poolCode}`);
   }
 
   return (
@@ -86,13 +99,7 @@ export function PoolTable({ pools }: PoolTableProps) {
             });
 
             return (
-              <div
-                key={pool.id}
-                className={cn(
-                  "px-4 py-4 lg:px-5",
-                  index % 2 === 1 && "bg-fuchsia-50/30",
-                )}
-              >
+              <div key={pool.id} className={cn("px-4 py-4 lg:px-5", index % 2 === 1 && "bg-fuchsia-50/30")}>
                 <div className="space-y-4 lg:hidden">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -119,7 +126,7 @@ export function PoolTable({ pools }: PoolTableProps) {
                       <p className="mt-1 text-sm font-bold text-slate-900">
                         {pool.availableShares}/{pool.totalShares}
                       </p>
-                      <p className="text-xs text-slate-600">disponíveis</p>
+                      <p className="text-xs text-slate-600">cotas disponíveis</p>
                     </div>
                   </div>
 
@@ -131,12 +138,13 @@ export function PoolTable({ pools }: PoolTableProps) {
                       <Search className="h-4 w-4" />
                       Ver números
                     </button>
-                    <Link
-                      href={`/boloes/${pool.code}`}
+                    <button
+                      type="button"
+                      onClick={() => handleBuyClick(pool.code)}
                       className="inline-flex items-center justify-center rounded-full bg-fuchsia-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800"
                     >
                       Comprar
-                    </Link>
+                    </button>
                   </div>
                 </div>
 
@@ -182,12 +190,13 @@ export function PoolTable({ pools }: PoolTableProps) {
                   </div>
 
                   <div className="hidden lg:block">
-                    <Link
-                      href={`/boloes/${pool.code}`}
+                    <button
+                      type="button"
+                      onClick={() => handleBuyClick(pool.code)}
                       className="inline-flex w-full items-center justify-center rounded-full bg-fuchsia-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-fuchsia-800"
                     >
                       Comprar
-                    </Link>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -280,12 +289,13 @@ export function PoolTable({ pools }: PoolTableProps) {
                       >
                         Fechar
                       </button>
-                      <Link
-                        href={`/boloes/${previewPool.code}`}
+                      <button
+                        type="button"
+                        onClick={() => handleBuyClick(previewPool.code)}
                         className="inline-flex items-center justify-center rounded-full bg-fuchsia-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800"
                       >
                         Comprar este bolão
-                      </Link>
+                      </button>
                     </div>
                   </>
                 );
@@ -294,6 +304,8 @@ export function PoolTable({ pools }: PoolTableProps) {
           </div>
         </div>
       ) : null}
+
+      <AuthRequiredDialog isOpen={Boolean(authTargetCode)} onClose={() => setAuthTargetCode(null)} redirectPath={authTargetCode ? `/boloes/${authTargetCode}` : "/login"} />
     </>
   );
 }

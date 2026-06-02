@@ -1,11 +1,13 @@
 import Link from "next/link";
+import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Container } from "@/components/container";
 import { PoolTable } from "@/components/pool-table";
 import { SectionHeading } from "@/components/section-heading";
 
 export default async function Home() {
-  const [lottery, featuredPools] = await Promise.all([
+  const [session, lottery, featuredPools] = await Promise.all([
+    getSession(),
     prisma.lottery.findUnique({
       where: { slug: "lotofacil" },
       include: { contests: { take: 1, orderBy: { drawDate: "asc" } } },
@@ -76,7 +78,7 @@ export default async function Home() {
           }
         />
 
-        <PoolTable pools={featuredPools} />
+        <PoolTable pools={featuredPools} isAuthenticated={Boolean(session?.sub)} />
       </Container>
     </div>
   );

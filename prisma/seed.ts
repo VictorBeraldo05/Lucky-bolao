@@ -137,6 +137,17 @@ async function main() {
     },
   });
 
+  const contestE = await prisma.contest.upsert({
+    where: { lotteryId_contestNumber: { lotteryId: lottery.id, contestNumber: 3104 } },
+    update: {},
+    create: {
+      lotteryId: lottery.id,
+      contestNumber: 3104,
+      drawDate: addDays(new Date(), 10),
+      status: "scheduled",
+    },
+  });
+
   await prisma.walletPackage.upsert({
     where: { title: "Pacote de R$ 50" },
     update: {},
@@ -179,10 +190,10 @@ async function main() {
     update: {
       title: "Lotofacil 3100 Fechamento 17 dezenas",
       description: "Bolão mais acessível com 4 jogos de 15 dezenas, equivalente a 17 dezenas.",
-      totalValue: new Prisma.Decimal(40),
+      totalValue: new Prisma.Decimal(20),
       sharePrice: new Prisma.Decimal(4),
-      totalShares: 10,
-      availableShares: 10,
+      totalShares: 5,
+      availableShares: 5,
       relativeChance: "4 jogos com equivalência de 17 dezenas",
       status: PoolStatus.OPEN,
     },
@@ -193,10 +204,10 @@ async function main() {
       contestId: contestA.id,
       title: "Lotofacil 3100 Fechamento 17 dezenas",
       description: "Bolão mais acessível com 4 jogos de 15 dezenas, equivalente a 17 dezenas.",
-      totalValue: new Prisma.Decimal(40),
+      totalValue: new Prisma.Decimal(20),
       sharePrice: new Prisma.Decimal(4),
-      totalShares: 10,
-      availableShares: 10,
+      totalShares: 5,
+      availableShares: 5,
       relativeChance: "4 jogos com equivalência de 17 dezenas",
       ticketImageUrl: "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1200&q=80",
       status: PoolStatus.OPEN,
@@ -213,6 +224,57 @@ async function main() {
   await prisma.poolGame.createMany({
     data: accessibleGames.map((game) => ({
       poolId: poolSimple.id,
+      title: game.title,
+      numbers: game.numbers,
+    })),
+  });
+
+  const economicGames = [
+    { title: "Jogo 1", numbers: [1, 3, 4, 5, 6, 7, 9, 12, 13, 16, 17, 18, 20, 21, 23] },
+    { title: "Jogo 2", numbers: [1, 3, 4, 5, 6, 7, 9, 12, 13, 16, 17, 19, 21, 23, 25] },
+    { title: "Jogo 3", numbers: [1, 3, 5, 6, 7, 9, 13, 16, 17, 18, 19, 20, 21, 23, 25] },
+    { title: "Jogo 4", numbers: [1, 4, 5, 7, 9, 12, 13, 16, 17, 18, 19, 20, 21, 23, 25] },
+  ];
+
+  const economicPool = await prisma.pool.upsert({
+    where: { code: "LF-3104-SIM-01" },
+    update: {
+      title: "Lotofacil 3104 Cotas economicas",
+      description: "Bolao com 4 jogos de 15 dezenas e 10 cotas de R$ 2,50.",
+      totalValue: new Prisma.Decimal(25),
+      sharePrice: new Prisma.Decimal(2.5),
+      totalShares: 10,
+      availableShares: 10,
+      relativeChance: "4 jogos selecionados com entrada economica",
+      status: PoolStatus.OPEN,
+    },
+    create: {
+      code: "LF-3104-SIM-01",
+      lotteryId: lottery.id,
+      gameTypeId: simpleType.id,
+      contestId: contestE.id,
+      title: "Lotofacil 3104 Cotas economicas",
+      description: "Bolao com 4 jogos de 15 dezenas e 10 cotas de R$ 2,50.",
+      totalValue: new Prisma.Decimal(25),
+      sharePrice: new Prisma.Decimal(2.5),
+      totalShares: 10,
+      availableShares: 10,
+      relativeChance: "4 jogos selecionados com entrada economica",
+      ticketImageUrl: "https://images.unsplash.com/photo-1518457607834-6e8d80c183c5?auto=format&fit=crop&w=1200&q=80",
+      status: PoolStatus.OPEN,
+      games: {
+        create: economicGames,
+      },
+    },
+  });
+
+  await prisma.poolGame.deleteMany({
+    where: { poolId: economicPool.id },
+  });
+
+  await prisma.poolGame.createMany({
+    data: economicGames.map((game) => ({
+      poolId: economicPool.id,
       title: game.title,
       numbers: game.numbers,
     })),
@@ -386,65 +448,6 @@ async function main() {
     })),
   });
 
-  const existingShare = await prisma.poolShare.findFirst({
-    where: { poolId: poolSimple.id, userId: user.id },
-  });
-
-  if (!existingShare && user.wallet) {
-    const purchase = await prisma.purchase.create({
-      data: {
-        userId: user.id,
-        totalAmount: new Prisma.Decimal(36),
-        status: "PAID",
-        items: {
-          create: {
-            poolId: poolSimple.id,
-            quantity: 3,
-            unitPrice: new Prisma.Decimal(12),
-            totalPrice: new Prisma.Decimal(36),
-          },
-        },
-      },
-      include: { items: true },
-    });
-
-    await prisma.poolShare.create({
-      data: {
-        poolId: poolSimple.id,
-        userId: user.id,
-        purchaseItemId: purchase.items[0].id,
-        quantity: 3,
-        unitPrice: new Prisma.Decimal(12),
-        totalPrice: new Prisma.Decimal(36),
-      },
-    });
-
-    await prisma.pool.update({
-      where: { id: poolSimple.id },
-      data: { availableShares: { decrement: 3 } },
-    });
-
-    await prisma.wallet.update({
-      where: { id: user.wallet.id },
-      data: { balance: { decrement: new Prisma.Decimal(36) } },
-    });
-
-    await prisma.walletTransaction.create({
-      data: {
-        walletId: user.wallet.id,
-        userId: user.id,
-        type: WalletTransactionType.SHARE_PURCHASE,
-        status: WalletTransactionStatus.COMPLETED,
-        amount: new Prisma.Decimal(-36),
-        balanceBefore: new Prisma.Decimal(250),
-        balanceAfter: new Prisma.Decimal(214),
-        description: "Compra inicial de 3 cotas do bolao LF-3100-SIM-01",
-        referenceType: "purchase",
-        referenceId: purchase.id,
-      },
-    });
-  }
-
   const existingCredit = await prisma.payment.findFirst({
     where: { userId: user.id, reference: "seed-credit-1" },
   });
@@ -500,7 +503,7 @@ async function main() {
         action: "ADMIN_ACTION",
         entityType: "seed",
         entityId: `seed-${addHours(new Date(), 0).toISOString()}`,
-        newData: { lotteries: 1, contests: 4, pools: 4 },
+        newData: { lotteries: 1, contests: 5, pools: 5 },
       },
       {
         actorUserId: user.id,
