@@ -8,6 +8,7 @@ type CaixaLotofacilResponse = {
   listaDezenas?: string[];
   listaRateioPremio?: CaixaRateioPremio[];
   dataApuracao?: string;
+  dataProximoConcurso?: string;
 };
 
 type ApiLoteriasPrize = {
@@ -18,6 +19,7 @@ type ApiLoteriasPrize = {
 type ApiLoteriasResponse = {
   numero_concurso?: number;
   data_concurso?: string;
+  data_proximo_concurso?: string;
   dezenas?: string[];
   premiacao?: ApiLoteriasPrize[];
 };
@@ -37,6 +39,7 @@ export type OfficialLotofacilResult = {
   drawnNumbers: number[];
   prizeBreakdown: Record<string, number>;
   drawDate: string | null;
+  nextDrawDate: string | null;
   source: string;
   raw: unknown;
 };
@@ -86,6 +89,7 @@ function normalizeCaixaPayload(payload: CaixaLotofacilResponse, source: string):
     drawnNumbers: normalizedNumbers,
     prizeBreakdown: normalizePrizeBreakdown(payload.listaRateioPremio),
     drawDate: payload.dataApuracao ?? null,
+    nextDrawDate: payload.dataProximoConcurso ?? null,
     source,
     raw: payload,
   };
@@ -117,6 +121,7 @@ function normalizeApiLoteriasPayload(payload: ApiLoteriasResponse, source: strin
     drawnNumbers: normalizedNumbers,
     prizeBreakdown: normalizeApiLoteriasPrizeBreakdown(payload.premiacao),
     drawDate: payload.data_concurso ?? null,
+    nextDrawDate: payload.data_proximo_concurso ?? null,
     source,
     raw: payload,
   };
@@ -147,6 +152,7 @@ function normalizeBackupPayload(payload: BackupLoteriasResponse, source: string)
     drawnNumbers: normalizedNumbers,
     prizeBreakdown: normalizeBackupPrizeBreakdown(payload.premiacoes),
     drawDate: payload.data ?? null,
+    nextDrawDate: null,
     source,
     raw: payload,
   };

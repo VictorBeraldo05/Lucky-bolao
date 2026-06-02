@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Trophy, X } from "lucide-react";
 import { NumberGrid } from "@/components/number-grid";
 import { StatusBadge } from "@/components/status-badge";
+import { formatStatusLabel } from "@/lib/status";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 type MyGameRow = {
@@ -42,6 +43,16 @@ function SummaryCard({ label, value }: { label: string; value: string }) {
   );
 }
 
+function isWinningGame(share: MyGameRow, hits: number | null) {
+  if (hits === null) return false;
+
+  if (share.pool.lotteryName.toLowerCase().includes("lotofacil")) {
+    return hits >= 11 && hits <= 15;
+  }
+
+  return hits > 0;
+}
+
 export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
   const [selectedShare, setSelectedShare] = useState<MyGameRow | null>(null);
   const [activeTab, setActiveTab] = useState<ActiveTab>("resumo");
@@ -50,8 +61,7 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
   const awardedGames = useMemo(
     () =>
       selectedShare?.pool.games.filter((game) => {
-        const prizeAmount = Number(game.prizeAmount ?? 0);
-        return prizeAmount > 0 || (game.hits ?? 0) > 0;
+        return isWinningGame(selectedShare, game.hits);
       }) ?? [],
     [selectedShare],
   );
@@ -165,7 +175,7 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
                   <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                     <SummaryCard label="Suas cotas" value={String(selectedShare.quantity)} />
                     <SummaryCard label="Valor pago" value={formatCurrency(selectedShare.totalPrice)} />
-                    <SummaryCard label="Status" value={selectedShare.pool.status.replaceAll("_", " ")} />
+                    <SummaryCard label="Status" value={formatStatusLabel(selectedShare.pool.status)} />
                     <SummaryCard label="Prêmio total" value={formatCurrency(selectedShare.totalPrize)} />
                   </div>
 
@@ -217,23 +227,6 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
                       </div>
                     )}
                   </div>
-
-                  <div className="rounded-[28px] border border-fuchsia-100 bg-white p-5 shadow-sm">
-                    <h3 className="text-lg font-bold text-slate-900">Conferência rápida</h3>
-                    <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                      {selectedShare.pool.games.slice(0, 4).map((game) => (
-                        <div key={game.id} className="rounded-2xl border border-fuchsia-100 bg-fuchsia-50/50 p-4">
-                          <div className="flex items-center justify-between gap-3">
-                            <p className="font-semibold text-slate-900">{game.title}</p>
-                            {game.hits !== null ? <span className="text-sm font-semibold text-fuchsia-700">{game.hits} acertos</span> : null}
-                          </div>
-                          <div className="mt-3">
-                            <NumberGrid numbers={game.numbers} highlight={selectedShare.pool.resultNumbers} size="sm" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
                 </div>
               ) : null}
 
@@ -242,7 +235,7 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
                   <div className="rounded-[28px] border border-fuchsia-100 bg-fuchsia-50/40 p-5">
                     <h3 className="text-lg font-bold text-slate-900">Bilhetes premiados do bolão</h3>
                     <p className="mt-1 text-sm text-slate-600">
-                      Veja os jogos deste bolão que registraram prêmio ou acertos após a apuração.
+                      Veja apenas os jogos deste bolão que atingiram a faixa premiada desta loteria.
                     </p>
                   </div>
 
@@ -306,7 +299,7 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
                             ) : null}
                           </div>
                           <div className="mt-4">
-                            <NumberGrid numbers={game.numbers} highlight={selectedShare?.pool.resultNumbers ?? []} size="sm" />
+                            <NumberGrid numbers={game.numbers} highlight={selectedShare.pool.resultNumbers} size="sm" />
                           </div>
                           {Number(game.prizeAmount ?? 0) > 0 ? (
                             <p className="mt-4 text-sm font-semibold text-emerald-700">Premiado: {formatCurrency(game.prizeAmount ?? 0)}</p>
@@ -317,8 +310,8 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
 
                     <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <p className="text-sm text-slate-500">
-                        Exibindo jogos {gamesPage * GAMES_PER_PAGE + 1} a {Math.min((gamesPage + 1) * GAMES_PER_PAGE, selectedShare?.pool.games.length ?? 0)} de{" "}
-                        {selectedShare?.pool.games.length ?? 0}.
+                        Exibindo jogos {gamesPage * GAMES_PER_PAGE + 1} a {Math.min((gamesPage + 1) * GAMES_PER_PAGE, selectedShare.pool.games.length)} de{" "}
+                        {selectedShare.pool.games.length}.
                       </p>
                       <div className="flex items-center gap-2">
                         <button

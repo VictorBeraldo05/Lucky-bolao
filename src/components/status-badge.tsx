@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { formatStatusLabel } from "@/lib/status";
 
 const variants: Record<string, string> = {
   OPEN: "bg-emerald-100 text-emerald-700",
@@ -19,8 +20,7 @@ const variants: Record<string, string> = {
 export function StatusBadge({ status }: { status: string }) {
   return (
     <span className={cn("inline-flex rounded-full px-3 py-1 text-xs font-semibold tracking-wide", variants[status] ?? "bg-zinc-100 text-zinc-700")}>
-      {status.replaceAll("_", " ")}
+      {formatStatusLabel(status)}
     </span>
   );
 }
-
