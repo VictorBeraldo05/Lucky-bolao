@@ -44,10 +44,15 @@ function normalizePrizeBreakdown(rateio: CaixaRateioPremio[] | undefined) {
 
 async function fetchOfficialPayload(contestNumber?: number) {
   const url = contestNumber ? `${LOTOFACIL_OFFICIAL_BASE_URL}/${contestNumber}` : LOTOFACIL_OFFICIAL_BASE_URL;
+
   const response = await fetch(url, {
     headers: {
-      accept: "application/json,text/plain,*/*",
-      "user-agent": "Lucky Boloes Result Sync/1.0",
+      Accept: "application/json, text/plain, */*",
+      "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+      Referer: "https://loterias.caixa.gov.br/",
+      Origin: "https://loterias.caixa.gov.br",
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
     },
     cache: "no-store",
   });
