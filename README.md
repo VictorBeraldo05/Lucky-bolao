@@ -83,6 +83,8 @@ npm install
 DATABASE_URL="postgresql://..."
 JWT_SECRET="uma-chave-forte"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
+LOTTERY_SYNC_SECRET="seu-segredo-do-sync"
+CRON_SECRET="opcional-se-for-usar-cron-da-vercel"
 
 PAYMENT_BACKEND_BASE_URL="https://lucky-bolao-backend.onrender.com"
 PAYMENT_BACKEND_API_KEY="segredo-compartilhado-opcional"
@@ -142,6 +144,22 @@ npm run dev
 4. Sistema soma prêmio do bolão
 5. Sistema distribui o valor proporcionalmente às cotas compradas
 6. Sistema grava `Prize`, `WalletTransaction`, `Notification` e `AuditLog`
+
+### Sincronização automática da Lotofácil
+
+O projeto agora inclui uma integração com a API oficial da CAIXA para a Lotofácil:
+
+- `GET/POST /api/internal/results/lotofacil/sync`
+- Protegido por `LOTTERY_SYNC_SECRET` ou `CRON_SECRET`
+- Consulta a API oficial da CAIXA em `https://servicebus3.caixa.gov.br/portaldeloterias/api/lotofacil`
+- Processa concursos pendentes e distribui prêmios automaticamente
+
+Exemplo de chamada manual:
+
+```bash
+curl -X POST "https://SEU-DOMINIO/api/internal/results/lotofacil/sync" \
+  -H "Authorization: Bearer SEU_LOTTERY_SYNC_SECRET"
+```
 
 ## Integração Mercado Pago PIX
 
