@@ -42,7 +42,27 @@ function normalizePrizeBreakdown(rateio: CaixaRateioPremio[] | undefined) {
   }, {});
 }
 
-async function fetchOfficialPayload(contestNumber?: number) {
+function normalizePayload(
+  payload: CaixaLotofacilResponse,
+  source: string,
+): OfficialLotofacilResult {
+  const normalizedNumbers = normalizeDrawnNumbers(payload.listaDezenas);
+
+  if (!payload.numero || normalizedNumbers.length !== 15) {
+    throw new Error("A resposta oficial da Lotofácil veio incompleta.");
+  }
+
+  return {
+    contestNumber: payload.numero,
+    drawnNumbers: normalizedNumbers,
+    prizeBreakdown: normalizePrizeBreakdown(payload.listaRateioPremio),
+    drawDate: payload.dataApuracao ?? null,
+    source,
+    raw: payload,
+  };
+}
+
+async function fetchLotofacilDirect(contestNumber?: number) {
   const url = contestNumber ? `${LOTOFACIL_OFFICIAL_BASE_URL}/${contestNumber}` : LOTOFACIL_OFFICIAL_BASE_URL;
 
   const response = await fetch(url, {
@@ -62,26 +82,55 @@ async function fetchOfficialPayload(contestNumber?: number) {
   }
 
   const payload = (await response.json()) as CaixaLotofacilResponse;
-  const normalizedNumbers = normalizeDrawnNumbers(payload.listaDezenas);
+  return normalizePayload(payload, url);
+}
 
-  if (!payload.numero || normalizedNumbers.length !== 15) {
-    throw new Error("A resposta oficial da Lotofácil veio incompleta.");
+async function fetchLotofacilFromProxy(contestNumber?: number) {
+  const baseUrl = process.env.LOTTERY_RESULTS_PROXY_BASE_URL?.replace(/\/$/, "");
+
+  if (!baseUrl) {
+    return null;
   }
 
-  return {
-    contestNumber: payload.numero,
-    drawnNumbers: normalizedNumbers,
-    prizeBreakdown: normalizePrizeBreakdown(payload.listaRateioPremio),
-    drawDate: payload.dataApuracao ?? null,
-    source: url,
-    raw: payload,
-  } satisfies OfficialLotofacilResult;
+  const path = contestNumber
+    ? `/api/public/results/lotofacil/${contestNumber}`
+    : "/api/public/results/lotofacil";
+
+  const proxyUrl = `${baseUrl}${path}`;
+  const secret = process.env.LOTTERY_RESULTS_PROXY_SECRET;
+  const response = await fetch(proxyUrl, {
+    headers: {
+      Accept: "application/json, text/plain, */*",
+      ...(secret ? { Authorization: `Bearer ${secret}` } : {}),
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Proxy de resultados retornou ${response.status} ao consultar a Lotofácil.`);
+  }
+
+  const payload = (await response.json()) as OfficialLotofacilResult;
+
+  if (!payload.contestNumber || !Array.isArray(payload.drawnNumbers) || !payload.drawnNumbers.length) {
+    throw new Error("O proxy de resultados da Lotofácil respondeu sem dados válidos.");
+  }
+
+  return payload;
+}
+
+export async function fetchLatestOfficialLotofacilResultDirect() {
+  return fetchLotofacilDirect();
+}
+
+export async function fetchOfficialLotofacilResultByContestDirect(contestNumber: number) {
+  return fetchLotofacilDirect(contestNumber);
 }
 
 export async function fetchLatestOfficialLotofacilResult() {
-  return fetchOfficialPayload();
+  return (await fetchLotofacilFromProxy()) ?? fetchLotofacilDirect();
 }
 
 export async function fetchOfficialLotofacilResultByContest(contestNumber: number) {
-  return fetchOfficialPayload(contestNumber);
+  return (await fetchLotofacilFromProxy(contestNumber)) ?? fetchLotofacilDirect(contestNumber);
 }

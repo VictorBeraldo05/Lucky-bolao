@@ -85,6 +85,8 @@ JWT_SECRET="uma-chave-forte"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 LOTTERY_SYNC_SECRET="seu-segredo-do-sync"
 CRON_SECRET="opcional-se-for-usar-cron-da-vercel"
+LOTTERY_RESULTS_PROXY_BASE_URL="https://lucky-bolao-backend.onrender.com"
+LOTTERY_RESULTS_PROXY_SECRET="segredo-opcional-do-proxy"
 
 PAYMENT_BACKEND_BASE_URL="https://lucky-bolao-backend.onrender.com"
 PAYMENT_BACKEND_API_KEY="segredo-compartilhado-opcional"
@@ -152,6 +154,7 @@ O projeto agora inclui uma integração com a API oficial da CAIXA para a Lotof�
 - `GET/POST /api/internal/results/lotofacil/sync`
 - Protegido por `LOTTERY_SYNC_SECRET` ou `CRON_SECRET`
 - Consulta a API oficial da CAIXA em `https://servicebus3.caixa.gov.br/portaldeloterias/api/lotofacil`
+- Pode usar um proxy no Render por `LOTTERY_RESULTS_PROXY_BASE_URL`
 - Processa concursos pendentes e distribui prêmios automaticamente
 
 Exemplo de chamada manual:
@@ -160,6 +163,15 @@ Exemplo de chamada manual:
 curl -X POST "https://SEU-DOMINIO/api/internal/results/lotofacil/sync" \
   -H "Authorization: Bearer SEU_LOTTERY_SYNC_SECRET"
 ```
+
+### Proxy de resultados no Render
+
+Para contornar o bloqueio da CAIXA na infraestrutura da Vercel, o app também expõe:
+
+- `GET /api/public/results/lotofacil`
+- `GET /api/public/results/lotofacil/:concurso`
+
+Quando `LOTTERY_RESULTS_PROXY_BASE_URL` estiver configurado na Vercel, o sync da Lotofácil consulta primeiro esse proxy. Se quiser proteger o proxy, configure também `LOTTERY_RESULTS_PROXY_SECRET` no Render e na Vercel.
 
 ## Integração Mercado Pago PIX
 
