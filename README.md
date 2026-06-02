@@ -85,6 +85,7 @@ JWT_SECRET="uma-chave-forte"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 LOTTERY_SYNC_SECRET="seu-segredo-do-sync"
 CRON_SECRET="opcional-se-for-usar-cron-da-vercel"
+LOTTERY_RESULTS_API_KEY="sua-chave-da-apiloterias"
 LOTTERY_RESULTS_PROXY_BASE_URL="https://lucky-bolao-backend.onrender.com"
 LOTTERY_RESULTS_PROXY_SECRET="segredo-opcional-do-proxy"
 
@@ -153,7 +154,10 @@ O projeto agora inclui uma integração com a API oficial da CAIXA para a Lotof�
 
 - `GET/POST /api/internal/results/lotofacil/sync`
 - Protegido por `LOTTERY_SYNC_SECRET` ou `CRON_SECRET`
-- Consulta a API oficial da CAIXA em `https://servicebus3.caixa.gov.br/portaldeloterias/api/lotofacil`
+- Tenta primeiro a API de terceiros `ApiLoterias` quando `LOTTERY_RESULTS_API_KEY` estiver configurada
+- Depois tenta o proxy no Render por `LOTTERY_RESULTS_PROXY_BASE_URL`
+- Por último, tenta a API oficial da CAIXA em `https://servicebus3.caixa.gov.br/portaldeloterias/api/lotofacil`
+- Se todas falharem, tenta a API de backup raw do GitHub
 - Pode usar um proxy no Render por `LOTTERY_RESULTS_PROXY_BASE_URL`
 - Processa concursos pendentes e distribui prêmios automaticamente
 
@@ -172,6 +176,23 @@ Para contornar o bloqueio da CAIXA na infraestrutura da Vercel, o app também ex
 - `GET /api/public/results/lotofacil/:concurso`
 
 Quando `LOTTERY_RESULTS_PROXY_BASE_URL` estiver configurado na Vercel, o sync da Lotofácil consulta primeiro esse proxy. Se quiser proteger o proxy, configure também `LOTTERY_RESULTS_PROXY_SECRET` no Render e na Vercel.
+
+### API de terceiros
+
+O fluxo também aceita a `ApiLoterias` como fonte primária para a Lotofácil:
+
+- Documentação: https://www.apiloterias.com/docs
+- Configure `LOTTERY_RESULTS_API_KEY` na Vercel
+- Com a chave ativa, o sync consulta:
+  - `https://apiloterias.com/v1/lotofacil/SUA_CHAVE`
+  - `https://apiloterias.com/v1/lotofacil/SUA_CHAVE/{concurso}`
+
+### API de backup
+
+Se a API principal, o proxy e a CAIXA falharem, o sistema ainda tenta:
+
+- `https://raw.githubusercontent.com/maickon/free-apiloterias/refs/heads/master/database/lotofacil/_ultimo.json`
+- `https://raw.githubusercontent.com/maickon/free-apiloterias/refs/heads/master/database/lotofacil/{concurso}.json`
 
 ## Integração Mercado Pago PIX
 
