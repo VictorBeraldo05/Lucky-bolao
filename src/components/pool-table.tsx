@@ -68,7 +68,10 @@ export function PoolTable({ pools, isAuthenticated = false }: PoolTableProps) {
     <>
       <div className="overflow-hidden rounded-[28px] border border-white/80 bg-white/95 shadow-[0_20px_70px_rgba(188,131,230,0.12)]">
         <div className="flex items-center justify-between gap-3 border-b border-fuchsia-100 bg-linear-to-r from-fuchsia-50 via-white to-violet-50 px-4 py-3 lg:px-5">
-          <p className="text-sm font-semibold text-slate-600">Compare as opções e compre suas cotas sem sair da lista.</p>
+          <p className="text-sm font-semibold text-slate-600">
+            <span className="lg:hidden">Escolha seu bolão</span>
+            <span className="hidden lg:inline">Compare as opções e compre suas cotas sem sair da lista.</span>
+          </p>
           <button
             onClick={rotateSort}
             className="inline-flex items-center gap-2 rounded-full border border-fuchsia-200 bg-white px-4 py-2 text-sm font-semibold text-fuchsia-700 transition hover:bg-fuchsia-50"
@@ -119,7 +122,9 @@ export function PoolTable({ pools, isAuthenticated = false }: PoolTableProps) {
                     <div className="rounded-2xl bg-fuchsia-50 px-3 py-2">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-fuchsia-500">Formato</p>
                       <p className="mt-1 text-sm font-bold text-slate-900">{summary.gamesLabel}</p>
-                      <p className="text-xs text-slate-600">{summary.equivalentLabel ?? pool.relativeChance ?? "Cobertura ampliada"}</p>
+                      <p className="text-xs text-slate-600">
+                        {summary.equivalentLabel ?? pool.relativeChance ?? "Cobertura ampliada"}
+                      </p>
                     </div>
                     <div className="rounded-2xl bg-sky-50 px-3 py-2">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-sky-500">Cotas</p>
@@ -159,7 +164,9 @@ export function PoolTable({ pools, isAuthenticated = false }: PoolTableProps) {
 
                   <div className="space-y-0.5">
                     <p className="text-sm font-bold text-slate-900">{summary.gamesLabel}</p>
-                    <p className="text-xs text-slate-600">{summary.equivalentLabel ?? pool.relativeChance ?? "Cobertura ampliada"}</p>
+                    <p className="text-xs text-slate-600">
+                      {summary.equivalentLabel ?? pool.relativeChance ?? "Cobertura ampliada"}
+                    </p>
                   </div>
 
                   <div className="space-y-0.5">
@@ -278,7 +285,9 @@ export function PoolTable({ pools, isAuthenticated = false }: PoolTableProps) {
                         ))}
                       </div>
                       {previewPool.games.length > 12 ? (
-                        <p className="mt-4 text-sm text-slate-500">Mostrando os 12 primeiros jogos. Abra o bolão para ver a composição completa.</p>
+                        <p className="mt-4 text-sm text-slate-500">
+                          Mostrando os 12 primeiros jogos. Abra o bolão para ver a composição completa.
+                        </p>
                       ) : null}
                     </div>
 
@@ -305,7 +314,11 @@ export function PoolTable({ pools, isAuthenticated = false }: PoolTableProps) {
         </div>
       ) : null}
 
-      <AuthRequiredDialog isOpen={Boolean(authTargetCode)} onClose={() => setAuthTargetCode(null)} redirectPath={authTargetCode ? `/boloes/${authTargetCode}` : "/login"} />
+      <AuthRequiredDialog
+        isOpen={Boolean(authTargetCode)}
+        onClose={() => setAuthTargetCode(null)}
+        redirectPath={authTargetCode ? `/boloes/${authTargetCode}` : "/login"}
+      />
     </>
   );
 }

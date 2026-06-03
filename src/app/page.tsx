@@ -7,12 +7,8 @@ import { SectionHeading } from "@/components/section-heading";
 import { prisma } from "@/lib/prisma";
 
 export default async function Home() {
-  const [session, lottery, featuredPools] = await Promise.all([
+  const [session, featuredPools] = await Promise.all([
     getSession(),
-    prisma.lottery.findUnique({
-      where: { slug: "lotofacil" },
-      include: { contests: { take: 1, orderBy: { drawDate: "asc" } } },
-    }),
     prisma.pool.findMany({
       where: { status: "OPEN" },
       include: {
@@ -43,15 +39,12 @@ export default async function Home() {
           />
         </Link>
 
-        <div className="mt-3 rounded-[28px] border border-white/80 bg-white/90 px-4 py-4 shadow-[0_18px_60px_rgba(188,131,230,0.12)] sm:mt-0 sm:rounded-[32px] sm:px-6 sm:py-5">
+        <div className="mt-3 hidden rounded-[28px] border border-white/80 bg-white/90 px-4 py-4 shadow-[0_18px_60px_rgba(188,131,230,0.12)] sm:mt-0 sm:block sm:rounded-[32px] sm:px-6 sm:py-5">
           <div className="flex flex-col gap-3 sm:gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div className="max-w-4xl">
-              <p className="hidden text-[11px] font-semibold uppercase tracking-[0.24em] text-fuchsia-500 sm:block sm:text-sm">
-                Lotofácil online
-              </p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-fuchsia-500 sm:text-sm">Lotofácil online</p>
               <h1 className="mt-1 text-[1.65rem] font-black leading-[1.08] tracking-tight text-slate-950 sm:mt-2 sm:text-4xl">
-                <span className="sm:hidden">Escolha seu bolão</span>
-                <span className="hidden sm:inline">Escolha seu bolão, acompanhe tudo na sua conta.</span>
+                Escolha seu bolão, acompanhe tudo na sua conta.
               </h1>
               <p className="mt-2 hidden text-sm leading-6 text-slate-600 sm:block sm:text-base">
                 As melhores opções estão logo abaixo. Compare valores, dezenas e quantidade de cotas e entre no
@@ -80,9 +73,6 @@ export default async function Home() {
             <span className="rounded-full bg-violet-50 px-4 py-2 font-medium text-violet-700">
               Comprovantes vinculados aos bolões
             </span>
-            <span className="rounded-full bg-sky-50 px-4 py-2 font-medium text-sky-700">
-              Próximo concurso: #{lottery?.contests[0]?.contestNumber ?? "--"}
-            </span>
           </div>
         </div>
       </Container>
@@ -91,7 +81,6 @@ export default async function Home() {
         <SectionHeading
           eyebrow="Comprar agora"
           title="Bolões disponíveis"
-          description="As opções mais acessíveis e mais procuradas ficam em destaque para você decidir rápido."
           action={
             <Link href="/loterias/lotofacil/boloes" className="text-sm font-semibold text-fuchsia-600">
               Abrir listagem completa
