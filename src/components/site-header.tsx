@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CreditCard, UserCircle2 } from "lucide-react";
+import { UserCircle2 } from "lucide-react";
 import { Notification, UserRole, Wallet } from "@prisma/client";
 import { Container } from "@/components/container";
 import { CartTriggerButton } from "@/components/cart/cart-trigger-button";
@@ -108,25 +108,6 @@ export async function SiteHeader({ user }: SiteHeaderProps) {
           )}
         </div>
       </Container>
-      {user ? (
-        <Container className="flex gap-2 overflow-x-auto py-3 lg:hidden">
-          <Link href="/meus-jogos" className="rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm">
-            Meus jogos
-          </Link>
-          <Link href="/perfil" className="rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm">
-            Perfil
-          </Link>
-          <Link href="/carteira" className="rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm">
-            <span className="inline-flex items-center gap-2"><CreditCard className="h-4 w-4" /> Carteira</span>
-          </Link>
-          {user.role === "ADMIN" ? (
-            <Link href="/admin" className="rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm">
-              Admin
-            </Link>
-          ) : null}
-          <LogoutButton className="rounded-full bg-white px-4 py-2 text-sm font-medium text-fuchsia-700 shadow-sm transition hover:bg-fuchsia-50 disabled:opacity-60" />
-        </Container>
-      ) : null}
     </header>
   );
 }

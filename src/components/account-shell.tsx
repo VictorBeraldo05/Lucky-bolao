@@ -1,16 +1,26 @@
 import Link from "next/link";
+import {
+  Banknote,
+  Bell,
+  FileCheck2,
+  Gamepad2,
+  LayoutDashboard,
+  MoreHorizontal,
+  ReceiptText,
+  User2,
+} from "lucide-react";
 import { Container } from "@/components/container";
 import { cn } from "@/lib/utils";
 
 const links = [
-  { href: "/minha-conta", label: "Minha conta" },
-  { href: "/meus-jogos", label: "Meus jogos" },
-  { href: "/carteira", label: "Carteira" },
-  { href: "/extrato", label: "Extrato" },
-  { href: "/perfil", label: "Perfil" },
-  { href: "/notificacoes", label: "Notificações" },
-  { href: "/comprovantes", label: "Comprovantes" },
-  { href: "/resgates", label: "Resgates" },
+  { href: "/minha-conta", label: "Minha conta", icon: LayoutDashboard },
+  { href: "/meus-jogos", label: "Meus jogos", icon: Gamepad2 },
+  { href: "/carteira", label: "Carteira", icon: Banknote },
+  { href: "/extrato", label: "Extrato", icon: ReceiptText },
+  { href: "/perfil", label: "Perfil", icon: User2 },
+  { href: "/notificacoes", label: "Notificações", icon: Bell },
+  { href: "/comprovantes", label: "Comprovantes", icon: FileCheck2 },
+  { href: "/resgates", label: "Resgates", icon: Banknote },
 ];
 
 export function AccountShell({
@@ -24,31 +34,92 @@ export function AccountShell({
   description: string;
   children: React.ReactNode;
 }) {
+  const showAccountNavigation = links.some((link) => link.href === currentPath);
+  const primaryMobileLinks = links.slice(0, 4);
+  const secondaryMobileLinks = links.slice(4);
+
   return (
     <Container className="py-10">
-      <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="rounded-[28px] border border-white/80 bg-white/90 p-4 shadow-sm">
-          <p className="px-3 pb-3 text-sm font-semibold uppercase tracking-[0.25em] text-fuchsia-500">Área logada</p>
-          <nav className="space-y-1">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "block rounded-2xl px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-fuchsia-50 hover:text-fuchsia-700",
-                  currentPath === link.href && "bg-fuchsia-50 text-fuchsia-700",
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-        </aside>
+      <div className={cn("grid gap-8", showAccountNavigation && "lg:grid-cols-[280px_minmax(0,1fr)]")}>
+        {showAccountNavigation ? (
+          <aside className="hidden rounded-[28px] border border-white/80 bg-white/90 p-4 shadow-sm lg:block">
+            <p className="px-3 pb-3 text-sm font-semibold uppercase tracking-[0.25em] text-fuchsia-500">Área logada</p>
+            <nav className="space-y-1">
+              {links.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-fuchsia-50 hover:text-fuchsia-700",
+                      currentPath === link.href && "bg-fuchsia-50 text-fuchsia-700",
+                    )}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </aside>
+        ) : null}
+
         <section className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-slate-900">{title}</h1>
             <p className="mt-2 text-slate-600">{description}</p>
           </div>
+          {showAccountNavigation ? (
+            <div className="space-y-3 lg:hidden">
+              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+                {primaryMobileLinks.map((link) => {
+                  const Icon = link.icon;
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={cn(
+                        "shrink-0 rounded-full border border-white/80 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-fuchsia-200 hover:text-fuchsia-700",
+                        currentPath === link.href && "border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700",
+                      )}
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        <Icon className="h-4 w-4 shrink-0" />
+                        {link.label}
+                      </span>
+                    </Link>
+                  );
+                })}
+                <details className="shrink-0">
+                  <summary className="list-none rounded-full border border-white/80 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-fuchsia-200 hover:text-fuchsia-700">
+                    <span className="inline-flex items-center gap-2">
+                      <MoreHorizontal className="h-4 w-4 shrink-0" />
+                      Mais
+                    </span>
+                  </summary>
+                  <div className="mt-2 min-w-56 rounded-[24px] border border-white/80 bg-white p-2 shadow-xl">
+                    {secondaryMobileLinks.map((link) => {
+                      const Icon = link.icon;
+                      return (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          className={cn(
+                            "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-fuchsia-50 hover:text-fuchsia-700",
+                            currentPath === link.href && "bg-fuchsia-50 text-fuchsia-700",
+                          )}
+                        >
+                          <Icon className="h-4 w-4 shrink-0" />
+                          {link.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </details>
+              </div>
+            </div>
+          ) : null}
           {children}
         </section>
       </div>

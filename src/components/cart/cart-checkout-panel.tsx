@@ -36,8 +36,9 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
         if (data.payment.status === "APPROVED") {
           setStatusMessage("Pagamento aprovado. Suas cotas foram liberadas.");
           onApproved?.();
-          router.refresh();
           window.clearInterval(interval);
+          router.push("/meus-jogos");
+          router.refresh();
           return;
         }
 
