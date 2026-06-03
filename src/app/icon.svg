@@ -1,0 +1,25 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(128 128) rotate(90) scale(120)">
+      <stop stop-color="#E6FF6E" stop-opacity="0.85" />
+      <stop offset="1" stop-color="#7DFF00" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="leafFill" x1="84" y1="48" x2="174" y2="190" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D8FF2E" />
+      <stop offset="0.55" stop-color="#7CFF00" />
+      <stop offset="1" stop-color="#2F9F00" />
+    </linearGradient>
+    <linearGradient id="leafHighlight" x1="104" y1="64" x2="154" y2="148" gradientUnits="userSpaceOnUse">
+      <stop stop-color="white" stop-opacity="0.9" />
+      <stop offset="1" stop-color="white" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="64" fill="#121A08" />
+  <circle cx="128" cy="128" r="118" fill="url(#bgGlow)" />
+  <path d="M129 137C109 137 84 126 68 108C51 88 49 63 64 48C80 31 107 35 124 51C129 56 132 61 134 67C136 61 139 56 144 51C161 35 188 31 204 48C219 63 217 88 200 108C184 126 159 137 139 137C155 147 170 167 174 187C177 203 170 216 156 219C141 222 126 211 121 195C118 186 119 176 123 167C113 178 103 186 92 191C74 199 55 198 47 183C39 167 47 148 65 139C83 130 108 131 129 137Z" fill="#193707"/>
+  <path d="M128 131C111 131 91 123 77 108C64 95 62 75 74 63C86 51 106 54 119 67C124 72 127 78 128 84C129 78 132 72 137 67C150 54 170 51 182 63C194 75 192 95 179 108C165 123 145 131 128 131C142 141 153 158 156 175C159 189 154 199 143 201C132 203 121 195 118 182C116 173 118 163 123 155C114 164 104 171 94 175C81 181 66 180 60 169C54 157 61 143 74 137C88 131 108 130 128 131Z" fill="url(#leafFill)"/>
+  <path d="M126 129C108 126 92 112 88 96C84 80 91 66 104 61C116 56 129 62 133 79C137 62 150 56 162 61C175 66 182 80 178 96C174 112 158 126 140 129C153 133 164 145 168 159C172 173 168 187 157 192C145 197 132 191 126 176C120 191 107 197 95 192C84 187 80 173 84 159C88 145 99 133 112 129H126Z" fill="url(#leafFill)"/>
+  <path d="M126 129C111 123 98 111 95 96C92 83 96 72 105 67C114 62 122 67 126 81C130 67 138 62 147 67C156 72 160 83 157 96C154 111 141 123 126 129Z" fill="url(#leafHighlight)" opacity="0.65"/>
+  <path d="M127 131C137 139 142 153 142 166C142 185 131 201 115 208" stroke="#1C5300" stroke-width="10" stroke-linecap="round"/>
+  <path d="M127 131C135 138 140 151 140 165C140 181 132 195 120 203" stroke="#A4FF32" stroke-width="4" stroke-linecap="round"/>
+</svg>

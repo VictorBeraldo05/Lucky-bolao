@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { CreditCard, UserCircle2 } from "lucide-react";
 import { Notification, UserRole, Wallet } from "@prisma/client";
@@ -34,8 +35,15 @@ export async function SiteHeader({ user }: SiteHeaderProps) {
       <Container className="flex h-18 items-center justify-between gap-4">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-br from-fuchsia-600 to-violet-500 text-lg font-black text-white shadow-lg shadow-fuchsia-200">
-              LB
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#111707] shadow-lg shadow-lime-200/60 ring-1 ring-lime-300/40">
+              <Image
+                src="/lucky-clover.svg"
+                alt="Lucky Bolões"
+                width={44}
+                height={44}
+                className="h-11 w-11"
+                priority
+              />
             </div>
             <div>
               <p className="text-base font-black tracking-tight text-slate-900">Lucky Bolões</p>
