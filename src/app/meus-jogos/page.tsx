@@ -4,9 +4,17 @@ import { AccountShell } from "@/components/account-shell";
 import { MyGamesTable } from "@/components/my-games-table";
 import { syncPendingCartPaymentsForUser } from "@/lib/cart";
 
-export default async function MyGamesPage() {
+export default async function MyGamesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const user = await requireUser();
   await syncPendingCartPaymentsForUser(user.id);
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const paymentStatus = Array.isArray(resolvedSearchParams.payment)
+    ? resolvedSearchParams.payment[0]
+    : resolvedSearchParams.payment;
 
   const shares = await prisma.poolShare.findMany({
     where: { userId: user.id },
@@ -54,6 +62,12 @@ export default async function MyGamesPage() {
 
   return (
     <AccountShell currentPath="/meus-jogos" title="Meus jogos" description="Acompanhe cotas compradas, concurso, status e prêmios distribuídos.">
+      {paymentStatus === "approved" ? (
+        <div className="rounded-[28px] border border-emerald-100 bg-emerald-50 px-5 py-4 text-emerald-800 shadow-sm">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-600">Pagamento aprovado</p>
+          <p className="mt-2 text-base font-semibold">Suas cotas foram liberadas com sucesso e já estão disponíveis em seus jogos.</p>
+        </div>
+      ) : null}
       <MyGamesTable shares={shareRows} />
     </AccountShell>
   );
