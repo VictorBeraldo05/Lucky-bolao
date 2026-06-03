@@ -1,6 +1,7 @@
 import { Prisma, WalletTransactionStatus, WalletTransactionType } from "@prisma/client";
 import { calculateHits, resolvePoolPrizeAmount } from "@/lib/lottery";
 import { prisma } from "@/lib/prisma";
+import { getWalletAvailableBalance } from "@/lib/utils";
 
 type PublishContestResultInput = {
   contestId: string;
@@ -150,8 +151,8 @@ export async function publishContestResult(input: PublishContestResultInput) {
               type: WalletTransactionType.PRIZE_CREDIT,
               status: WalletTransactionStatus.COMPLETED,
               amount: proportionalAmount,
-              balanceBefore: wallet.balance,
-              balanceAfter: updatedWallet.balance,
+              balanceBefore: new Prisma.Decimal(getWalletAvailableBalance(wallet)),
+              balanceAfter: new Prisma.Decimal(getWalletAvailableBalance(updatedWallet)),
               description: `Crédito de prêmio do bolão ${pool.code}`,
               referenceType: "pool",
               referenceId: pool.id,

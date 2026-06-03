@@ -19,6 +19,14 @@ export function formatDate(value: Date | string) {
   }).format(new Date(value));
 }
 
+export function getWalletAvailableBalance(wallet?: { balance?: number | string | { toString(): string } | null; bonusBalance?: number | string | { toString(): string } | null } | null) {
+  return Number(wallet?.balance ?? 0) + Number(wallet?.bonusBalance ?? 0);
+}
+
+export function getWalletBonusBalance(wallet?: { bonusBalance?: number | string | { toString(): string } | null } | null) {
+  return Number(wallet?.bonusBalance ?? 0);
+}
+
 export function slugToLabel(slug: string) {
   return slug
     .split("-")

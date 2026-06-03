@@ -6,12 +6,13 @@ import { Container } from "@/components/container";
 import { CartTriggerButton } from "@/components/cart/cart-trigger-button";
 import { LogoutButton } from "@/components/logout-button";
 import { NotificationsButton } from "@/components/notifications-button";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, getWalletAvailableBalance } from "@/lib/utils";
 
 type SiteHeaderProps = {
   user:
     | {
         id: string;
+        inviteCode: string;
         name: string;
         email: string;
         role: UserRole;
@@ -73,7 +74,7 @@ export async function SiteHeader({ user }: SiteHeaderProps) {
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           {user?.wallet ? (
             <div className="hidden rounded-full border border-fuchsia-100 bg-fuchsia-50 px-4 py-2 text-sm font-semibold text-fuchsia-700 sm:block">
-              Saldo: {formatCurrency(user.wallet.balance)}
+              Saldo: {formatCurrency(getWalletAvailableBalance(user.wallet))}
             </div>
           ) : null}
 

@@ -3,6 +3,7 @@ import { Prisma, PaymentStatus, WalletTransactionStatus, WalletTransactionType }
 import { revalidatePath } from "next/cache";
 import { getCurrentUser, getRequestMeta } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getWalletAvailableBalance } from "@/lib/utils";
 import { manualCreditSchema } from "@/lib/validations";
 
 export async function POST(request: Request) {
@@ -44,8 +45,8 @@ export async function POST(request: Request) {
           type: WalletTransactionType.MANUAL_CREDIT,
           status: WalletTransactionStatus.COMPLETED,
           amount,
-          balanceBefore: wallet.balance,
-          balanceAfter: updatedWallet.balance,
+          balanceBefore: new Prisma.Decimal(getWalletAvailableBalance(wallet)),
+          balanceAfter: new Prisma.Decimal(getWalletAvailableBalance(updatedWallet)),
           description: payload.description,
           referenceType: "payment",
           referenceId: payment.id,
@@ -82,4 +83,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: error instanceof Error ? error.message : "Falha ao creditar carteira." }, { status: 400 });
   }
 }
-

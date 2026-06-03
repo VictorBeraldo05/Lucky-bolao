@@ -3,6 +3,8 @@ import { Prisma, WalletTransactionStatus, WalletTransactionType } from "@prisma/
 import { revalidatePath } from "next/cache";
 import { getCurrentUser, getRequestMeta } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { applyReferralBonusForFirstPaidPurchase, splitWalletDebit } from "@/lib/referrals";
+import { getWalletAvailableBalance } from "@/lib/utils";
 import { purchaseSchema } from "@/lib/validations";
 
 export async function POST(request: Request, { params }: { params: Promise<{ poolId: string }> }) {
@@ -33,14 +35,26 @@ export async function POST(request: Request, { params }: { params: Promise<{ poo
       const total = new Prisma.Decimal(pool.sharePrice).mul(parsed.quantity);
       const wallet = await tx.wallet.findUnique({ where: { userId: currentUser.id } });
       if (!wallet) throw new Error("Carteira não encontrada.");
-      if (wallet.balance.lessThan(total)) throw new Error("Saldo insuficiente.");
+
+      const availableBalance = new Prisma.Decimal(getWalletAvailableBalance(wallet));
+      if (availableBalance.lessThan(total)) throw new Error("Saldo insuficiente.");
+
+      const debit = splitWalletDebit({
+        balance: wallet.balance,
+        bonusBalance: wallet.bonusBalance,
+        amount: total,
+      });
 
       const walletUpdateResult = await tx.wallet.updateMany({
         where: {
           id: wallet.id,
-          balance: { gte: total },
+          balance: { gte: debit.cashUsed },
+          bonusBalance: { gte: debit.bonusUsed },
         },
-        data: { balance: { decrement: total } },
+        data: {
+          balance: { decrement: debit.cashUsed },
+          bonusBalance: { decrement: debit.bonusUsed },
+        },
       });
 
       if (walletUpdateResult.count === 0) throw new Error("Saldo insuficiente.");
@@ -105,12 +119,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ poo
           type: WalletTransactionType.SHARE_PURCHASE,
           status: WalletTransactionStatus.COMPLETED,
           amount: total.negated(),
-          balanceBefore: wallet.balance,
-          balanceAfter: updatedWallet.balance,
+          balanceBefore: availableBalance,
+          balanceAfter: new Prisma.Decimal(getWalletAvailableBalance(updatedWallet)),
           description: `Compra de ${parsed.quantity} cota(s) no bolão ${pool.code}`,
           referenceType: "purchase",
           referenceId: purchase.id,
-          metadata: { poolCode: pool.code, quantity: parsed.quantity },
+          metadata: {
+            poolCode: pool.code,
+            quantity: parsed.quantity,
+            cashUsed: debit.cashUsed.toString(),
+            bonusUsed: debit.bonusUsed.toString(),
+          },
         },
       });
 
@@ -136,6 +155,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ poo
             poolId: pool.id,
             quantity: parsed.quantity,
             total: total.toString(),
+            cashUsed: debit.cashUsed.toString(),
+            bonusUsed: debit.bonusUsed.toString(),
             availableSharesAfter: updatedPool.availableShares,
           },
         },
@@ -143,6 +164,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ poo
 
       return purchase;
     });
+
+    try {
+      await applyReferralBonusForFirstPaidPurchase({
+        userId: currentUser.id,
+        purchaseId: result.id,
+      });
+    } catch {
+      // ignore referral bonus issues so the purchase itself stays confirmed
+    }
 
     const poolCode = await prisma.pool.findUnique({
       where: { id: result.items[0].poolId },

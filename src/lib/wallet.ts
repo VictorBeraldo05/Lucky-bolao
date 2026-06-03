@@ -1,6 +1,7 @@
 import { Prisma, PaymentStatus, WalletTransactionStatus, WalletTransactionType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { fetchPixPaymentStatus, determineTopupStatus, parsePaymentTopupData } from "@/lib/mercadopago";
+import { getWalletAvailableBalance } from "@/lib/utils";
 
 export async function syncWalletTopup(topupId: string, correlationId?: string) {
   const topup = await prisma.walletTopup.findUnique({ where: { id: topupId } });
@@ -58,8 +59,8 @@ export async function syncWalletTopup(topupId: string, correlationId?: string) {
           type: WalletTransactionType.CREDIT_PURCHASE,
           status: WalletTransactionStatus.COMPLETED,
           amount,
-          balanceBefore: wallet.balance,
-          balanceAfter: updatedWallet.balance,
+          balanceBefore: new Prisma.Decimal(getWalletAvailableBalance(wallet)),
+          balanceAfter: new Prisma.Decimal(getWalletAvailableBalance(updatedWallet)),
           description: "PIX topup",
           referenceType: "payment",
           referenceId: paymentRecord.id,

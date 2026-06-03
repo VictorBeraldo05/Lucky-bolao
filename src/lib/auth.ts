@@ -135,6 +135,7 @@ export async function getHeaderUser() {
     where: { id: session.sub },
     select: {
       id: true,
+      inviteCode: true,
       name: true,
       email: true,
       cpf: true,
@@ -147,6 +148,7 @@ export async function getHeaderUser() {
           id: true,
           userId: true,
           balance: true,
+          bonusBalance: true,
           createdAt: true,
           updatedAt: true,
         },

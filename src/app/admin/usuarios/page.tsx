@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { AdminShell } from "@/components/admin-shell";
 import { AdminCreditForm } from "@/components/forms/admin-credit-form";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, getWalletAvailableBalance } from "@/lib/utils";
 
 export default async function AdminUsersPage() {
   await requireAdmin();
@@ -28,7 +28,7 @@ export default async function AdminUsersPage() {
                   <td className="px-4 py-3">{user.name}</td>
                   <td className="px-4 py-3">{user.email}</td>
                   <td className="px-4 py-3">{user.role}</td>
-                  <td className="px-4 py-3">{formatCurrency(user.wallet?.balance ?? 0)}</td>
+                  <td className="px-4 py-3">{formatCurrency(getWalletAvailableBalance(user.wallet))}</td>
                 </tr>
               ))}
             </tbody>
@@ -38,4 +38,3 @@ export default async function AdminUsersPage() {
     </AdminShell>
   );
 }
-

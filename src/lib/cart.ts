@@ -1,6 +1,8 @@
 import { Prisma, PaymentStatus, PurchaseStatus, WalletTransactionStatus, WalletTransactionType } from "@prisma/client";
 import { fetchPixPaymentStatus, determineTopupStatus } from "@/lib/mercadopago";
 import { prisma } from "@/lib/prisma";
+import { applyReferralBonusForFirstPaidPurchase } from "@/lib/referrals";
+import { getWalletAvailableBalance } from "@/lib/utils";
 
 function mapToPaymentStatus(status: string) {
   if (status === "PAID") return PaymentStatus.APPROVED;
@@ -40,12 +42,12 @@ export async function finalizeApprovedCartPayment(paymentId: string, correlation
     return payment;
   }
 
-  return prisma.$transaction(async (tx) => {
+  const transactionResult = await prisma.$transaction(async (tx) => {
     const lockedPayment = await tx.payment.findUnique({ where: { id: payment.id } });
     const lockedMetadata = ((lockedPayment?.metadata as PaymentMetadata | null) ?? {});
     if (!lockedPayment) throw new Error("Pagamento não encontrado.");
-    if (lockedMetadata.purchaseId) return lockedPayment;
-    if (lockedPayment.status !== PaymentStatus.APPROVED) return lockedPayment;
+    if (lockedMetadata.purchaseId) return { payment: lockedPayment, purchaseId: lockedMetadata.purchaseId ?? null };
+    if (lockedPayment.status !== PaymentStatus.APPROVED) return { payment: lockedPayment, purchaseId: null };
 
     const cart = await tx.cart.findUnique({
       where: { id: lockedMetadata.cartId },
@@ -57,7 +59,7 @@ export async function finalizeApprovedCartPayment(paymentId: string, correlation
     }
 
     if (cart.items.length === 0) {
-      return tx.payment.update({
+      const updatedPayment = await tx.payment.update({
         where: { id: payment.id },
         data: {
           metadata: toJsonMetadata({
@@ -66,6 +68,8 @@ export async function finalizeApprovedCartPayment(paymentId: string, correlation
           }),
         },
       });
+
+      return { payment: updatedPayment, purchaseId: null };
     }
 
     const purchase = await tx.purchase.create({
@@ -132,6 +136,8 @@ export async function finalizeApprovedCartPayment(paymentId: string, correlation
       throw new Error("Carteira não encontrada para concluir a compra.");
     }
 
+    const totalAvailable = new Prisma.Decimal(getWalletAvailableBalance(wallet));
+
     await tx.walletTransaction.create({
       data: {
         walletId: wallet.id,
@@ -139,8 +145,8 @@ export async function finalizeApprovedCartPayment(paymentId: string, correlation
         type: WalletTransactionType.SHARE_PURCHASE,
         status: WalletTransactionStatus.COMPLETED,
         amount: new Prisma.Decimal(payment.amount).negated(),
-        balanceBefore: wallet.balance,
-        balanceAfter: wallet.balance,
+        balanceBefore: totalAvailable,
+        balanceAfter: totalAvailable,
         description: `Compra aprovada via PIX para o carrinho ${cart.id}`,
         referenceType: "purchase",
         referenceId: purchase.id,
@@ -194,8 +200,21 @@ export async function finalizeApprovedCartPayment(paymentId: string, correlation
       },
     });
 
-    return updatedPayment;
+    return { payment: updatedPayment, purchaseId: purchase.id };
   });
+
+  if (transactionResult.purchaseId) {
+    try {
+      await applyReferralBonusForFirstPaidPurchase({
+        userId: payment.userId,
+        purchaseId: transactionResult.purchaseId,
+      });
+    } catch {
+      // ignore referral bonus issues so the approved purchase flow continues
+    }
+  }
+
+  return transactionResult.payment;
 }
 
 export async function syncPendingCartPaymentsForUser(userId: string) {

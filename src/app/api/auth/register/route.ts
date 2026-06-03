@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { createSessionCookie, getRequestMeta, hashPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { normalizeInviteCode } from "@/lib/referrals";
+import { clearReferralCookie, getReferralCodeFromCookies } from "@/lib/referrals-server";
 import { registerSchema } from "@/lib/validations";
 
 export async function POST(request: Request) {
@@ -15,6 +17,13 @@ export async function POST(request: Request) {
 
     const passwordHash = await hashPassword(payload.password);
     const meta = await getRequestMeta();
+    const referralCode = normalizeInviteCode(payload.referralCode) ?? (await getReferralCodeFromCookies());
+    const inviter = referralCode
+      ? await prisma.user.findUnique({
+          where: { inviteCode: referralCode },
+          select: { id: true },
+        })
+      : null;
 
     const user = await prisma.user.create({
       data: {
@@ -22,9 +31,11 @@ export async function POST(request: Request) {
         email: payload.email,
         cpf: payload.cpf,
         passwordHash,
+        referredByUserId: inviter?.id ?? null,
         wallet: {
           create: {
             balance: new Prisma.Decimal(0),
+            bonusBalance: new Prisma.Decimal(0),
           },
         },
         notifications: {
@@ -42,7 +53,7 @@ export async function POST(request: Request) {
             entityId: "self",
             ipAddress: meta.ipAddress,
             userAgent: meta.userAgent,
-            newData: { email: payload.email },
+            newData: { email: payload.email, referredByUserId: inviter?.id ?? null },
           },
         },
       },
@@ -54,6 +65,8 @@ export async function POST(request: Request) {
       role: user.role,
       name: user.name,
     });
+
+    await clearReferralCookie();
 
     return NextResponse.json({ message: "Conta criada com sucesso." });
   } catch (error) {

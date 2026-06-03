@@ -9,6 +9,7 @@ export const registerSchema = z.object({
     .min(1, "Informe seu CPF.")
     .transform((value) => value.replace(/\D/g, ""))
     .refine((value) => /^\d{11}$/.test(value), "Informe um CPF valido."),
+  referralCode: z.string().trim().min(3).max(100).optional().nullable(),
 });
 
 export const loginSchema = z.object({
