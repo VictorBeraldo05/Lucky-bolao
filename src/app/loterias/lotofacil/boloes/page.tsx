@@ -1,5 +1,6 @@
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { activePoolStatuses } from "@/lib/status";
 import { Container } from "@/components/container";
 import { PoolTable } from "@/components/pool-table";
 import { SectionHeading } from "@/components/section-heading";
@@ -10,6 +11,7 @@ export default async function LotofacilPoolsPage() {
     prisma.pool.findMany({
       where: {
         lottery: { slug: "lotofacil" },
+        status: { in: activePoolStatuses },
       },
       include: {
         contest: true,

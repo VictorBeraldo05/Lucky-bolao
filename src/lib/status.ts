@@ -1,3 +1,5 @@
+import { PoolStatus } from "@prisma/client";
+
 const statusLabels: Record<string, string> = {
   OPEN: "Aberto",
   SOLD_OUT: "Esgotado",
@@ -17,3 +19,5 @@ const statusLabels: Record<string, string> = {
 export function formatStatusLabel(status: string) {
   return statusLabels[status] ?? status.replaceAll("_", " ");
 }
+
+export const activePoolStatuses: PoolStatus[] = [PoolStatus.OPEN, PoolStatus.SOLD_OUT];
