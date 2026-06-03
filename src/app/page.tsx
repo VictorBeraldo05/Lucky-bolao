@@ -73,35 +73,16 @@ export default async function Home() {
 
         <Link
           href="/cadastro"
-          className="mt-3 block overflow-hidden rounded-[28px] border border-fuchsia-200/60 bg-[radial-gradient(circle_at_top_left,_rgba(181,255,69,0.22),_transparent_28%),linear-gradient(135deg,_#220046_0%,_#4c1394_50%,_#220046_100%)] p-4 text-white shadow-[0_16px_44px_rgba(78,17,129,0.25)] sm:hidden"
+          className="mt-3 block overflow-hidden rounded-[24px] border border-white/70 bg-white shadow-[0_16px_40px_rgba(120,58,166,0.16)] sm:hidden"
         >
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <span className="inline-flex rounded-full bg-lime-300 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-slate-950">
-                Promoção especial
-              </span>
-              <h2 className="mt-3 text-xl font-black leading-tight">
-                Convide um amigo e ganhe <span className="text-lime-300">R$ 5,00</span>
-              </h2>
-              <p className="mt-2 max-w-[18rem] text-sm leading-5 text-white/85">
-                Seu amigo faz a primeira compra e você ganha crédito para tentar a sorte.
-              </p>
-            </div>
-
-            <div className="shrink-0 rounded-[22px] bg-white/10 p-2 backdrop-blur-sm">
-              <Image src="/lucky-clover.svg" alt="Lucky Bolões" width={56} height={56} className="h-14 w-14" />
-            </div>
-          </div>
-
-          <div className="mt-4 flex items-center justify-between rounded-[22px] border border-white/12 bg-white/10 px-3 py-2 backdrop-blur-sm">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">Você ganha</p>
-              <p className="text-lg font-black text-lime-300">R$ 5,00 de crédito</p>
-            </div>
-            <span className="inline-flex rounded-full bg-white px-3 py-1.5 text-xs font-bold text-fuchsia-700">
-              Convidar agora
-            </span>
-          </div>
+          <Image
+            src="/promo-indique-ganhe.png"
+            alt="Promoção especial: convide um amigo e ganhe R$ 5,00 de crédito"
+            width={1790}
+            height={888}
+            className="h-auto w-full"
+            priority
+          />
         </Link>
       </Container>
 
