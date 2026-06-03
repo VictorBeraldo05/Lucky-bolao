@@ -5,16 +5,18 @@ import { syncPendingLotofacilContests } from "@/lib/lotofacil-sync";
 export const dynamic = "force-dynamic";
 
 function isAuthorized(request: Request) {
-  const secret = process.env.LOTTERY_SYNC_SECRET ?? process.env.CRON_SECRET;
+  const secrets = [process.env.LOTTERY_SYNC_SECRET, process.env.CRON_SECRET].filter(
+    (value): value is string => Boolean(value),
+  );
 
-  if (!secret) {
+  if (secrets.length === 0) {
     return process.env.NODE_ENV !== "production";
   }
 
   const authHeader = request.headers.get("authorization");
   const syncHeader = request.headers.get("x-sync-secret");
 
-  return authHeader === `Bearer ${secret}` || syncHeader === secret;
+  return secrets.some((secret) => authHeader === `Bearer ${secret}` || syncHeader === secret);
 }
 
 async function handleSync(request: Request) {
