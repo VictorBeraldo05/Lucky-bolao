@@ -28,9 +28,9 @@ export function NotificationsButton({ notifications }: { notifications: HeaderNo
 
       {isOpen ? (
         <div className="fixed inset-0 z-[73] bg-slate-950/45 backdrop-blur-sm" onClick={() => setIsOpen(false)}>
-          <div className="flex h-full justify-end">
+          <div className="flex h-full items-end justify-end sm:items-stretch">
             <div
-              className="flex h-full w-full max-w-md flex-col overflow-hidden border-l border-white/80 bg-white shadow-2xl sm:max-w-lg"
+              className="flex h-[85vh] w-full flex-col overflow-hidden rounded-t-[28px] border border-white/80 bg-white shadow-2xl sm:h-full sm:max-w-lg sm:rounded-none sm:border-y-0 sm:border-r-0 sm:border-l"
               onClick={(event) => event.stopPropagation()}
             >
               <div className="flex items-start justify-between gap-4 border-b border-fuchsia-100 px-5 py-5 sm:px-6">

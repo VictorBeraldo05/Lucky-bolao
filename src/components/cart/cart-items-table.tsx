@@ -101,7 +101,7 @@ export function CartItemsTable({ initialItems, onCartChange }: CartItemsTablePro
                     const nextQuantity = Math.max(1, Number(event.target.value) || 1);
                     updateItem(item.id, nextQuantity);
                   }}
-                  className="w-full rounded-2xl border border-fuchsia-100 bg-white px-4 py-3 outline-none"
+                  className="w-full rounded-2xl border border-fuchsia-100 bg-white px-4 py-3 text-base outline-none"
                 />
               </label>
               <div className="flex flex-col items-start gap-2 sm:items-end">

@@ -81,7 +81,51 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
 
   return (
     <>
-      <div className="overflow-hidden rounded-[28px] border border-white/80 bg-white/90 shadow-sm">
+      <div className="space-y-4 md:hidden">
+        {shares.map((share) => (
+          <div key={share.id} className="rounded-[28px] border border-white/80 bg-white/90 p-4 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-fuchsia-500">{share.pool.lotteryName}</p>
+                <p className="mt-1 text-base font-bold text-slate-900">{share.pool.title}</p>
+                <p className="mt-1 text-sm text-slate-500">
+                  Concurso #{share.pool.contestNumber} • {formatDate(share.pool.drawDate)}
+                </p>
+              </div>
+              <StatusBadge status={share.pool.status} />
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-3 rounded-[24px] bg-fuchsia-50/60 p-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-fuchsia-500">Tipo</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">{share.pool.gameTypeName}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-fuchsia-500">Cotas</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">{share.quantity}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-fuchsia-500">Valor</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">{formatCurrency(share.totalPrice)}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-fuchsia-500">Prêmio</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">{formatCurrency(share.totalPrize)}</p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => openShareDetails(share)}
+              className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-fuchsia-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800"
+            >
+              Ver resumo
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden overflow-hidden rounded-[28px] border border-white/80 bg-white/90 shadow-sm md:block">
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
             <thead className="bg-fuchsia-50 text-slate-600">
@@ -128,8 +172,8 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
       </div>
 
       {selectedShare ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm">
-          <div className="max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-[32px] border border-white/70 bg-white shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/45 px-0 py-0 backdrop-blur-sm sm:items-center sm:px-4 sm:py-6">
+          <div className="max-h-[100dvh] w-full max-w-5xl overflow-hidden rounded-t-[28px] border border-white/70 bg-white shadow-2xl sm:max-h-[92vh] sm:rounded-[32px]">
             <div className="flex items-start justify-between gap-4 border-b border-fuchsia-100 px-5 py-4 sm:px-6">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">{selectedShare.pool.lotteryName}</p>
@@ -169,7 +213,7 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
               </div>
             </div>
 
-            <div className="max-h-[calc(92vh-150px)] overflow-y-auto px-5 py-5 sm:px-6">
+            <div className="max-h-[calc(100dvh-148px)] overflow-y-auto px-4 py-4 sm:max-h-[calc(92vh-150px)] sm:px-6 sm:py-5">
               {activeTab === "resumo" ? (
                 <div className="space-y-6">
                   <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

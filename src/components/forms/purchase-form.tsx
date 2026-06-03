@@ -76,7 +76,7 @@ export function PurchaseForm({ poolId, poolTitle, poolCode, sharePrice, availabl
               max={availableShares}
               value={quantity}
               onChange={(event) => setQuantity(Math.max(1, Math.min(availableShares, Number(event.target.value) || 1)))}
-              className="w-full rounded-2xl border border-fuchsia-100 bg-white px-4 py-3 outline-none"
+              className="w-full rounded-2xl border border-fuchsia-100 bg-white px-4 py-3 text-base outline-none"
             />
           </label>
           <div className="rounded-2xl bg-white px-4 py-3">

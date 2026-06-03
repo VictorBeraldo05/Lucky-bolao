@@ -21,9 +21,9 @@ export function AuthRequiredDialog({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/55 px-4 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-slate-950/55 px-3 py-3 backdrop-blur-sm sm:items-center sm:px-4" onClick={onClose}>
       <div
-        className="w-full max-w-md rounded-[32px] border border-white/80 bg-white p-6 shadow-2xl"
+        className="w-full max-w-md rounded-[28px] border border-white/80 bg-white p-5 shadow-2xl sm:rounded-[32px] sm:p-6"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">
