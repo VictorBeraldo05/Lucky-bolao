@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -23,13 +24,14 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
+  const [paymentId, setPaymentId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!paymentData) return;
+    if (!paymentId) return;
 
     const interval = window.setInterval(async () => {
       try {
-        const response = await fetch("/api/cart/checkout/status");
+        const response = await fetch(`/api/cart/checkout/status?paymentId=${paymentId}`);
         const data = await response.json();
         if (!response.ok || !data.payment) return;
 
@@ -52,7 +54,7 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
     }, 5000);
 
     return () => window.clearInterval(interval);
-  }, [paymentData, router, onApproved]);
+  }, [paymentId, router, onApproved]);
 
   async function handleCheckout() {
     if (!userCpf) {
@@ -61,7 +63,7 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
     }
 
     setIsLoading(true);
-    setStatusMessage(null);
+    setStatusMessage("Estamos preparando seu PIX. Isso pode levar alguns segundos.");
 
     try {
       const response = await fetch("/api/cart/checkout", { method: "POST" });
@@ -70,8 +72,15 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
         setStatusMessage(data.message ?? "Falha ao iniciar o pagamento.");
         return;
       }
+
       setPaymentData(data.paymentData);
+      setPaymentId(data.payment?.id ?? null);
       setStatusMessage("Pagamento criado. Escaneie o QR code ou use o copia e cola.");
+
+      if (typeof window !== "undefined" && window.innerWidth < 1024 && data.payment?.id) {
+        router.push(`/carrinho/pix?paymentId=${data.payment.id}`);
+        return;
+      }
     } catch {
       setStatusMessage("Erro ao iniciar o pagamento. Tente novamente.");
     } finally {
@@ -80,7 +89,7 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
   }
 
   return (
-    <div className="rounded-[28px] border border-white/80 bg-white/90 p-6 shadow-sm">
+    <div className="relative rounded-[28px] border border-white/80 bg-white/90 p-6 shadow-sm">
       <div className="flex flex-col gap-3">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-fuchsia-500">Finalizar compra</p>
@@ -94,16 +103,23 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
           type="button"
           onClick={handleCheckout}
           disabled={isLoading || total <= 0}
-          className="inline-flex items-center justify-center rounded-full bg-fuchsia-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800 disabled:opacity-60"
+          className="inline-flex items-center justify-center rounded-full bg-fuchsia-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isLoading ? "Gerando pagamento..." : "Pagar com PIX"}
+          {isLoading ? (
+            <span className="inline-flex items-center gap-2">
+              <LoaderCircle className="h-4 w-4 animate-spin" />
+              Gerando pagamento...
+            </span>
+          ) : (
+            "Pagar com PIX"
+          )}
         </button>
-        {!userCpf ? <p className="text-sm text-rose-600">CPF necessario para gerar o QR code. Atualize em Perfil.</p> : null}
+        {!userCpf ? <p className="text-sm text-rose-600">CPF necessário para gerar o QR code. Atualize em Perfil.</p> : null}
         {statusMessage ? <p className="text-sm font-medium text-slate-700">{statusMessage}</p> : null}
       </div>
 
       {paymentData ? (
-        <div className="mt-6 rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/70 p-4">
+        <div className="mt-6 hidden rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/70 p-4 lg:block">
           {paymentData.qrCodeImageBase64 ? (
             <div className="rounded-[24px] bg-white p-4 text-center">
               <Image
@@ -128,6 +144,18 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
             </a>
           ) : null}
           {paymentData.expiresAt ? <p className="mt-3 text-xs text-slate-500">Expira em {formatDate(paymentData.expiresAt)}</p> : null}
+        </div>
+      ) : null}
+
+      {isLoading ? (
+        <div className="absolute inset-0 flex items-center justify-center rounded-[28px] bg-white/90 backdrop-blur-sm">
+          <div className="rounded-[24px] border border-fuchsia-100 bg-white px-6 py-5 text-center shadow-xl">
+            <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-fuchsia-600" />
+            <p className="mt-4 text-base font-semibold text-slate-900">Preparando seu PIX</p>
+            <p className="mt-2 max-w-xs text-sm text-slate-600">
+              Estamos processando sua solicitação e aguardando o backend responder. Não feche esta tela.
+            </p>
+          </div>
         </div>
       ) : null}
     </div>

@@ -61,8 +61,10 @@ export async function POST(request: Request) {
           cartId: cart.id,
           items: cart.items.map((item) => ({ poolId: item.poolId, quantity: item.quantity, totalPrice: item.totalPrice })),
           providerPayload: payment,
+          qrCodeImageBase64: paymentData.qrCodeImageBase64,
           qrCodeText: paymentData.qrCodeText,
           paymentLinkUrl: paymentData.paymentLinkUrl,
+          expiresAt: paymentData.expiresAt,
         },
       },
     });
