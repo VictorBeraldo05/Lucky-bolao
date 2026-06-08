@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CheckCircle2, ChevronRight, ShoppingCart, Sparkles, X } from "lucide-react";
 import { CartCheckoutPanel } from "@/components/cart/cart-checkout-panel";
@@ -36,6 +37,7 @@ type CartUpdateDetail = {
 };
 
 export function CartOverlay({ userCpf, isAuthenticated }: CartOverlayProps) {
+  const pathname = usePathname();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const [items, setItems] = useState<CartItem[]>([]);
@@ -46,6 +48,7 @@ export function CartOverlay({ userCpf, isAuthenticated }: CartOverlayProps) {
   const [recentlyAdded, setRecentlyAdded] = useState<CartUpdateDetail["addedItem"] | null>(null);
 
   const itemCount = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items]);
+  const shouldHideMobileBar = pathname === "/carrinho" || pathname.startsWith("/carrinho/");
 
   const loadCart = useCallback(async () => {
     if (!isAuthenticated) {
@@ -338,7 +341,7 @@ export function CartOverlay({ userCpf, isAuthenticated }: CartOverlayProps) {
         </div>
       ) : null}
 
-      {items.length > 0 ? (
+      {items.length > 0 && !shouldHideMobileBar ? (
         <div className="fixed inset-x-0 bottom-0 z-[71] border-t border-fuchsia-100 bg-white/95 px-4 py-3 shadow-[0_-12px_30px_rgba(15,23,42,0.12)] lg:hidden">
           <button
             type="button"

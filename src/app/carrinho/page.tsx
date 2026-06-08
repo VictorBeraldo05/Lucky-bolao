@@ -34,9 +34,13 @@ export default async function CartPage() {
 
   return (
     <AccountShell currentPath="/carrinho" title="Carrinho" description="Revise seus itens e finalize a compra via PIX no carrinho.">
-      <div className="grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
-        <CartItemsTable initialItems={cartItems} />
-        <CartCheckoutPanel total={total} userCpf={user.cpf ?? null} />
+      <div className="grid gap-4 xl:grid-cols-[1.4fr_0.8fr] xl:gap-6">
+        <div className="order-2 xl:order-1">
+          <CartItemsTable initialItems={cartItems} />
+        </div>
+        <div className="order-1 xl:order-2">
+          <CartCheckoutPanel total={total} userCpf={user.cpf ?? null} />
+        </div>
       </div>
       {cartItems.length === 0 ? (
         <div className="mt-6 rounded-[28px] border border-white/80 bg-white/90 p-6 text-center text-slate-600 shadow-sm">

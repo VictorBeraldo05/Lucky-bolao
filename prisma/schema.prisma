@@ -92,6 +92,7 @@ model User {
   inviteCode        String              @unique @default(cuid())
   name              String
   email             String              @unique
+  phone             String?
   passwordHash      String
   cpf               String?             @unique
   role              UserRole            @default(USER)

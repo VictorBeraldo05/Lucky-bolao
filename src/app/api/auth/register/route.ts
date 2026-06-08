@@ -29,6 +29,7 @@ export async function POST(request: Request) {
       data: {
         name: payload.name,
         email: payload.email,
+        phone: payload.phone,
         cpf: payload.cpf,
         passwordHash,
         referredByUserId: inviter?.id ?? null,

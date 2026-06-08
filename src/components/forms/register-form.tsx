@@ -22,6 +22,7 @@ export function RegisterForm({ referralCode }: RegisterFormProps) {
       body: JSON.stringify({
         name: formData.get("name"),
         email: formData.get("email"),
+        phone: formData.get("phone"),
         password: formData.get("password"),
         cpf: formData.get("cpf"),
         referralCode,
@@ -36,7 +37,7 @@ export function RegisterForm({ referralCode }: RegisterFormProps) {
       return;
     }
 
-    router.push("/minha-conta");
+    router.push("/");
     router.refresh();
   }
 
@@ -58,6 +59,12 @@ export function RegisterForm({ referralCode }: RegisterFormProps) {
         name="cpf"
         type="text"
         placeholder="CPF (somente números)"
+        className="w-full rounded-2xl border border-fuchsia-100 bg-white px-4 py-3 outline-none"
+      />
+      <input
+        name="phone"
+        type="tel"
+        placeholder="Telefone com DDD"
         className="w-full rounded-2xl border border-fuchsia-100 bg-white px-4 py-3 outline-none"
       />
       <input

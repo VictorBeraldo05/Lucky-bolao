@@ -102,15 +102,15 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
   }
 
   return (
-    <div className="relative rounded-[28px] border border-white/80 bg-white/90 p-6 shadow-sm">
-      <div className="flex flex-col gap-3">
+    <div className="relative rounded-[28px] border border-white/80 bg-white/90 p-5 shadow-sm sm:p-6">
+      <div className="flex flex-col gap-2.5">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-fuchsia-500">Finalizar compra</p>
-          <h2 className="mt-2 text-2xl font-bold text-slate-900">Pagamento via PIX</h2>
+          <h2 className="mt-1.5 text-2xl font-bold text-slate-900">Pagamento via PIX</h2>
         </div>
         <div className="rounded-2xl bg-fuchsia-50 p-4">
           <p className="text-sm text-slate-500">Total do carrinho</p>
-          <p className="mt-2 text-3xl font-black text-fuchsia-700">{formatCurrency(total)}</p>
+          <p className="mt-1.5 text-3xl font-black text-fuchsia-700">{formatCurrency(total)}</p>
         </div>
         <button
           type="button"
@@ -132,7 +132,7 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
       </div>
 
       {paymentData ? (
-        <div className="mt-6 hidden rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/70 p-4 lg:block">
+        <div className="mt-5 hidden rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/70 p-4 lg:block">
           {paymentData.qrCodeImageBase64 ? (
             <div className="rounded-[24px] bg-white p-4 text-center">
               <Image
