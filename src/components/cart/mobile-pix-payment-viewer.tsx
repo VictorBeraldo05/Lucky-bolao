@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, LoaderCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PixCopyActions } from "@/components/cart/pix-copy-actions";
 import { formatDate } from "@/lib/utils";
@@ -26,6 +26,16 @@ export function MobilePixPaymentViewer({ paymentId }: { paymentId: string }) {
   const [statusMessage, setStatusMessage] = useState<string | null>("Estamos carregando seu QR code.");
   const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
 
+  const redirectToMyGames = useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.location.replace("/meus-jogos?payment=approved");
+      return;
+    }
+
+    router.replace("/meus-jogos?payment=approved");
+    router.refresh();
+  }, [router]);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -38,8 +48,10 @@ export function MobilePixPaymentViewer({ paymentId }: { paymentId: string }) {
         setPaymentData(data.paymentData);
 
         if (data.payment?.status === "APPROVED") {
-          router.push("/meus-jogos?payment=approved");
-          router.refresh();
+          setPaymentData(null);
+          setStatusMessage("Pagamento aprovado. Redirecionando para seus jogos.");
+          window.dispatchEvent(new CustomEvent("cart:approved"));
+          redirectToMyGames();
           return;
         }
 
@@ -68,7 +80,7 @@ export function MobilePixPaymentViewer({ paymentId }: { paymentId: string }) {
       isMounted = false;
       window.clearInterval(interval);
     };
-  }, [paymentId, router]);
+  }, [paymentId, redirectToMyGames]);
 
   return (
     <div className="space-y-6">

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { LoaderCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PixCopyActions } from "@/components/cart/pix-copy-actions";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -27,6 +27,16 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
   const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
   const [paymentId, setPaymentId] = useState<string | null>(null);
 
+  const redirectToMyGames = useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.location.replace("/meus-jogos?payment=approved");
+      return;
+    }
+
+    router.replace("/meus-jogos?payment=approved");
+    router.refresh();
+  }, [router]);
+
   useEffect(() => {
     if (!paymentId) return;
 
@@ -38,10 +48,12 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
 
         if (data.payment.status === "APPROVED") {
           setStatusMessage("Pagamento aprovado. Suas cotas foram liberadas.");
+          setPaymentData(null);
+          setPaymentId(null);
           onApproved?.();
+          window.dispatchEvent(new CustomEvent("cart:approved"));
           window.clearInterval(interval);
-          router.push("/meus-jogos?payment=approved");
-          router.refresh();
+          redirectToMyGames();
           return;
         }
 
@@ -55,7 +67,7 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
     }, 5000);
 
     return () => window.clearInterval(interval);
-  }, [paymentId, router, onApproved]);
+  }, [onApproved, paymentId, redirectToMyGames]);
 
   async function handleCheckout() {
     if (!userCpf) {

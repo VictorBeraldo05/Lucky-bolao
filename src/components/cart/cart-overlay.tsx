@@ -118,14 +118,24 @@ export function CartOverlay({ userCpf, isAuthenticated }: CartOverlayProps) {
       }
     }
 
+    function handleApproved() {
+      setItems([]);
+      setTotal(0);
+      setRecentlyAdded(null);
+      setQuickAddMessage(null);
+      closeDrawer();
+    }
+
     window.addEventListener("cart:open", handleOpen);
     window.addEventListener("cart:updated", handleUpdated as EventListener);
+    window.addEventListener("cart:approved", handleApproved);
 
     return () => {
       window.removeEventListener("cart:open", handleOpen);
       window.removeEventListener("cart:updated", handleUpdated as EventListener);
+      window.removeEventListener("cart:approved", handleApproved);
     };
-  }, [loadCart, openDrawer]);
+  }, [closeDrawer, loadCart, openDrawer]);
 
   async function removeItem(itemId: string) {
     await fetch(`/api/cart/items/${itemId}`, { method: "DELETE" });
@@ -311,7 +321,17 @@ export function CartOverlay({ userCpf, isAuthenticated }: CartOverlayProps) {
               {quickAddMessage ? <p className="mt-4 text-sm font-medium text-fuchsia-700">{quickAddMessage}</p> : null}
 
               <div className="mt-6">
-                <CartCheckoutPanel total={total} userCpf={userCpf} onApproved={() => void loadCart()} />
+                <CartCheckoutPanel
+                  total={total}
+                  userCpf={userCpf}
+                  onApproved={() => {
+                    setItems([]);
+                    setTotal(0);
+                    setRecentlyAdded(null);
+                    setQuickAddMessage(null);
+                    closeDrawer();
+                  }}
+                />
               </div>
             </div>
           </aside>
