@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Container } from "@/components/container";
@@ -5,7 +6,41 @@ import { NumberGrid } from "@/components/number-grid";
 import { PurchaseForm } from "@/components/forms/purchase-form";
 import { StatusBadge } from "@/components/status-badge";
 import { applyTemporaryPoolUrgencyMask } from "@/lib/temporary-pool-urgency";
+import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import { formatCurrency, formatDate, getPoolCommercialSummary } from "@/lib/utils";
+
+export async function generateMetadata({ params }: { params: Promise<{ code: string }> }): Promise<Metadata> {
+  const { code } = await params;
+  const pool = await prisma.pool.findUnique({
+    where: { code },
+    include: {
+      lottery: true,
+      contest: true,
+      gameType: true,
+      games: true,
+    },
+  });
+
+  if (!pool) {
+    return buildMetadata({
+      title: "Bolão não encontrado",
+      description: "O bolão solicitado não foi encontrado.",
+      path: `/boloes/${code}`,
+    });
+  }
+
+  return buildMetadata({
+    title: `${pool.title} - Concurso ${pool.contest.contestNumber}`,
+    description: `${pool.title} da ${pool.lottery.name} com ${pool.games.length} jogos, cotas e detalhes do concurso ${pool.contest.contestNumber}.`,
+    path: `/boloes/${pool.code}`,
+    keywords: [
+      `bolão ${pool.lottery.name.toLowerCase()}`,
+      pool.title.toLowerCase(),
+      `concurso ${pool.contest.contestNumber}`,
+      "comprar cota loteria",
+    ],
+  });
+}
 
 export default async function PoolDetailPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
@@ -33,8 +68,33 @@ export default async function PoolDetailPage({ params }: { params: Promise<{ cod
     gamesCount: displayPool.games.length,
   });
 
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: displayPool.title,
+    description: displayPool.description,
+    sku: displayPool.code,
+    url: absoluteUrl(`/boloes/${displayPool.code}`),
+    brand: {
+      "@type": "Brand",
+      name: "Lucky Bolões",
+    },
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "BRL",
+      price: Number(displayPool.sharePrice),
+      availability:
+        displayPool.status === "OPEN" && displayPool.availableShares > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+      url: absoluteUrl(`/boloes/${displayPool.code}`),
+    },
+  };
+
   return (
     <Container className="py-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
+
       <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
         <section className="space-y-6">
           <div className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">

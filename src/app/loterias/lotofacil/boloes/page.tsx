@@ -1,10 +1,19 @@
+import type { Metadata } from "next";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { activePoolStatuses } from "@/lib/status";
 import { Container } from "@/components/container";
 import { PoolTable } from "@/components/pool-table";
 import { SectionHeading } from "@/components/section-heading";
+import { buildMetadata } from "@/lib/seo";
 import { applyTemporaryPoolUrgencyMask } from "@/lib/temporary-pool-urgency";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Bolões da Lotofácil",
+  description: "Confira os bolões da Lotofácil, compare cotas, valores e jogos disponíveis para participar online.",
+  path: "/loterias/lotofacil/boloes",
+  keywords: ["bolões da lotofácil", "bolão lotofácil online", "comprar cota lotofácil", "cotas lotofácil"],
+});
 
 export default async function LotofacilPoolsPage() {
   const [session, pools] = await Promise.all([
@@ -23,11 +32,16 @@ export default async function LotofacilPoolsPage() {
       orderBy: [{ status: "asc" }, { contest: { drawDate: "asc" } }],
     }),
   ]);
+
   const displayPools = pools.map(applyTemporaryPoolUrgencyMask);
 
   return (
     <Container className="space-y-8 py-10">
-      <SectionHeading eyebrow="Bolões" title="Listagem da Lotofácil" description="Confira os bolões disponíveis, escolha suas cotas e acompanhe tudo pela sua conta." />
+      <SectionHeading
+        eyebrow="Bolões"
+        title="Listagem da Lotofácil"
+        description="Confira os bolões disponíveis, escolha suas cotas e acompanhe tudo pela sua conta."
+      />
       <PoolTable pools={displayPools} isAuthenticated={Boolean(session?.sub)} />
     </Container>
   );
