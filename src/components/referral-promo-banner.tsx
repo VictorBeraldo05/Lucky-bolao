@@ -48,18 +48,17 @@ export function ReferralPromoBanner({ inviteCode }: ReferralPromoBannerProps) {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="relative mx-auto hidden w-full max-w-4xl overflow-hidden rounded-[28px] border border-white/70 bg-white shadow-[0_16px_40px_rgba(120,58,166,0.16)] sm:block"
+        className="mx-auto hidden w-full max-w-2xl overflow-hidden rounded-[28px] border border-white/70 bg-white shadow-[0_16px_40px_rgba(120,58,166,0.16)] sm:block"
       >
-        <div className="relative h-[148px] w-full lg:h-[164px] xl:h-[176px]">
-          <Image
-            src="/promo-indique-ganhe.png"
-            alt="Promoção especial: convide um amigo e ganhe R$ 5,00 de crédito"
-            fill
-            className="object-contain"
-            sizes="(min-width: 1280px) 1024px, (min-width: 1024px) 896px, 100vw"
-            priority
-          />
-        </div>
+        <Image
+          src="/promo-indique-ganhe.png"
+          alt="Promoção especial: convide um amigo e ganhe R$ 5,00 de crédito"
+          width={1790}
+          height={888}
+          className="h-auto w-full"
+          sizes="(min-width: 1280px) 672px, (min-width: 640px) 672px, 100vw"
+          priority
+        />
       </button>
 
       {isOpen ? (
