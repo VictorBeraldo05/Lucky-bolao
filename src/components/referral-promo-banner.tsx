@@ -33,14 +33,14 @@ export function ReferralPromoBanner({ inviteCode }: ReferralPromoBannerProps) {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="block w-full overflow-hidden rounded-[24px] border border-white/70 bg-white text-left shadow-[0_16px_40px_rgba(120,58,166,0.16)] sm:rounded-[32px]"
+        className="block w-full overflow-hidden rounded-[24px] border border-white/70 bg-white text-left shadow-[0_16px_40px_rgba(120,58,166,0.16)] sm:mx-auto sm:max-w-5xl sm:rounded-[32px]"
       >
         <Image
           src="/promo-indique-ganhe.png"
           alt="Promoção especial: convide um amigo e ganhe R$ 5,00 de crédito"
           width={1790}
           height={888}
-          className="h-auto w-full sm:h-[132px] sm:w-full sm:object-cover sm:object-center lg:h-[148px] xl:h-[160px]"
+          className="h-auto w-full"
           priority
         />
       </button>
