@@ -4,6 +4,7 @@ import Image from "next/image";
 import { LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { PixCopyActions } from "@/components/cart/pix-copy-actions";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 type PaymentData = {
@@ -138,6 +139,9 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
               <p className="mt-2 break-all font-semibold">{paymentData.qrCodeText}</p>
             </div>
           ) : null}
+          <div className="mt-4">
+            <PixCopyActions qrCodeText={paymentData.qrCodeText} paymentLinkUrl={paymentData.paymentLinkUrl} />
+          </div>
           {paymentData.paymentLinkUrl ? (
             <a href={paymentData.paymentLinkUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-fuchsia-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800">
               Abrir link de pagamento

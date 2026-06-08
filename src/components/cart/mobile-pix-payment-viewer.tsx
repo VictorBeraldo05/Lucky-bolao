@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { PixCopyActions } from "@/components/cart/pix-copy-actions";
 import { formatDate } from "@/lib/utils";
 
 type PaymentData = {
@@ -112,6 +113,8 @@ export function MobilePixPaymentViewer({ paymentId }: { paymentId: string }) {
                 <p className="mt-2 break-all text-sm font-semibold text-slate-900">{paymentData.qrCodeText}</p>
               </div>
             ) : null}
+
+            <PixCopyActions qrCodeText={paymentData.qrCodeText} paymentLinkUrl={paymentData.paymentLinkUrl} />
 
             {paymentData.paymentLinkUrl ? (
               <a
