@@ -40,7 +40,7 @@ export function ReferralPromoBanner({ inviteCode }: ReferralPromoBannerProps) {
           alt="Promoção especial: convide um amigo e ganhe R$ 5,00 de crédito"
           width={1790}
           height={888}
-          className="h-auto w-full"
+          className="h-auto w-full sm:max-h-[220px] sm:object-cover"
           priority
         />
       </button>
