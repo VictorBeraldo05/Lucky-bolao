@@ -1,5 +1,23 @@
 import type { Metadata } from "next";
 
+function normalizeLegacySiteDomain(siteUrl: string) {
+  try {
+    const url = new URL(siteUrl);
+
+    if (url.hostname === "lucky-boloes.online") {
+      url.hostname = "lucky-boloes.com";
+    }
+
+    if (url.hostname === "www.lucky-boloes.online") {
+      url.hostname = "www.lucky-boloes.com";
+    }
+
+    return url.toString().replace(/\/+$/, "");
+  } catch {
+    return siteUrl.replace(/lucky-boloes\.online/gi, "lucky-boloes.com").replace(/\/+$/, "");
+  }
+}
+
 export function getSiteUrl() {
   const rawSiteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ??
@@ -9,7 +27,7 @@ export function getSiteUrl() {
 
   const normalizedSiteUrl = rawSiteUrl.match(/^https?:\/\//i) ? rawSiteUrl : `https://${rawSiteUrl}`;
 
-  return normalizedSiteUrl.replace(/\/+$/, "");
+  return normalizeLegacySiteDomain(normalizedSiteUrl);
 }
 
 export function absoluteUrl(path = "/") {

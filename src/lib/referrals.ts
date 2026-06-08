@@ -1,5 +1,6 @@
 import { Prisma, WalletTransactionStatus, WalletTransactionType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { getSiteUrl } from "@/lib/seo";
 import { getWalletAvailableBalance } from "@/lib/utils";
 
 export const REFERRAL_COOKIE_NAME = "lucky_referral";
@@ -10,7 +11,7 @@ export function normalizeInviteCode(value?: string | null) {
 }
 
 export function getReferralLink(inviteCode: string) {
-  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
+  const baseUrl = getSiteUrl();
   return `${baseUrl}/convite/${inviteCode}`;
 }
 
