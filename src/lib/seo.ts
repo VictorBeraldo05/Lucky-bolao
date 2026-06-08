@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 
 export function getSiteUrl() {
-  const siteUrl =
+  const rawSiteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ??
     process.env.NEXT_PUBLIC_APP_URL ??
     process.env.APP_PUBLIC_URL ??
     "https://www.lucky-boloes.com";
 
-  return siteUrl.replace(/\/+$/, "");
+  const normalizedSiteUrl = rawSiteUrl.match(/^https?:\/\//i) ? rawSiteUrl : `https://${rawSiteUrl}`;
+
+  return normalizedSiteUrl.replace(/\/+$/, "");
 }
 
 export function absoluteUrl(path = "/") {
