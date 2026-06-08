@@ -4,6 +4,7 @@ import { Container } from "@/components/container";
 import { NumberGrid } from "@/components/number-grid";
 import { PurchaseForm } from "@/components/forms/purchase-form";
 import { StatusBadge } from "@/components/status-badge";
+import { applyTemporaryPoolUrgencyMask } from "@/lib/temporary-pool-urgency";
 import { formatCurrency, formatDate, getPoolCommercialSummary } from "@/lib/utils";
 
 export default async function PoolDetailPage({ params }: { params: Promise<{ code: string }> }) {
@@ -22,12 +23,14 @@ export default async function PoolDetailPage({ params }: { params: Promise<{ cod
 
   if (!pool) notFound();
 
+  const displayPool = applyTemporaryPoolUrgencyMask(pool);
+
   const summary = getPoolCommercialSummary({
-    relativeChance: pool.relativeChance,
-    description: pool.description,
-    totalShares: pool.totalShares,
-    sharePrice: pool.sharePrice,
-    gamesCount: pool.games.length,
+    relativeChance: displayPool.relativeChance,
+    description: displayPool.description,
+    totalShares: displayPool.totalShares,
+    sharePrice: displayPool.sharePrice,
+    gamesCount: displayPool.games.length,
   });
 
   return (
@@ -37,9 +40,9 @@ export default async function PoolDetailPage({ params }: { params: Promise<{ cod
           <div className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">{pool.lottery.name}</p>
-                <h1 className="mt-2 text-3xl font-bold text-slate-900">{pool.title}</h1>
-                <p className="mt-3 text-slate-600">{pool.description}</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">{displayPool.lottery.name}</p>
+                <h1 className="mt-2 text-3xl font-bold text-slate-900">{displayPool.title}</h1>
+                <p className="mt-3 text-slate-600">{displayPool.description}</p>
                 <p className="mt-3 text-sm font-medium text-fuchsia-700">
                   Veja as dezenas, confirme suas cotas e acompanhe tudo pela sua conta.
                 </p>
@@ -60,32 +63,32 @@ export default async function PoolDetailPage({ params }: { params: Promise<{ cod
                   </span>
                 </div>
               </div>
-              <StatusBadge status={pool.status} />
+              <StatusBadge status={displayPool.status} />
             </div>
             <div className="mt-6 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
               <p>
-                <span className="font-semibold text-slate-900">Código:</span> {pool.code}
+                <span className="font-semibold text-slate-900">Código:</span> {displayPool.code}
               </p>
               <p>
-                <span className="font-semibold text-slate-900">Tipo:</span> {pool.gameType.name}
+                <span className="font-semibold text-slate-900">Tipo:</span> {displayPool.gameType.name}
               </p>
               <p>
-                <span className="font-semibold text-slate-900">Concurso:</span> {pool.contest.contestNumber}
+                <span className="font-semibold text-slate-900">Concurso:</span> {displayPool.contest.contestNumber}
               </p>
               <p>
-                <span className="font-semibold text-slate-900">Sorteio:</span> {formatDate(pool.contest.drawDate)}
+                <span className="font-semibold text-slate-900">Sorteio:</span> {formatDate(displayPool.contest.drawDate)}
               </p>
               <p>
-                <span className="font-semibold text-slate-900">Valor total:</span> {formatCurrency(pool.totalValue)}
+                <span className="font-semibold text-slate-900">Valor total:</span> {formatCurrency(displayPool.totalValue)}
               </p>
               <p>
-                <span className="font-semibold text-slate-900">Por cota:</span> {formatCurrency(pool.sharePrice)}
+                <span className="font-semibold text-slate-900">Por cota:</span> {formatCurrency(displayPool.sharePrice)}
               </p>
               <p>
-                <span className="font-semibold text-slate-900">Cotas:</span> {pool.availableShares}/{pool.totalShares} disponíveis
+                <span className="font-semibold text-slate-900">Cotas:</span> {displayPool.availableShares}/{displayPool.totalShares} disponíveis
               </p>
               <p>
-                <span className="font-semibold text-slate-900">Chance:</span> {pool.relativeChance ?? "Ampliada"}
+                <span className="font-semibold text-slate-900">Chance:</span> {displayPool.relativeChance ?? "Ampliada"}
               </p>
             </div>
           </div>
@@ -93,13 +96,11 @@ export default async function PoolDetailPage({ params }: { params: Promise<{ cod
           <div className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
             <h2 className="text-2xl font-bold text-slate-900">Jogos do bolão</h2>
             <div className="mt-5 space-y-5">
-              {pool.games.map((game) => (
+              {displayPool.games.map((game) => (
                 <div key={game.id} className="rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/60 p-4">
                   <div className="mb-3 flex items-center justify-between gap-4">
                     <p className="font-semibold text-slate-900">{game.title}</p>
-                    {game.hits != null ? (
-                      <p className="text-sm font-semibold text-fuchsia-700">{game.hits} acertos</p>
-                    ) : null}
+                    {game.hits != null ? <p className="text-sm font-semibold text-fuchsia-700">{game.hits} acertos</p> : null}
                   </div>
                   <NumberGrid numbers={game.numbers} />
                 </div>
@@ -110,11 +111,11 @@ export default async function PoolDetailPage({ params }: { params: Promise<{ cod
 
         <aside className="space-y-6">
           <PurchaseForm
-            poolId={pool.id}
-            poolTitle={pool.title}
-            poolCode={pool.code}
-            sharePrice={Number(pool.sharePrice)}
-            availableShares={pool.availableShares}
+            poolId={displayPool.id}
+            poolTitle={displayPool.title}
+            poolCode={displayPool.code}
+            sharePrice={Number(displayPool.sharePrice)}
+            availableShares={displayPool.availableShares}
           />
         </aside>
       </div>

@@ -55,7 +55,9 @@ export function PoolTable({ pools, isAuthenticated = false }: PoolTableProps) {
     setSortMode(sortOrder[nextIndex]);
   }
 
-  function handleBuyClick(poolCode: string) {
+  function handleBuyClick(poolCode: string, canBuy: boolean) {
+    if (!canBuy) return;
+
     if (!isAuthenticated) {
       setAuthTargetCode(poolCode);
       return;
@@ -100,6 +102,7 @@ export function PoolTable({ pools, isAuthenticated = false }: PoolTableProps) {
               sharePrice: pool.sharePrice,
               gamesCount: pool.games.length,
             });
+            const canBuy = pool.status === "OPEN" && pool.availableShares > 0;
 
             return (
               <div key={pool.id} className={cn("px-4 py-4 lg:px-5", index % 2 === 1 && "bg-fuchsia-50/30")}>
@@ -145,10 +148,11 @@ export function PoolTable({ pools, isAuthenticated = false }: PoolTableProps) {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleBuyClick(pool.code)}
-                      className="inline-flex items-center justify-center rounded-full bg-fuchsia-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800"
+                      onClick={() => handleBuyClick(pool.code, canBuy)}
+                      disabled={!canBuy}
+                      className="inline-flex items-center justify-center rounded-full bg-fuchsia-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600"
                     >
-                      Comprar
+                      {canBuy ? "Comprar" : "Esgotado"}
                     </button>
                   </div>
                 </div>
@@ -199,10 +203,11 @@ export function PoolTable({ pools, isAuthenticated = false }: PoolTableProps) {
                   <div className="hidden lg:block">
                     <button
                       type="button"
-                      onClick={() => handleBuyClick(pool.code)}
-                      className="inline-flex w-full items-center justify-center rounded-full bg-fuchsia-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-fuchsia-800"
+                      onClick={() => handleBuyClick(pool.code, canBuy)}
+                      disabled={!canBuy}
+                      className="inline-flex w-full items-center justify-center rounded-full bg-fuchsia-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-fuchsia-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600"
                     >
-                      Comprar
+                      {canBuy ? "Comprar" : "Esgotado"}
                     </button>
                   </div>
                 </div>
@@ -300,10 +305,11 @@ export function PoolTable({ pools, isAuthenticated = false }: PoolTableProps) {
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleBuyClick(previewPool.code)}
-                        className="inline-flex items-center justify-center rounded-full bg-fuchsia-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800"
+                        onClick={() => handleBuyClick(previewPool.code, previewPool.status === "OPEN" && previewPool.availableShares > 0)}
+                        disabled={previewPool.status !== "OPEN" || previewPool.availableShares < 1}
+                        className="inline-flex items-center justify-center rounded-full bg-fuchsia-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600"
                       >
-                        Comprar este bolão
+                        {previewPool.status === "OPEN" && previewPool.availableShares > 0 ? "Comprar este bolão" : "Bolão esgotado"}
                       </button>
                     </div>
                   </>

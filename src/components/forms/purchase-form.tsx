@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthRequiredDialog } from "@/components/auth-required-dialog";
+import { isTemporaryPoolAvailable } from "@/lib/temporary-pool-urgency";
 import { formatCurrency } from "@/lib/utils";
 
 type PurchaseFormProps = {
@@ -15,6 +16,7 @@ type PurchaseFormProps = {
 
 export function PurchaseForm({ poolId, poolTitle, poolCode, sharePrice, availableShares }: PurchaseFormProps) {
   const router = useRouter();
+  const canBuy = isTemporaryPoolAvailable(poolCode) && availableShares > 0;
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -77,6 +79,7 @@ export function PurchaseForm({ poolId, poolTitle, poolCode, sharePrice, availabl
               value={quantity}
               onChange={(event) => setQuantity(Math.max(1, Math.min(availableShares, Number(event.target.value) || 1)))}
               className="w-full rounded-2xl border border-fuchsia-100 bg-white px-4 py-3 text-base outline-none"
+              disabled={!canBuy}
             />
           </label>
           <div className="rounded-2xl bg-white px-4 py-3">
@@ -86,13 +89,14 @@ export function PurchaseForm({ poolId, poolTitle, poolCode, sharePrice, availabl
         </div>
         <p className="mt-3 text-sm text-slate-500">Disponíveis: {availableShares} cotas</p>
         <p className="mt-1 text-sm text-slate-500">Depois de adicionar ao carrinho, finalize a compra no carrinho com PIX.</p>
+        {!canBuy ? <p className="mt-3 text-sm font-medium text-amber-700">Este bolão está esgotado no momento.</p> : null}
         {message ? <p className="mt-3 text-sm font-medium text-slate-700">{message}</p> : null}
         <button
           onClick={handleAddToCart}
-          disabled={loading || availableShares < 1}
-          className="mt-4 w-full rounded-full bg-fuchsia-600 px-5 py-3 font-semibold text-white transition hover:bg-fuchsia-700 disabled:opacity-60"
+          disabled={loading || !canBuy}
+          className="mt-4 w-full rounded-full bg-fuchsia-600 px-5 py-3 font-semibold text-white transition hover:bg-fuchsia-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600"
         >
-          {loading ? "Processando..." : "Adicionar ao carrinho"}
+          {loading ? "Processando..." : canBuy ? "Adicionar ao carrinho" : "Bolão esgotado"}
         </button>
       </div>
 

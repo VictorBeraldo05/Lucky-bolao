@@ -5,6 +5,7 @@ import { PoolTable } from "@/components/pool-table";
 import { ReferralPromoBanner } from "@/components/referral-promo-banner";
 import { SectionHeading } from "@/components/section-heading";
 import { prisma } from "@/lib/prisma";
+import { applyTemporaryPoolUrgencyMask } from "@/lib/temporary-pool-urgency";
 
 export default async function Home() {
   const [session, featuredPools] = await Promise.all([
@@ -28,6 +29,7 @@ export default async function Home() {
         select: { inviteCode: true },
       })
     : null;
+  const displayPools = featuredPools.map(applyTemporaryPoolUrgencyMask);
 
   return (
     <div className="pb-12 sm:pb-16">
@@ -46,7 +48,7 @@ export default async function Home() {
           }
         />
 
-        <PoolTable pools={featuredPools} isAuthenticated={Boolean(session?.sub)} />
+        <PoolTable pools={displayPools} isAuthenticated={Boolean(session?.sub)} />
       </Container>
     </div>
   );
