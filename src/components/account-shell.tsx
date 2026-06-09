@@ -4,12 +4,14 @@ import {
   Bell,
   FileCheck2,
   Gamepad2,
+  Headset,
   LayoutDashboard,
   MoreHorizontal,
   ReceiptText,
   User2,
 } from "lucide-react";
 import { Container } from "@/components/container";
+import { SUPPORT_WHATSAPP_URL } from "@/lib/support";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -21,6 +23,7 @@ const links = [
   { href: "/notificacoes", label: "Notificações", icon: Bell },
   { href: "/comprovantes", label: "Comprovantes", icon: FileCheck2 },
   { href: "/resgates", label: "Resgates", icon: Banknote },
+  { href: SUPPORT_WHATSAPP_URL, label: "Suporte", icon: Headset, external: true },
 ];
 
 export function AccountShell({
@@ -51,6 +54,8 @@ export function AccountShell({
                   <Link
                     key={link.href}
                     href={link.href}
+                    target={link.external ? "_blank" : undefined}
+                    rel={link.external ? "noreferrer" : undefined}
                     className={cn(
                       "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-fuchsia-50 hover:text-fuchsia-700",
                       currentPath === link.href && "bg-fuchsia-50 text-fuchsia-700",
@@ -105,6 +110,8 @@ export function AccountShell({
                         <Link
                           key={link.href}
                           href={link.href}
+                          target={link.external ? "_blank" : undefined}
+                          rel={link.external ? "noreferrer" : undefined}
                           className={cn(
                             "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-fuchsia-50 hover:text-fuchsia-700",
                             currentPath === link.href && "bg-fuchsia-50 text-fuchsia-700",

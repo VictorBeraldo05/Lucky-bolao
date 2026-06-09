@@ -1,12 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Headset, UserCircle2 } from "lucide-react";
+import { UserCircle2 } from "lucide-react";
 import { Notification, UserRole, Wallet } from "@prisma/client";
 import { Container } from "@/components/container";
 import { CartTriggerButton } from "@/components/cart/cart-trigger-button";
 import { LogoutButton } from "@/components/logout-button";
 import { NotificationsButton } from "@/components/notifications-button";
-import { SUPPORT_WHATSAPP_URL } from "@/lib/support";
 import { formatCurrency, getWalletAvailableBalance } from "@/lib/utils";
 
 type SiteHeaderProps = {
@@ -29,7 +28,6 @@ const publicLinks = [
   { href: "/loterias/lotofacil/boloes", label: "Bolões" },
   { href: "/resultados", label: "Resultados" },
   { href: "/como-funciona", label: "Como funciona" },
-  { href: SUPPORT_WHATSAPP_URL, label: "Suporte", external: true },
 ];
 
 export async function SiteHeader({ user }: SiteHeaderProps) {
@@ -59,8 +57,6 @@ export async function SiteHeader({ user }: SiteHeaderProps) {
               <Link
                 key={link.href}
                 href={link.href}
-                target={link.external ? "_blank" : undefined}
-                rel={link.external ? "noreferrer" : undefined}
                 className="text-sm font-medium text-slate-600 transition hover:text-fuchsia-600"
               >
                 {link.label}
@@ -85,16 +81,6 @@ export async function SiteHeader({ user }: SiteHeaderProps) {
               Saldo: {formatCurrency(getWalletAvailableBalance(user.wallet))}
             </div>
           ) : null}
-
-          <Link
-            href={SUPPORT_WHATSAPP_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-lime-200 bg-lime-50 text-lime-700 shadow-sm transition hover:bg-lime-100"
-            aria-label="Falar com o suporte no WhatsApp"
-          >
-            <Headset className="h-5 w-5" />
-          </Link>
 
           <CartTriggerButton />
           <NotificationsButton

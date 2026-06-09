@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CheckCircle2, ChevronRight, ShoppingCart, Sparkles, X } from "lucide-react";
+import { CheckCircle2, ChevronRight, ShoppingCart, X } from "lucide-react";
 import { CartCheckoutPanel } from "@/components/cart/cart-checkout-panel";
 import { formatCurrency } from "@/lib/utils";
 
@@ -49,7 +48,7 @@ export function CartOverlay({ userCpf, walletAvailableBalance = 0, isAuthenticat
   const [recentlyAdded, setRecentlyAdded] = useState<CartUpdateDetail["addedItem"] | null>(null);
 
   const itemCount = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items]);
-  const shouldHideMobileBar = pathname === "/carrinho" || pathname.startsWith("/carrinho/");
+  const shouldHideMobileBar = !pathname ? false : pathname === "/carrinho" || pathname.startsWith("/carrinho/");
 
   const loadCart = useCallback(async () => {
     if (!isAuthenticated) {
@@ -284,43 +283,6 @@ export function CartOverlay({ userCpf, walletAvailableBalance = 0, isAuthenticat
                   </div>
                 )}
               </div>
-
-              {items.length ? (
-                <div className="mt-6 rounded-[28px] border border-fuchsia-100 bg-linear-to-br from-fuchsia-50 via-white to-violet-50 p-5">
-                  <div className="flex items-start gap-3">
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-fuchsia-600/10 text-fuchsia-600">
-                      <Sparkles className="h-5 w-5" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold uppercase tracking-[0.16em] text-fuchsia-500">Continue comprando</p>
-                      <h3 className="mt-2 text-lg font-bold text-slate-900">Quer aumentar suas chances neste concurso?</h3>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">
-                        Seu carrinho já tem {itemCount} cota(s). Você pode incluir mais opções antes de finalizar o PIX.
-                      </p>
-                      <div className="mt-4 flex flex-wrap gap-3">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const targetHref = recentlyAdded?.href ?? "/loterias/lotofacil/boloes";
-                            closeDrawer();
-                            window.location.href = targetHref;
-                          }}
-                          className="rounded-full bg-fuchsia-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-fuchsia-700"
-                        >
-                          Adicionar mais cotas
-                        </button>
-                        <Link
-                          href="/loterias/lotofacil/boloes"
-                          onClick={closeDrawer}
-                          className="rounded-full border border-fuchsia-200 px-4 py-2 text-sm font-semibold text-fuchsia-700 transition hover:bg-fuchsia-50"
-                        >
-                          Ver mais bolões
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
 
               {quickAddMessage ? <p className="mt-4 text-sm font-medium text-fuchsia-700">{quickAddMessage}</p> : null}
 
