@@ -101,6 +101,8 @@ export async function publishContestResult(input: PublishContestResultInput) {
 
       const totalPrize = resolvePoolPrizeAmount(input.prizeBreakdown, hitsByGame);
       const soldShares = pool.shares.reduce((sum, share) => sum + share.quantity, 0);
+      const totalPoolShares = pool.totalShares;
+      let distributedPrize = new Prisma.Decimal(0);
 
       await tx.pool.update({
         where: { id: pool.id },
@@ -109,7 +111,7 @@ export async function publishContestResult(input: PublishContestResultInput) {
         },
       });
 
-      if (totalPrize > 0 && soldShares > 0) {
+      if (totalPrize > 0 && soldShares > 0 && totalPoolShares > 0) {
         const sharesByUser = new Map<string, { quantity: number; shareIds: string[] }>();
 
         for (const share of pool.shares) {
@@ -125,13 +127,17 @@ export async function publishContestResult(input: PublishContestResultInput) {
 
           const proportionalAmount = new Prisma.Decimal(totalPrize)
             .mul(groupedShare.quantity)
-            .div(soldShares)
+            .div(totalPoolShares)
             .toDecimalPlaces(2);
+
+          if (proportionalAmount.lte(0)) continue;
 
           const updatedWallet = await tx.wallet.update({
             where: { id: wallet.id },
             data: { balance: { increment: proportionalAmount } },
           });
+
+          distributedPrize = distributedPrize.add(proportionalAmount);
 
           await tx.prize.create({
             data: {
@@ -181,6 +187,10 @@ export async function publishContestResult(input: PublishContestResultInput) {
           newData: {
             poolId: pool.id,
             totalPrize,
+            totalPoolShares,
+            soldShares,
+            distributedPrize: distributedPrize.toString(),
+            retainedByHouse: new Prisma.Decimal(totalPrize).minus(distributedPrize).toDecimalPlaces(2).toString(),
             hitsByGame,
             drawnNumbers: input.drawnNumbers,
             source: input.source ?? null,
