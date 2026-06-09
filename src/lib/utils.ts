@@ -39,28 +39,17 @@ export function getErrorMessage(error: unknown) {
   return "Ocorreu um erro inesperado.";
 }
 
-export function extractEquivalentNumbers(text?: string | null) {
-  if (!text) return null;
-
-  const match = text.match(/(\d+)\s*dezenas/i);
-  if (!match) return null;
-
-  return Number(match[1]);
-}
-
 export function getPoolCommercialSummary(input: {
   relativeChance?: string | null;
   description?: string | null;
   totalShares: number;
   sharePrice: number | string | { toString(): string };
   gamesCount: number;
+  numbersPerGame?: number | null;
 }) {
-  const equivalentNumbers =
-    extractEquivalentNumbers(input.relativeChance) ?? extractEquivalentNumbers(input.description);
-
   return {
     gamesLabel: `${input.gamesCount} jogos`,
-    equivalentLabel: equivalentNumbers ? `${equivalentNumbers} dezenas` : null,
+    equivalentLabel: `${input.numbersPerGame ?? 15} dezenas`,
     sharesLabel: `${input.totalShares} cotas`,
     sharePriceLabel: `${formatCurrency(input.sharePrice)}/cota`,
   };

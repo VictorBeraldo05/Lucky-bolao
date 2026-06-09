@@ -136,9 +136,12 @@ export async function finalizeApprovedCartPayment(paymentId: string, correlation
     if (!lockedPayment) throw new Error("Pagamento nao encontrado.");
     if (lockedMetadata.purchaseId) return { payment: lockedPayment, purchaseId: lockedMetadata.purchaseId ?? null };
     if (lockedPayment.status !== PaymentStatus.APPROVED) return { payment: lockedPayment, purchaseId: null };
+    if (!lockedMetadata.cartId) return { payment: lockedPayment, purchaseId: null };
+
+    const cartId = lockedMetadata.cartId;
 
     const cart = await tx.cart.findUnique({
-      where: { id: lockedMetadata.cartId },
+      where: { id: cartId },
       include: { items: true },
     });
 
@@ -159,7 +162,7 @@ export async function finalizeApprovedCartPayment(paymentId: string, correlation
     const fulfillment = await fulfillCartPurchaseTx({
       tx,
       userId: payment.userId,
-      cartId: lockedMetadata.cartId,
+      cartId,
       amount: new Prisma.Decimal(payment.amount),
     });
 
@@ -216,7 +219,7 @@ export async function finalizeApprovedCartPayment(paymentId: string, correlation
       data: {
         metadata: toJsonMetadata({
           ...lockedMetadata,
-          purchaseId: fulfillment.purchaseId,
+          purchaseId: fulfillment.purchaseId ?? undefined,
           fulfilledAt: new Date().toISOString(),
         }),
       },
@@ -382,7 +385,7 @@ export async function checkoutCartWithWalletBalance(userId: string) {
       data: {
         metadata: toJsonMetadata({
           cartId: cart.id,
-          purchaseId: fulfillment.purchaseId,
+          purchaseId: fulfillment.purchaseId ?? undefined,
           fulfilledAt: new Date().toISOString(),
           items: cart.items.map((item) => ({
             poolId: item.poolId,
