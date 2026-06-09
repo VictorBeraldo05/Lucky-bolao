@@ -1,5 +1,6 @@
 import { Prisma, PaymentStatus, PurchaseStatus, WalletTransactionStatus, WalletTransactionType } from "@prisma/client";
 import { fetchPixPaymentStatus, determineTopupStatus } from "@/lib/mercadopago";
+import { closeDueLotofacilPools } from "@/lib/lotofacil-cutoff";
 import { prisma } from "@/lib/prisma";
 import { applyReferralBonusForFirstPaidPurchase, splitWalletDebit } from "@/lib/referrals";
 import { getWalletAvailableBalance } from "@/lib/utils";
@@ -243,6 +244,8 @@ export async function finalizeApprovedCartPayment(paymentId: string, correlation
 }
 
 export async function checkoutCartWithWalletBalance(userId: string) {
+  await closeDueLotofacilPools();
+
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: { wallet: true },

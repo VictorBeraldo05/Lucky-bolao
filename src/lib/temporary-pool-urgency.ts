@@ -3,6 +3,10 @@ const AVAILABLE_POOL_CODES = new Set(["LF-3706-SIM-02", "LF-3706-SIM-01"]);
 export function applyTemporaryPoolUrgencyMask<T extends { code: string; status: string; availableShares: number }>(
   pool: T,
 ): T {
+  if (pool.status !== "OPEN" && pool.status !== "SOLD_OUT") {
+    return pool;
+  }
+
   if (AVAILABLE_POOL_CODES.has(pool.code)) {
     return pool;
   }

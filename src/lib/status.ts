@@ -4,7 +4,7 @@ const statusLabels: Record<string, string> = {
   OPEN: "Aberto",
   SOLD_OUT: "Esgotado",
   CLOSED: "Encerrado",
-  WAITING_DRAW: "Aguardando sorteio",
+  WAITING_DRAW: "Aguardando apuração",
   AWARDED: "Premiado",
   NOT_AWARDED: "Não premiado",
   CANCELED: "Cancelado",
@@ -20,4 +20,4 @@ export function formatStatusLabel(status: string) {
   return statusLabels[status] ?? status.replaceAll("_", " ");
 }
 
-export const activePoolStatuses: PoolStatus[] = [PoolStatus.OPEN, PoolStatus.SOLD_OUT];
+export const activePoolStatuses: PoolStatus[] = [PoolStatus.OPEN, PoolStatus.SOLD_OUT, PoolStatus.WAITING_DRAW];

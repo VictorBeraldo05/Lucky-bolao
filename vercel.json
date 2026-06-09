@@ -1,6 +1,10 @@
 {
   "crons": [
     {
+      "path": "/api/internal/lotofacil/close-sales",
+      "schedule": "30 23 * * *"
+    },
+    {
       "path": "/api/internal/results/lotofacil/sync",
       "schedule": "15 1 * * *"
     }

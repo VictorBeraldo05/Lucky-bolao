@@ -178,11 +178,11 @@ async function main() {
     },
   });
 
-  const accessibleGames = [
-    { title: "Jogo 1", numbers: [1, 2, 3, 4, 5, 6, 8, 10, 11, 13, 14, 17, 21, 23, 24] },
-    { title: "Jogo 2", numbers: [1, 2, 3, 4, 5, 6, 8, 10, 11, 13, 17, 19, 21, 24, 25] },
-    { title: "Jogo 3", numbers: [1, 2, 3, 5, 6, 10, 11, 13, 14, 17, 19, 21, 23, 24, 25] },
-    { title: "Jogo 4", numbers: [2, 3, 4, 5, 8, 10, 11, 13, 14, 17, 19, 21, 23, 24, 25] },
+  const sim01Games = [
+    { title: "Jogo 1", numbers: [1, 2, 3, 5, 7, 9, 10, 12, 13, 15, 17, 18, 20, 23, 24] },
+    { title: "Jogo 2", numbers: [1, 2, 3, 5, 7, 9, 10, 12, 13, 15, 17, 20, 21, 23, 25] },
+    { title: "Jogo 3", numbers: [1, 2, 5, 7, 9, 10, 13, 15, 17, 18, 20, 21, 23, 24, 25] },
+    { title: "Jogo 4", numbers: [2, 3, 5, 7, 9, 12, 13, 15, 17, 18, 20, 21, 23, 24, 25] },
   ];
 
   const poolSimple = await prisma.pool.upsert({
@@ -212,7 +212,7 @@ async function main() {
       ticketImageUrl: "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1200&q=80",
       status: PoolStatus.OPEN,
       games: {
-        create: accessibleGames,
+        create: sim01Games,
       },
     },
   });
@@ -222,19 +222,12 @@ async function main() {
   });
 
   await prisma.poolGame.createMany({
-    data: accessibleGames.map((game) => ({
+    data: sim01Games.map((game) => ({
       poolId: poolSimple.id,
       title: game.title,
       numbers: game.numbers,
     })),
   });
-
-  const economicGames = [
-    { title: "Jogo 1", numbers: [1, 3, 4, 5, 6, 7, 9, 12, 13, 16, 17, 18, 20, 21, 23] },
-    { title: "Jogo 2", numbers: [1, 3, 4, 5, 6, 7, 9, 12, 13, 16, 17, 19, 21, 23, 25] },
-    { title: "Jogo 3", numbers: [1, 3, 5, 6, 7, 9, 13, 16, 17, 18, 19, 20, 21, 23, 25] },
-    { title: "Jogo 4", numbers: [1, 4, 5, 7, 9, 12, 13, 16, 17, 18, 19, 20, 21, 23, 25] },
-  ];
 
   const economicPool = await prisma.pool.upsert({
     where: { code: "LF-3104-SIM-01" },
@@ -263,7 +256,7 @@ async function main() {
       ticketImageUrl: "https://images.unsplash.com/photo-1518457607834-6e8d80c183c5?auto=format&fit=crop&w=1200&q=80",
       status: PoolStatus.OPEN,
       games: {
-        create: economicGames,
+        create: sim01Games,
       },
     },
   });
@@ -273,7 +266,7 @@ async function main() {
   });
 
   await prisma.poolGame.createMany({
-    data: economicGames.map((game) => ({
+    data: sim01Games.map((game) => ({
       poolId: economicPool.id,
       title: game.title,
       numbers: game.numbers,

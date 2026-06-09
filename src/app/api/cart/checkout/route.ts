@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getCurrentUserFromRequest } from "@/lib/auth";
 import { checkoutCartWithWalletBalance } from "@/lib/cart";
+import { closeDueLotofacilPools } from "@/lib/lotofacil-cutoff";
 import { prisma } from "@/lib/prisma";
 import { createPixPayment, parsePaymentTopupData, determineTopupStatus } from "@/lib/mercadopago";
 
@@ -17,6 +18,8 @@ export async function POST(request: Request) {
   if (!currentUser) {
     return NextResponse.json({ message: "Nao autenticado." }, { status: 401 });
   }
+
+  await closeDueLotofacilPools();
 
   const payload = (await request.json().catch(() => null)) as { method?: string } | null;
   const method = payload?.method === "wallet" ? "wallet" : "pix";

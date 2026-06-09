@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUserFromRequest } from "@/lib/auth";
+import { closeDueLotofacilPools } from "@/lib/lotofacil-cutoff";
 import { prisma } from "@/lib/prisma";
 import { cartItemSchema } from "@/lib/validations";
 
@@ -10,6 +11,8 @@ export async function POST(request: Request) {
   }
 
   try {
+    await closeDueLotofacilPools();
+
     const payload = cartItemSchema.parse(await request.json());
     const pool = await prisma.pool.findUnique({ where: { id: payload.poolId } });
     if (!pool) {

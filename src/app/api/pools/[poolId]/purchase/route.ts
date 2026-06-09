@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Prisma, WalletTransactionStatus, WalletTransactionType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser, getRequestMeta } from "@/lib/auth";
+import { closeDueLotofacilPools } from "@/lib/lotofacil-cutoff";
 import { prisma } from "@/lib/prisma";
 import { applyReferralBonusForFirstPaidPurchase, splitWalletDebit } from "@/lib/referrals";
 import { getWalletAvailableBalance } from "@/lib/utils";
@@ -16,6 +17,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ poo
     }
 
     const { poolId } = await params;
+    await closeDueLotofacilPools();
+
     const parsed = purchaseSchema.parse({
       poolId,
       ...(await request.json()),

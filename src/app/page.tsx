@@ -7,6 +7,7 @@ import { ReferralPromoBanner } from "@/components/referral-promo-banner";
 import { SectionHeading } from "@/components/section-heading";
 import { prisma } from "@/lib/prisma";
 import { buildMetadata, getSiteUrl } from "@/lib/seo";
+import { activePoolStatuses } from "@/lib/status";
 import { applyTemporaryPoolUrgencyMask } from "@/lib/temporary-pool-urgency";
 
 export const metadata: Metadata = buildMetadata({
@@ -44,7 +45,7 @@ export default async function Home() {
   const [session, featuredPools] = await Promise.all([
     getSession(),
     prisma.pool.findMany({
-      where: { status: "OPEN" },
+      where: { status: { in: activePoolStatuses } },
       include: {
         lottery: true,
         gameType: true,
