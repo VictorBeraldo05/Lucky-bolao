@@ -5,6 +5,7 @@ import { CartOverlay } from "@/components/cart/cart-overlay";
 import { SiteHeader } from "@/components/site-header";
 import { getHeaderUser } from "@/lib/auth";
 import { absoluteUrl, getSiteUrl } from "@/lib/seo";
+import { getWalletAvailableBalance } from "@/lib/utils";
 
 const headingFont = Space_Grotesk({
   variable: "--font-heading",
@@ -106,7 +107,11 @@ export default async function RootLayout({
         <div className="flex min-h-screen flex-col">
           <SiteHeader user={user} />
           <main className="flex-1">{children}</main>
-          <CartOverlay isAuthenticated={Boolean(user)} userCpf={user?.cpf ?? null} />
+          <CartOverlay
+            isAuthenticated={Boolean(user)}
+            userCpf={user?.cpf ?? null}
+            walletAvailableBalance={getWalletAvailableBalance(user?.wallet)}
+          />
         </div>
       </body>
     </html>

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getCurrentUserFromRequest } from "@/lib/auth";
+import { checkoutCartWithWalletBalance } from "@/lib/cart";
 import { prisma } from "@/lib/prisma";
 import { createPixPayment, parsePaymentTopupData, determineTopupStatus } from "@/lib/mercadopago";
 
@@ -13,11 +15,14 @@ function mapToPaymentStatus(status: string) {
 export async function POST(request: Request) {
   const currentUser = await getCurrentUserFromRequest(request);
   if (!currentUser) {
-    return NextResponse.json({ message: "Não autenticado." }, { status: 401 });
+    return NextResponse.json({ message: "Nao autenticado." }, { status: 401 });
   }
 
-  if (!currentUser.cpf) {
-    return NextResponse.json({ message: "CPF necessário para finalizar o pagamento." }, { status: 400 });
+  const payload = (await request.json().catch(() => null)) as { method?: string } | null;
+  const method = payload?.method === "wallet" ? "wallet" : "pix";
+
+  if (method === "pix" && !currentUser.cpf) {
+    return NextResponse.json({ message: "CPF necessario para finalizar o pagamento." }, { status: 400 });
   }
 
   const cart = await prisma.cart.findUnique({
@@ -31,16 +36,34 @@ export async function POST(request: Request) {
 
   const invalidPool = cart.items.find((item) => item.pool.status !== "OPEN" || item.pool.availableShares < item.quantity);
   if (invalidPool) {
-    return NextResponse.json({ message: "Um dos bolões no carrinho não está mais disponível." }, { status: 400 });
+    return NextResponse.json({ message: "Um dos boloes no carrinho nao esta mais disponivel." }, { status: 400 });
   }
 
   const amount = cart.items.reduce((sum, item) => sum + Number(item.totalPrice), 0);
 
   try {
+    if (method === "wallet") {
+      const result = await checkoutCartWithWalletBalance(currentUser.id);
+
+      revalidatePath("/");
+      revalidatePath("/loterias/lotofacil/boloes");
+      revalidatePath("/carrinho");
+      revalidatePath("/meus-jogos");
+      revalidatePath("/minha-conta");
+      revalidatePath("/carteira");
+      revalidatePath("/extrato");
+
+      return NextResponse.json({
+        payment: result.payment,
+        approved: true,
+        message: "Compra concluida com o saldo da conta.",
+      });
+    }
+
     const payment = await createPixPayment({
       email: currentUser.email,
       name: currentUser.name,
-      cpf: currentUser.cpf,
+      cpf: currentUser.cpf!,
       title: `Compra de carrinho ${cart.id}`,
       amount,
       referenceId: `cart-${cart.id}`,

@@ -4,6 +4,7 @@ import { AccountShell } from "@/components/account-shell";
 import { CartItemsTable } from "@/components/cart/cart-items-table";
 import { CartCheckoutPanel } from "@/components/cart/cart-checkout-panel";
 import { syncPendingCartPaymentsForUser } from "@/lib/cart";
+import { getWalletAvailableBalance } from "@/lib/utils";
 
 export default async function CartPage() {
   const user = await requireUser();
@@ -39,7 +40,11 @@ export default async function CartPage() {
           <CartItemsTable initialItems={cartItems} />
         </div>
         <div className="order-1 xl:order-2">
-          <CartCheckoutPanel total={total} userCpf={user.cpf ?? null} />
+          <CartCheckoutPanel
+            total={total}
+            userCpf={user.cpf ?? null}
+            walletAvailableBalance={getWalletAvailableBalance(user.wallet)}
+          />
         </div>
       </div>
       {cartItems.length === 0 ? (

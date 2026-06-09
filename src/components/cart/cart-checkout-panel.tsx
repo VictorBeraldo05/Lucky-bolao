@@ -17,15 +17,23 @@ type PaymentData = {
 type CartCheckoutPanelProps = {
   total: number;
   userCpf?: string | null;
+  walletAvailableBalance?: number;
   onApproved?: () => void;
 };
 
-export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPanelProps) {
+export function CartCheckoutPanel({
+  total,
+  userCpf,
+  walletAvailableBalance = 0,
+  onApproved,
+}: CartCheckoutPanelProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
   const [paymentId, setPaymentId] = useState<string | null>(null);
+
+  const canPayWithWallet = walletAvailableBalance >= total && total > 0;
 
   const redirectToMyGames = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -69,20 +77,39 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
     return () => window.clearInterval(interval);
   }, [onApproved, paymentId, redirectToMyGames]);
 
-  async function handleCheckout() {
-    if (!userCpf) {
+  async function handleCheckout(method: "pix" | "wallet") {
+    if (method === "pix" && !userCpf) {
       setStatusMessage("Atualize seu CPF em Perfil antes de finalizar o pagamento.");
       return;
     }
 
     setIsLoading(true);
-    setStatusMessage("Estamos preparando seu PIX. Isso pode levar alguns segundos.");
+    setStatusMessage(
+      method === "wallet"
+        ? "Estamos concluindo sua compra com o saldo da conta."
+        : "Estamos preparando seu PIX. Isso pode levar alguns segundos.",
+    );
 
     try {
-      const response = await fetch("/api/cart/checkout", { method: "POST" });
+      const response = await fetch("/api/cart/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ method }),
+      });
       const data = await response.json();
+
       if (!response.ok) {
         setStatusMessage(data.message ?? "Falha ao iniciar o pagamento.");
+        return;
+      }
+
+      if (method === "wallet" || data.approved) {
+        setStatusMessage("Pagamento confirmado. Suas cotas foram liberadas.");
+        setPaymentData(null);
+        setPaymentId(null);
+        onApproved?.();
+        window.dispatchEvent(new CustomEvent("cart:approved"));
+        redirectToMyGames();
         return;
       }
 
@@ -106,15 +133,36 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
       <div className="flex flex-col gap-2.5">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-fuchsia-500">Finalizar compra</p>
-          <h2 className="mt-1.5 text-2xl font-bold text-slate-900">Pagamento via PIX</h2>
+          <h2 className="mt-1.5 text-2xl font-bold text-slate-900">Pagamento</h2>
         </div>
         <div className="rounded-2xl bg-fuchsia-50 p-4">
           <p className="text-sm text-slate-500">Total do carrinho</p>
           <p className="mt-1.5 text-3xl font-black text-fuchsia-700">{formatCurrency(total)}</p>
         </div>
+        <div className="rounded-2xl border border-fuchsia-100 bg-white p-4">
+          <p className="text-sm text-slate-500">Saldo da conta</p>
+          <p className="mt-1.5 text-xl font-bold text-slate-900">{formatCurrency(walletAvailableBalance)}</p>
+        </div>
+        {canPayWithWallet ? (
+          <button
+            type="button"
+            onClick={() => handleCheckout("wallet")}
+            disabled={isLoading || total <= 0}
+            className="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isLoading ? (
+              <span className="inline-flex items-center gap-2">
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+                Finalizando compra...
+              </span>
+            ) : (
+              "Pagar com saldo da conta"
+            )}
+          </button>
+        ) : null}
         <button
           type="button"
-          onClick={handleCheckout}
+          onClick={() => handleCheckout("pix")}
           disabled={isLoading || total <= 0}
           className="inline-flex items-center justify-center rounded-full bg-fuchsia-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
@@ -127,7 +175,12 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
             "Pagar com PIX"
           )}
         </button>
-        {!userCpf ? <p className="text-sm text-rose-600">CPF necessário para gerar o QR code. Atualize em Perfil.</p> : null}
+        {!canPayWithWallet && total > 0 ? (
+          <p className="text-sm text-slate-500">
+            Se o saldo nao for suficiente, voce pode finalizar normalmente com PIX.
+          </p>
+        ) : null}
+        {!userCpf ? <p className="text-sm text-rose-600">CPF necessario para gerar o QR code. Atualize em Perfil.</p> : null}
         {statusMessage ? <p className="text-sm font-medium text-slate-700">{statusMessage}</p> : null}
       </div>
 
@@ -155,7 +208,12 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
             <PixCopyActions qrCodeText={paymentData.qrCodeText} paymentLinkUrl={paymentData.paymentLinkUrl} />
           </div>
           {paymentData.paymentLinkUrl ? (
-            <a href={paymentData.paymentLinkUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-fuchsia-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800">
+            <a
+              href={paymentData.paymentLinkUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-fuchsia-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800"
+            >
               Abrir link de pagamento
             </a>
           ) : null}
@@ -167,9 +225,11 @@ export function CartCheckoutPanel({ total, userCpf, onApproved }: CartCheckoutPa
         <div className="absolute inset-0 flex items-center justify-center rounded-[28px] bg-white/90 backdrop-blur-sm">
           <div className="rounded-[24px] border border-fuchsia-100 bg-white px-6 py-5 text-center shadow-xl">
             <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-fuchsia-600" />
-            <p className="mt-4 text-base font-semibold text-slate-900">Preparando seu PIX</p>
+            <p className="mt-4 text-base font-semibold text-slate-900">
+              {paymentData ? "Atualizando pagamento" : "Processando compra"}
+            </p>
             <p className="mt-2 max-w-xs text-sm text-slate-600">
-              Estamos processando sua solicitação e aguardando o backend responder. Não feche esta tela.
+              Estamos processando sua solicitacao e aguardando o backend responder. Nao feche esta tela.
             </p>
           </div>
         </div>

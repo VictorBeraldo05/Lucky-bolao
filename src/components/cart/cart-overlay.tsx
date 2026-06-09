@@ -22,6 +22,7 @@ type CartItem = {
 
 type CartOverlayProps = {
   userCpf?: string | null;
+  walletAvailableBalance?: number;
   isAuthenticated: boolean;
 };
 
@@ -36,7 +37,7 @@ type CartUpdateDetail = {
   };
 };
 
-export function CartOverlay({ userCpf, isAuthenticated }: CartOverlayProps) {
+export function CartOverlay({ userCpf, walletAvailableBalance = 0, isAuthenticated }: CartOverlayProps) {
   const pathname = usePathname();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
@@ -327,6 +328,7 @@ export function CartOverlay({ userCpf, isAuthenticated }: CartOverlayProps) {
                 <CartCheckoutPanel
                   total={total}
                   userCpf={userCpf}
+                  walletAvailableBalance={walletAvailableBalance}
                   onApproved={() => {
                     setItems([]);
                     setTotal(0);
