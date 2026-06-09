@@ -1,4 +1,4 @@
-const AVAILABLE_POOL_CODES = new Set(["LF-3706-SIM-02", "LF-3706-SIM-01"]);
+const AVAILABLE_POOL_CODES = new Set(["LF-3706-SIM-01"]);
 
 export function applyTemporaryPoolUrgencyMask<T extends { code: string; status: string; availableShares: number }>(
   pool: T,
