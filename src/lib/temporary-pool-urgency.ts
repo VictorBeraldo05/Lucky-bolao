@@ -1,9 +1,9 @@
-const ONLY_AVAILABLE_POOL_CODE = "LF-3705-SIM-02";
+const AVAILABLE_POOL_CODES = new Set(["LF-3706-SIM-02", "LF-3706-SIM-01"]);
 
 export function applyTemporaryPoolUrgencyMask<T extends { code: string; status: string; availableShares: number }>(
   pool: T,
 ): T {
-  if (pool.code === ONLY_AVAILABLE_POOL_CODE) {
+  if (AVAILABLE_POOL_CODES.has(pool.code)) {
     return pool;
   }
 
@@ -15,5 +15,5 @@ export function applyTemporaryPoolUrgencyMask<T extends { code: string; status: 
 }
 
 export function isTemporaryPoolAvailable(poolCode: string) {
-  return poolCode === ONLY_AVAILABLE_POOL_CODE;
+  return AVAILABLE_POOL_CODES.has(poolCode);
 }
