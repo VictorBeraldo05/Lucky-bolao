@@ -175,47 +175,53 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
 
       {selectedShare ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/45 px-0 py-0 backdrop-blur-sm sm:items-center sm:px-4 sm:py-6">
-          <div className="flex max-h-[100dvh] w-full max-w-5xl flex-col overflow-hidden rounded-t-[28px] border border-white/70 bg-white shadow-2xl sm:max-h-[92vh] sm:rounded-[32px]">
-            <div className="flex items-start justify-between gap-4 border-b border-fuchsia-100 px-5 py-4 sm:px-6">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">
-                  {selectedShare.pool.lotteryName}
-                </p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-900">{selectedShare.pool.title}</h2>
-                <p className="mt-1 text-sm text-slate-500">
-                  Bolão {selectedShare.pool.code} • Concurso #{selectedShare.pool.contestNumber}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedShare(null)}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-fuchsia-100 bg-white text-slate-500 transition hover:border-fuchsia-200 hover:text-fuchsia-700"
-              >
-                <X className="h-5 w-5" />
-              </button>
+          <div className="flex max-h-[100dvh] w-full max-w-5xl flex-col overflow-hidden rounded-t-[32px] border border-white/70 bg-white shadow-2xl sm:max-h-[92vh] sm:rounded-[32px]">
+            <div className="flex justify-center border-b border-fuchsia-100 px-4 pt-3 sm:hidden">
+              <span className="h-1.5 w-16 rounded-full bg-slate-200" />
             </div>
 
-            <div className="border-b border-fuchsia-100 px-5 py-3 sm:px-6">
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { id: "resumo", label: "Resumo" },
-                  { id: "sorteio", label: "Sorteio" },
-                  { id: "premiados", label: "Premiados" },
-                  { id: "todos", label: "Todos os jogos" },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setActiveTab(tab.id as ActiveTab)}
-                    className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                      activeTab === tab.id
-                        ? "bg-fuchsia-600 text-white"
-                        : "bg-fuchsia-50 text-fuchsia-700 hover:bg-fuchsia-100"
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
+            <div className="sticky top-0 z-10 bg-white/95 backdrop-blur">
+              <div className="flex items-start justify-between gap-4 border-b border-fuchsia-100 px-5 py-4 sm:px-6">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">
+                    {selectedShare.pool.lotteryName}
+                  </p>
+                  <h2 className="mt-2 text-2xl font-bold text-slate-900">{selectedShare.pool.title}</h2>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Bolão {selectedShare.pool.code} • Concurso #{selectedShare.pool.contestNumber}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedShare(null)}
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-fuchsia-100 bg-white text-slate-500 transition hover:border-fuchsia-200 hover:text-fuchsia-700"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="border-b border-fuchsia-100 px-5 py-3 sm:px-6">
+                <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1">
+                  {[
+                    { id: "resumo", label: "Resumo" },
+                    { id: "sorteio", label: "Sorteio" },
+                    { id: "premiados", label: "Premiados" },
+                    { id: "todos", label: "Todos os jogos" },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveTab(tab.id as ActiveTab)}
+                      className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
+                        activeTab === tab.id
+                          ? "bg-fuchsia-600 text-white"
+                          : "bg-fuchsia-50 text-fuchsia-700 hover:bg-fuchsia-100"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -223,6 +229,7 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
               className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-5"
               style={{ WebkitOverflowScrolling: "touch" }}
             >
+              <div className="pb-[calc(1rem+env(safe-area-inset-bottom))]">
               {activeTab === "resumo" ? (
                 <div className="space-y-6">
                   <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -409,6 +416,7 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
                   </div>
                 </div>
               ) : null}
+              </div>
             </div>
           </div>
         </div>

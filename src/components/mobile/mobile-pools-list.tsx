@@ -112,70 +112,74 @@ export function MobilePoolsList({
 
       {previewPool ? (
         <div className="fixed inset-0 z-[80] flex items-end bg-slate-950/55 backdrop-blur-sm md:hidden">
-          <div className="flex max-h-[88dvh] w-full flex-col overflow-hidden rounded-t-[28px] bg-white shadow-2xl">
-            <div className="flex items-start justify-between gap-4 border-b border-fuchsia-100 px-4 py-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fuchsia-500">
-                  {previewPool.lottery.name}
-                </p>
-                <h3 className="mt-2 text-xl font-bold text-slate-900">{previewPool.title}</h3>
+          <div className="flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[32px] bg-white shadow-2xl">
+            <div className="flex justify-center border-b border-fuchsia-100 px-4 pt-3">
+              <span className="h-1.5 w-16 rounded-full bg-slate-200" />
+            </div>
+
+            <div className="sticky top-0 z-10 border-b border-fuchsia-100 bg-white/95 px-4 py-4 backdrop-blur">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fuchsia-500">
+                    {previewPool.lottery.name}
+                  </p>
+                  <h3 className="mt-2 text-xl font-bold text-slate-900">{previewPool.title}</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPreviewPool(null)}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-fuchsia-100 bg-white text-slate-500"
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setPreviewPool(null)}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-fuchsia-100 bg-white text-slate-500"
-              >
-                <X className="h-5 w-5" />
-              </button>
+
+              {(() => {
+                const summary = getPoolCommercialSummary({
+                  relativeChance: previewPool.relativeChance,
+                  description: previewPool.description,
+                  totalShares: previewPool.totalShares,
+                  sharePrice: previewPool.sharePrice,
+                  gamesCount: previewPool.games.length,
+                });
+
+                return (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-fuchsia-100 px-3 py-1 text-xs font-semibold text-fuchsia-700">
+                      {summary.gamesLabel}
+                    </span>
+                    <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">
+                      {summary.equivalentLabel}
+                    </span>
+                    <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                      {formatCurrency(previewPool.sharePrice)}/cota
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
 
             <div
               className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4"
               style={{ WebkitOverflowScrolling: "touch" }}
             >
-              <div className="space-y-4">
-                {(() => {
-                  const summary = getPoolCommercialSummary({
-                    relativeChance: previewPool.relativeChance,
-                    description: previewPool.description,
-                    totalShares: previewPool.totalShares,
-                    sharePrice: previewPool.sharePrice,
-                    gamesCount: previewPool.games.length,
-                  });
+              <div className="space-y-4 pb-4">
+                <div className="rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/60 p-4">
+                  <p className="text-sm leading-6 text-slate-600">{previewPool.description}</p>
+                </div>
 
-                  return (
-                    <>
-                      <div className="flex flex-wrap gap-2">
-                        <span className="rounded-full bg-fuchsia-100 px-3 py-1 text-xs font-semibold text-fuchsia-700">
-                          {summary.gamesLabel}
-                        </span>
-                        <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">
-                          {summary.equivalentLabel}
-                        </span>
-                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-                          {formatCurrency(previewPool.sharePrice)}/cota
-                        </span>
-                      </div>
-
-                      <div className="rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/60 p-4">
-                        <p className="text-sm leading-6 text-slate-600">{previewPool.description}</p>
-                      </div>
-
-                      <div className="space-y-3">
-                        {previewPool.games.map((game) => (
-                          <div key={game.id} className="rounded-[24px] border border-fuchsia-100 bg-white p-4">
-                            <p className="mb-3 text-sm font-semibold text-slate-900">{game.title}</p>
-                            <NumberGrid numbers={game.numbers} size="sm" />
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  );
-                })()}
+                <div className="space-y-3">
+                  {previewPool.games.map((game) => (
+                    <div key={game.id} className="rounded-[24px] border border-fuchsia-100 bg-white p-4">
+                      <p className="mb-3 text-sm font-semibold text-slate-900">{game.title}</p>
+                      <NumberGrid numbers={game.numbers} size="sm" />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="border-t border-fuchsia-100 px-4 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+            <div className="border-t border-fuchsia-100 bg-white px-4 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
               <button
                 type="button"
                 onClick={() => {
