@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { CartOverlay } from "@/components/cart/cart-overlay";
+import { MobileBottomNav } from "@/components/mobile/mobile-bottom-nav";
+import { MobileHeader } from "@/components/mobile/mobile-header";
 import { SiteHeader } from "@/components/site-header";
 import { getHeaderUser } from "@/lib/auth";
 import { absoluteUrl, getSiteUrl } from "@/lib/seo";
@@ -71,6 +73,13 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#c026d3",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -105,13 +114,17 @@ export default async function RootLayout({
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
         <div className="flex min-h-screen flex-col">
-          <SiteHeader user={user} />
-          <main className="flex-1">{children}</main>
+          <div className="hidden md:block">
+            <SiteHeader user={user} />
+          </div>
+          <MobileHeader user={user} />
+          <main className="flex-1 pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:pb-0">{children}</main>
           <CartOverlay
             isAuthenticated={Boolean(user)}
             userCpf={user?.cpf ?? null}
             walletAvailableBalance={getWalletAvailableBalance(user?.wallet)}
           />
+          <MobileBottomNav isAuthenticated={Boolean(user)} />
         </div>
       </body>
     </html>

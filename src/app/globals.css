@@ -29,6 +29,13 @@ body {
   overflow-x: hidden;
 }
 
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
 input,
 select,
 textarea {
@@ -47,6 +54,7 @@ h6 {
 a,
 button {
   transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 ::-webkit-scrollbar {

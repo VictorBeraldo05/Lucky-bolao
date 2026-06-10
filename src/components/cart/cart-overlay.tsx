@@ -1,8 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CheckCircle2, ChevronRight, ShoppingCart, X } from "lucide-react";
+import { CheckCircle2, ShoppingCart, X } from "lucide-react";
 import { CartCheckoutPanel } from "@/components/cart/cart-checkout-panel";
 import { formatCurrency } from "@/lib/utils";
 
@@ -37,7 +36,6 @@ type CartUpdateDetail = {
 };
 
 export function CartOverlay({ userCpf, walletAvailableBalance = 0, isAuthenticated }: CartOverlayProps) {
-  const pathname = usePathname();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const [items, setItems] = useState<CartItem[]>([]);
@@ -48,7 +46,6 @@ export function CartOverlay({ userCpf, walletAvailableBalance = 0, isAuthenticat
   const [recentlyAdded, setRecentlyAdded] = useState<CartUpdateDetail["addedItem"] | null>(null);
 
   const itemCount = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items]);
-  const shouldHideMobileBar = !pathname ? false : pathname === "/carrinho" || pathname.startsWith("/carrinho/");
 
   const loadCart = useCallback(async () => {
     if (!isAuthenticated) {
@@ -302,32 +299,6 @@ export function CartOverlay({ userCpf, walletAvailableBalance = 0, isAuthenticat
               </div>
             </div>
           </aside>
-        </div>
-      ) : null}
-
-      {items.length > 0 && !shouldHideMobileBar ? (
-        <div className="fixed inset-x-0 bottom-0 z-[71] border-t border-fuchsia-100 bg-white/95 px-4 py-3 shadow-[0_-12px_30px_rgba(15,23,42,0.12)] lg:hidden">
-          <button
-            type="button"
-            onClick={() => {
-              window.location.href = "/carrinho";
-            }}
-            className="flex w-full items-center justify-between gap-4 rounded-full bg-fuchsia-600 px-4 py-3 text-left text-white"
-          >
-            <span className="inline-flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/15">
-                <ShoppingCart className="h-5 w-5" />
-              </span>
-              <span>
-                <span className="block text-sm font-semibold">{itemCount} item(ns) no carrinho</span>
-                <span className="block text-xs text-white/80">Toque para abrir e finalizar</span>
-              </span>
-            </span>
-            <span className="inline-flex items-center gap-2 text-sm font-bold">
-              {formatCurrency(total)}
-              <ChevronRight className="h-4 w-4" />
-            </span>
-          </button>
         </div>
       ) : null}
 

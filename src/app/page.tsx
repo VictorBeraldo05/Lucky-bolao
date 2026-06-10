@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getSession } from "@/lib/auth";
 import { Container } from "@/components/container";
+import { MobileHome } from "@/components/mobile/mobile-home";
 import { PoolTable } from "@/components/pool-table";
 import { ReferralPromoBanner } from "@/components/referral-promo-banner";
 import { SectionHeading } from "@/components/section-heading";
+import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { buildMetadata, getSiteUrl } from "@/lib/seo";
 import { activePoolStatuses } from "@/lib/status";
@@ -92,69 +93,78 @@ export default async function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
 
-      <Container className="pt-1 pb-4 sm:py-8">
-        <h1 className="sr-only">Bolão Lotofácil online para comprar cotas, acompanhar resultados e participar de concursos</h1>
-        <ReferralPromoBanner inviteCode={inviteUser?.inviteCode ?? null} />
-      </Container>
+      <h1 className="sr-only">Bolão Lotofácil online para comprar cotas, acompanhar resultados e participar de concursos</h1>
 
-      <Container className="space-y-6">
-        <SectionHeading
-          eyebrow="Comprar agora"
-          title="Bolões disponíveis"
-          description="Escolha seu bolão Lotofácil online, compare cotas, valores e quantidade de jogos sem perder tempo."
-          action={
-            <Link href="/loterias/lotofacil/boloes" className="text-sm font-semibold text-fuchsia-600">
-              Abrir listagem completa
-            </Link>
-          }
-        />
+      <MobileHome
+        pools={displayPools}
+        isAuthenticated={Boolean(session?.sub)}
+        inviteCode={inviteUser?.inviteCode ?? null}
+      />
 
-        <PoolTable pools={displayPools} isAuthenticated={Boolean(session?.sub)} />
+      <div className="hidden md:block">
+        <Container className="pt-1 pb-4 sm:py-8">
+          <ReferralPromoBanner inviteCode={inviteUser?.inviteCode ?? null} />
+        </Container>
 
-        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <article className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">Bolão lotofácil online</p>
-            <h2 className="mt-3 text-2xl font-bold text-slate-900">Compre cotas da Lotofácil com mais clareza e praticidade</h2>
-            <div className="mt-4 space-y-4 text-sm leading-7 text-slate-600 sm:text-base">
-              <p>
-                A Lucky Bolões foi criada para quem procura <strong>bolão Lotofácil online</strong> com visual claro,
-                compra rápida de cotas e acompanhamento completo dos concursos. Em vez de procurar informações soltas,
-                você visualiza o bolão, a composição dos jogos, o valor por cota e o status de cada concurso em um só
-                lugar.
-              </p>
-              <p>
-                Se a sua busca é por <strong>bolao lotofacil</strong>, <strong>cotas da Lotofácil</strong> ou uma forma
-                mais prática de entrar em mais jogos, aqui você encontra uma experiência organizada para consultar
-                dezenas, acompanhar sorteios e verificar resultados sem complicação.
-              </p>
+        <Container className="space-y-6">
+          <SectionHeading
+            eyebrow="Comprar agora"
+            title="Bolões disponíveis"
+            description="Escolha seu bolão Lotofácil online, compare cotas, valores e quantidade de jogos sem perder tempo."
+            action={
+              <Link href="/loterias/lotofacil/boloes" className="text-sm font-semibold text-fuchsia-600">
+                Abrir listagem completa
+              </Link>
+            }
+          />
+
+          <PoolTable pools={displayPools} isAuthenticated={Boolean(session?.sub)} />
+
+          <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <article className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">Bolão Lotofácil online</p>
+              <h2 className="mt-3 text-2xl font-bold text-slate-900">Compre cotas da Lotofácil com mais clareza e praticidade</h2>
+              <div className="mt-4 space-y-4 text-sm leading-7 text-slate-600 sm:text-base">
+                <p>
+                  A Lucky Bolões foi criada para quem procura <strong>bolão Lotofácil online</strong> com visual claro,
+                  compra rápida de cotas e acompanhamento completo dos concursos. Em vez de procurar informações soltas,
+                  você visualiza o bolão, a composição dos jogos, o valor por cota e o status de cada concurso em um só
+                  lugar.
+                </p>
+                <p>
+                  Se a sua busca é por <strong>bolao lotofacil</strong>, <strong>cotas da Lotofácil</strong> ou uma forma
+                  mais prática de entrar em mais jogos, aqui você encontra uma experiência organizada para consultar
+                  dezenas, acompanhar sorteios e verificar resultados sem complicação.
+                </p>
+              </div>
+            </article>
+
+            <aside className="rounded-[32px] border border-fuchsia-100 bg-linear-to-b from-fuchsia-50 to-white p-6 shadow-sm">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">Como participar</p>
+              <h2 className="mt-3 text-2xl font-bold text-slate-900">Passos rápidos para entrar no próximo concurso</h2>
+              <ol className="mt-4 space-y-3 text-sm text-slate-600 sm:text-base">
+                <li>1. Escolha um bolão Lotofácil com o valor por cota que faz sentido para você.</li>
+                <li>2. Veja a quantidade de jogos e a divisão de cotas antes de comprar.</li>
+                <li>3. Finalize sua participação e acompanhe tudo em Meus Jogos.</li>
+                <li>4. Consulte resultados, prêmios e comprovantes pela própria plataforma.</li>
+              </ol>
+            </aside>
+          </section>
+
+          <section className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">Dúvidas frequentes</p>
+            <h2 className="mt-3 text-2xl font-bold text-slate-900">Perguntas comuns sobre bolão Lotofácil</h2>
+            <div className="mt-5 grid gap-4 lg:grid-cols-2">
+              {faqItems.map((item) => (
+                <article key={item.question} className="rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/50 p-5">
+                  <h3 className="text-lg font-bold text-slate-900">{item.question}</h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-base">{item.answer}</p>
+                </article>
+              ))}
             </div>
-          </article>
-
-          <aside className="rounded-[32px] border border-fuchsia-100 bg-linear-to-b from-fuchsia-50 to-white p-6 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">Como participar</p>
-            <h2 className="mt-3 text-2xl font-bold text-slate-900">Passos rápidos para entrar no próximo concurso</h2>
-            <ol className="mt-4 space-y-3 text-sm text-slate-600 sm:text-base">
-              <li>1. Escolha um bolão Lotofácil com o valor por cota que faz sentido para você.</li>
-              <li>2. Veja a quantidade de jogos e a divisão de cotas antes de comprar.</li>
-              <li>3. Finalize sua participação e acompanhe tudo em Meus Jogos.</li>
-              <li>4. Consulte resultados, prêmios e comprovantes pela própria plataforma.</li>
-            </ol>
-          </aside>
-        </section>
-
-        <section className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">Dúvidas frequentes</p>
-          <h2 className="mt-3 text-2xl font-bold text-slate-900">Perguntas comuns sobre bolão Lotofácil</h2>
-          <div className="mt-5 grid gap-4 lg:grid-cols-2">
-            {faqItems.map((item) => (
-              <article key={item.question} className="rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/50 p-5">
-                <h3 className="text-lg font-bold text-slate-900">{item.question}</h3>
-                <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-base">{item.answer}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-      </Container>
+          </section>
+        </Container>
+      </div>
     </div>
   );
 }

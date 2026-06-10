@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { getSession } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { activePoolStatuses } from "@/lib/status";
 import { Container } from "@/components/container";
+import { MobilePoolsList } from "@/components/mobile/mobile-pools-list";
 import { PoolTable } from "@/components/pool-table";
 import { SectionHeading } from "@/components/section-heading";
+import { getSession } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { buildMetadata } from "@/lib/seo";
+import { activePoolStatuses } from "@/lib/status";
 import { applyTemporaryPoolUrgencyMask } from "@/lib/temporary-pool-urgency";
 
 export const metadata: Metadata = buildMetadata({
@@ -54,40 +55,46 @@ export default async function LotofacilPoolsPage() {
   const displayPools = pools.map(applyTemporaryPoolUrgencyMask);
 
   return (
-    <Container className="space-y-8 py-10">
-      <SectionHeading
-        eyebrow="Bolões"
-        title="Listagem da Lotofácil"
-        description="Confira os bolões disponíveis, escolha suas cotas e acompanhe tudo pela sua conta."
-      />
+    <>
+      <div className="md:hidden">
+        <MobilePoolsList pools={displayPools} isAuthenticated={Boolean(session?.sub)} title="Bolões da Lotofácil" eyebrow="Escolha o seu" />
+      </div>
 
-      <section className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Bolão Lotofácil online com compra de cotas</h1>
-        <div className="mt-4 space-y-4 text-sm leading-7 text-slate-600 sm:text-base">
-          <p>
-            Se você busca <strong>bolão Lotofácil online</strong>, esta página reúne os bolões disponíveis para o
-            próximo concurso com foco em clareza de informação. Aqui você compara <strong>valor por cota</strong>,
-            quantidade de jogos, divisão das cotas e abertura para compra sem precisar procurar os detalhes em várias
-            telas.
-          </p>
-          <p>
-            A ideia é facilitar a entrada em <strong>cotas da Lotofácil</strong> com um fluxo simples: escolher o
-            bolão, revisar os jogos, comprar suas cotas e acompanhar resultados, comprovantes e prêmios pela área da
-            conta.
-          </p>
-        </div>
-      </section>
+      <Container className="hidden space-y-8 py-10 md:block">
+        <SectionHeading
+          eyebrow="Bolões"
+          title="Listagem da Lotofácil"
+          description="Confira os bolões disponíveis, escolha suas cotas e acompanhe tudo pela sua conta."
+        />
 
-      <PoolTable pools={displayPools} isAuthenticated={Boolean(session?.sub)} />
+        <section className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Bolão Lotofácil online com compra de cotas</h1>
+          <div className="mt-4 space-y-4 text-sm leading-7 text-slate-600 sm:text-base">
+            <p>
+              Se você busca <strong>bolão Lotofácil online</strong>, esta página reúne os bolões disponíveis para o
+              próximo concurso com foco em clareza de informação. Aqui você compara <strong>valor por cota</strong>,
+              quantidade de jogos, divisão das cotas e abertura para compra sem precisar procurar os detalhes em várias
+              telas.
+            </p>
+            <p>
+              A ideia é facilitar a entrada em <strong>cotas da Lotofácil</strong> com um fluxo simples: escolher o
+              bolão, revisar os jogos, comprar suas cotas e acompanhar resultados, comprovantes e prêmios pela área da
+              conta.
+            </p>
+          </div>
+        </section>
 
-      <section className="grid gap-5 lg:grid-cols-3">
-        {contentBlocks.map((item) => (
-          <article key={item.title} className="rounded-[28px] border border-white/80 bg-white/90 p-5 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">{item.title}</h2>
-            <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-base">{item.text}</p>
-          </article>
-        ))}
-      </section>
-    </Container>
+        <PoolTable pools={displayPools} isAuthenticated={Boolean(session?.sub)} />
+
+        <section className="grid gap-5 lg:grid-cols-3">
+          {contentBlocks.map((item) => (
+            <article key={item.title} className="rounded-[28px] border border-white/80 bg-white/90 p-5 shadow-sm">
+              <h2 className="text-xl font-bold text-slate-900">{item.title}</h2>
+              <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-base">{item.text}</p>
+            </article>
+          ))}
+        </section>
+      </Container>
+    </>
   );
 }

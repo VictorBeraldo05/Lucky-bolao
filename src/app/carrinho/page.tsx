@@ -1,18 +1,21 @@
-import { prisma } from "@/lib/prisma";
-import { requireUser } from "@/lib/auth";
 import { AccountShell } from "@/components/account-shell";
-import { CartItemsTable } from "@/components/cart/cart-items-table";
 import { CartCheckoutPanel } from "@/components/cart/cart-checkout-panel";
+import { CartItemsTable } from "@/components/cart/cart-items-table";
+import { MobileCartView } from "@/components/mobile/mobile-cart-view";
+import { requireUser } from "@/lib/auth";
 import { syncPendingCartPaymentsForUser } from "@/lib/cart";
+import { prisma } from "@/lib/prisma";
 import { getWalletAvailableBalance } from "@/lib/utils";
 
 export default async function CartPage() {
   const user = await requireUser();
+
   try {
     await syncPendingCartPaymentsForUser(user.id);
   } catch {
     // keep cart page available even if payment sync fails
   }
+
   const cart = await prisma.cart.findUnique({
     where: { userId: user.id },
     include: { items: { include: { pool: true } } },
@@ -32,26 +35,38 @@ export default async function CartPage() {
     })) ?? [];
 
   const total = cartItems.reduce((sum, item) => sum + Number(item.totalPrice), 0);
+  const walletAvailableBalance = getWalletAvailableBalance(user.wallet);
 
   return (
-    <AccountShell currentPath="/carrinho" title="Carrinho" description="Revise seus itens e finalize a compra via PIX no carrinho.">
-      <div className="grid gap-4 xl:grid-cols-[1.4fr_0.8fr] xl:gap-6">
-        <div className="order-2 xl:order-1">
-          <CartItemsTable initialItems={cartItems} />
-        </div>
-        <div className="order-1 xl:order-2">
-          <CartCheckoutPanel
-            total={total}
-            userCpf={user.cpf ?? null}
-            walletAvailableBalance={getWalletAvailableBalance(user.wallet)}
-          />
-        </div>
+    <>
+      <MobileCartView
+        items={cartItems}
+        total={total}
+        userCpf={user.cpf ?? null}
+        walletAvailableBalance={walletAvailableBalance}
+      />
+
+      <div className="hidden md:block">
+        <AccountShell currentPath="/carrinho" title="Carrinho" description="Revise seus itens e finalize a compra via PIX no carrinho.">
+          <div className="grid gap-4 xl:grid-cols-[1.4fr_0.8fr] xl:gap-6">
+            <div className="order-2 xl:order-1">
+              <CartItemsTable initialItems={cartItems} />
+            </div>
+            <div className="order-1 xl:order-2">
+              <CartCheckoutPanel
+                total={total}
+                userCpf={user.cpf ?? null}
+                walletAvailableBalance={walletAvailableBalance}
+              />
+            </div>
+          </div>
+          {cartItems.length === 0 ? (
+            <div className="mt-6 rounded-[28px] border border-white/80 bg-white/90 p-6 text-center text-slate-600 shadow-sm">
+              Não há itens no carrinho. Selecione uma cota em algum bolão para adicionar ao carrinho.
+            </div>
+          ) : null}
+        </AccountShell>
       </div>
-      {cartItems.length === 0 ? (
-        <div className="mt-6 rounded-[28px] border border-white/80 bg-white/90 p-6 text-center text-slate-600 shadow-sm">
-          Não há itens no carrinho. Selecione uma cota em algum bolão para adicionar ao carrinho.
-        </div>
-      ) : null}
-    </AccountShell>
+    </>
   );
 }
