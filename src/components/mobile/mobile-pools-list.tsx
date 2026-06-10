@@ -111,7 +111,7 @@ export function MobilePoolsList({
       </section>
 
       {previewPool ? (
-        <div className="fixed inset-0 z-[80] flex items-end bg-slate-950/55 backdrop-blur-sm md:hidden">
+        <div className="fixed inset-0 z-[90] flex items-end bg-slate-950/55 backdrop-blur-sm md:hidden">
           <div className="flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[32px] bg-white shadow-2xl">
             <div className="flex justify-center border-b border-fuchsia-100 px-4 pt-3">
               <span className="h-1.5 w-16 rounded-full bg-slate-200" />
@@ -163,7 +163,7 @@ export function MobilePoolsList({
               className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4"
               style={{ WebkitOverflowScrolling: "touch" }}
             >
-              <div className="space-y-4 pb-4">
+              <div className="space-y-4 pb-[calc(6rem+env(safe-area-inset-bottom))]">
                 <div className="rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/60 p-4">
                   <p className="text-sm leading-6 text-slate-600">{previewPool.description}</p>
                 </div>

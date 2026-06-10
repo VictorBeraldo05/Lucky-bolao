@@ -174,7 +174,7 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
       </div>
 
       {selectedShare ? (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/45 px-0 py-0 backdrop-blur-sm sm:items-center sm:px-4 sm:py-6">
+        <div className="fixed inset-0 z-[90] flex items-end justify-center bg-slate-950/45 px-0 py-0 backdrop-blur-sm sm:items-center sm:px-4 sm:py-6">
           <div className="flex max-h-[100dvh] w-full max-w-5xl flex-col overflow-hidden rounded-t-[32px] border border-white/70 bg-white shadow-2xl sm:max-h-[92vh] sm:rounded-[32px]">
             <div className="flex justify-center border-b border-fuchsia-100 px-4 pt-3 sm:hidden">
               <span className="h-1.5 w-16 rounded-full bg-slate-200" />
@@ -201,7 +201,7 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
               </div>
 
               <div className="border-b border-fuchsia-100 px-5 py-3 sm:px-6">
-                <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1">
+                <div className="-mx-1 flex flex-nowrap gap-2 overflow-x-auto px-1 pb-1 pr-4">
                   {[
                     { id: "resumo", label: "Resumo" },
                     { id: "sorteio", label: "Sorteio" },
@@ -229,7 +229,7 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
               className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-5"
               style={{ WebkitOverflowScrolling: "touch" }}
             >
-              <div className="pb-[calc(1rem+env(safe-area-inset-bottom))]">
+              <div className="pb-[calc(6.5rem+env(safe-area-inset-bottom))] sm:pb-4">
               {activeTab === "resumo" ? (
                 <div className="space-y-6">
                   <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
