@@ -1,5 +1,5 @@
-import { ReferralLinkCard } from "@/components/referral-link-card";
 import { AccountShell } from "@/components/account-shell";
+import { ReferralLinkCard } from "@/components/referral-link-card";
 import { StatCard } from "@/components/stat-card";
 import { requireUser } from "@/lib/auth";
 import { syncPendingCartPaymentsForUser } from "@/lib/cart";
@@ -16,21 +16,36 @@ export default async function MyAccountPage() {
     prisma.notification.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 5 }),
   ]);
 
+  const availableBalance = formatCurrency(getWalletAvailableBalance(user.wallet));
+  const totalPrizes = formatCurrency(prizes._sum.amount ?? 0);
+  const bonusBalance = formatCurrency(getWalletBonusBalance(user.wallet));
+
   return (
     <AccountShell
       currentPath="/minha-conta"
       title={`Olá, ${user.name}`}
       description="Sua visão geral de saldo, compras, prêmios e notificações."
     >
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatCard label="Saldo atual" value={formatCurrency(getWalletAvailableBalance(user.wallet))} />
-        <StatCard label="Compras" value={String(purchases)} />
-        <StatCard label="Prêmios" value={formatCurrency(prizes._sum.amount ?? 0)} />
+      <div className="grid grid-cols-2 gap-3 md:hidden">
+        <div className="rounded-[24px] border border-white/80 bg-white/95 p-4 shadow-sm">
+          <p className="text-sm text-slate-500">Saldo atual</p>
+          <p className="mt-2 text-3xl font-black tracking-tight text-slate-900">{availableBalance}</p>
+        </div>
+        <div className="rounded-[24px] border border-white/80 bg-white/95 p-4 shadow-sm">
+          <p className="text-sm text-slate-500">Prêmios</p>
+          <p className="mt-2 text-3xl font-black tracking-tight text-slate-900">{totalPrizes}</p>
+        </div>
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <StatCard label="Crédito promocional" value={formatCurrency(getWalletBonusBalance(user.wallet))} />
-        <StatCard label="Disponível para novas cotas" value={formatCurrency(getWalletAvailableBalance(user.wallet))} />
+      <div className="hidden gap-4 md:grid md:grid-cols-3">
+        <StatCard label="Saldo atual" value={availableBalance} />
+        <StatCard label="Compras" value={String(purchases)} />
+        <StatCard label="Prêmios" value={totalPrizes} />
+      </div>
+
+      <div className="mt-6 hidden gap-4 md:grid md:grid-cols-2">
+        <StatCard label="Crédito promocional" value={bonusBalance} />
+        <StatCard label="Disponível para novas cotas" value={availableBalance} />
       </div>
 
       <div className="mt-6">
