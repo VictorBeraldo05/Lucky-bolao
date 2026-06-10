@@ -86,7 +86,9 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
           <div key={share.id} className="rounded-[28px] border border-white/80 bg-white/90 p-4 shadow-sm">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-fuchsia-500">{share.pool.lotteryName}</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-fuchsia-500">
+                  {share.pool.lotteryName}
+                </p>
                 <p className="mt-1 text-base font-bold text-slate-900">{share.pool.title}</p>
                 <p className="mt-1 text-sm text-slate-500">
                   Concurso #{share.pool.contestNumber} • {formatDate(share.pool.drawDate)}
@@ -173,10 +175,12 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
 
       {selectedShare ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/45 px-0 py-0 backdrop-blur-sm sm:items-center sm:px-4 sm:py-6">
-          <div className="max-h-[100dvh] w-full max-w-5xl overflow-hidden rounded-t-[28px] border border-white/70 bg-white shadow-2xl sm:max-h-[92vh] sm:rounded-[32px]">
+          <div className="flex max-h-[100dvh] w-full max-w-5xl flex-col overflow-hidden rounded-t-[28px] border border-white/70 bg-white shadow-2xl sm:max-h-[92vh] sm:rounded-[32px]">
             <div className="flex items-start justify-between gap-4 border-b border-fuchsia-100 px-5 py-4 sm:px-6">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">{selectedShare.pool.lotteryName}</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">
+                  {selectedShare.pool.lotteryName}
+                </p>
                 <h2 className="mt-2 text-2xl font-bold text-slate-900">{selectedShare.pool.title}</h2>
                 <p className="mt-1 text-sm text-slate-500">
                   Bolão {selectedShare.pool.code} • Concurso #{selectedShare.pool.contestNumber}
@@ -204,7 +208,9 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
                     type="button"
                     onClick={() => setActiveTab(tab.id as ActiveTab)}
                     className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                      activeTab === tab.id ? "bg-fuchsia-600 text-white" : "bg-fuchsia-50 text-fuchsia-700 hover:bg-fuchsia-100"
+                      activeTab === tab.id
+                        ? "bg-fuchsia-600 text-white"
+                        : "bg-fuchsia-50 text-fuchsia-700 hover:bg-fuchsia-100"
                     }`}
                   >
                     {tab.label}
@@ -213,7 +219,10 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
               </div>
             </div>
 
-            <div className="max-h-[calc(100dvh-148px)] overflow-y-auto px-4 py-4 sm:max-h-[calc(92vh-150px)] sm:px-6 sm:py-5">
+            <div
+              className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-5"
+              style={{ WebkitOverflowScrolling: "touch" }}
+            >
               {activeTab === "resumo" ? (
                 <div className="space-y-6">
                   <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -263,7 +272,10 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
                     </p>
                     {selectedShare.pool.resultNumbers.length > 0 ? (
                       <div className="mt-5">
-                        <NumberGrid numbers={selectedShare.pool.resultNumbers} highlight={selectedShare.pool.resultNumbers} />
+                        <NumberGrid
+                          numbers={selectedShare.pool.resultNumbers}
+                          highlight={selectedShare.pool.resultNumbers}
+                        />
                       </div>
                     ) : (
                       <div className="mt-5 rounded-2xl border border-dashed border-fuchsia-200 bg-white p-5 text-sm text-slate-500">
@@ -286,7 +298,10 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
                   {awardedGames.length > 0 ? (
                     <div className="grid gap-4">
                       {awardedGames.map((game) => (
-                        <div key={game.id} className="rounded-[28px] border border-emerald-100 bg-emerald-50/60 p-5 shadow-sm">
+                        <div
+                          key={game.id}
+                          className="rounded-[28px] border border-emerald-100 bg-emerald-50/60 p-5 shadow-sm"
+                        >
                           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex items-center gap-3">
                               <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
@@ -299,11 +314,17 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
                             </div>
                             <div className="text-left sm:text-right">
                               <p className="text-sm text-slate-500">Prêmio apurado</p>
-                              <p className="text-lg font-bold text-emerald-700">{formatCurrency(game.prizeAmount ?? 0)}</p>
+                              <p className="text-lg font-bold text-emerald-700">
+                                {formatCurrency(game.prizeAmount ?? 0)}
+                              </p>
                             </div>
                           </div>
                           <div className="mt-4">
-                            <NumberGrid numbers={game.numbers} highlight={selectedShare.pool.resultNumbers} size="sm" />
+                            <NumberGrid
+                              numbers={game.numbers}
+                              highlight={selectedShare.pool.resultNumbers}
+                              size="sm"
+                            />
                           </div>
                         </div>
                       ))}
@@ -343,10 +364,16 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
                             ) : null}
                           </div>
                           <div className="mt-4">
-                            <NumberGrid numbers={game.numbers} highlight={selectedShare.pool.resultNumbers} size="sm" />
+                            <NumberGrid
+                              numbers={game.numbers}
+                              highlight={selectedShare.pool.resultNumbers}
+                              size="sm"
+                            />
                           </div>
                           {Number(game.prizeAmount ?? 0) > 0 ? (
-                            <p className="mt-4 text-sm font-semibold text-emerald-700">Premiado: {formatCurrency(game.prizeAmount ?? 0)}</p>
+                            <p className="mt-4 text-sm font-semibold text-emerald-700">
+                              Premiado: {formatCurrency(game.prizeAmount ?? 0)}
+                            </p>
                           ) : null}
                         </div>
                       ))}
@@ -354,7 +381,8 @@ export function MyGamesTable({ shares }: { shares: MyGameRow[] }) {
 
                     <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <p className="text-sm text-slate-500">
-                        Exibindo jogos {gamesPage * GAMES_PER_PAGE + 1} a {Math.min((gamesPage + 1) * GAMES_PER_PAGE, selectedShare.pool.games.length)} de{" "}
+                        Exibindo jogos {gamesPage * GAMES_PER_PAGE + 1} a{" "}
+                        {Math.min((gamesPage + 1) * GAMES_PER_PAGE, selectedShare.pool.games.length)} de{" "}
                         {selectedShare.pool.games.length}.
                       </p>
                       <div className="flex items-center gap-2">

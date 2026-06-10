@@ -112,10 +112,12 @@ export function MobilePoolsList({
 
       {previewPool ? (
         <div className="fixed inset-0 z-[80] flex items-end bg-slate-950/55 backdrop-blur-sm md:hidden">
-          <div className="max-h-[88dvh] w-full overflow-hidden rounded-t-[28px] bg-white shadow-2xl">
+          <div className="flex max-h-[88dvh] w-full flex-col overflow-hidden rounded-t-[28px] bg-white shadow-2xl">
             <div className="flex items-start justify-between gap-4 border-b border-fuchsia-100 px-4 py-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fuchsia-500">{previewPool.lottery.name}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fuchsia-500">
+                  {previewPool.lottery.name}
+                </p>
                 <h3 className="mt-2 text-xl font-bold text-slate-900">{previewPool.title}</h3>
               </div>
               <button
@@ -127,47 +129,50 @@ export function MobilePoolsList({
               </button>
             </div>
 
-            <div className="space-y-4 overflow-y-auto px-4 py-4">
-              {(() => {
-                const summary = getPoolCommercialSummary({
-                  relativeChance: previewPool.relativeChance,
-                  description: previewPool.description,
-                  totalShares: previewPool.totalShares,
-                  sharePrice: previewPool.sharePrice,
-                  gamesCount: previewPool.games.length,
-                });
+            <div
+              className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4"
+              style={{ WebkitOverflowScrolling: "touch" }}
+            >
+              <div className="space-y-4">
+                {(() => {
+                  const summary = getPoolCommercialSummary({
+                    relativeChance: previewPool.relativeChance,
+                    description: previewPool.description,
+                    totalShares: previewPool.totalShares,
+                    sharePrice: previewPool.sharePrice,
+                    gamesCount: previewPool.games.length,
+                  });
 
-                return (
-                  <>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="rounded-full bg-fuchsia-100 px-3 py-1 text-xs font-semibold text-fuchsia-700">{summary.gamesLabel}</span>
-                      <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">{summary.equivalentLabel}</span>
-                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-                        {formatCurrency(previewPool.sharePrice)}/cota
-                      </span>
-                    </div>
+                  return (
+                    <>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="rounded-full bg-fuchsia-100 px-3 py-1 text-xs font-semibold text-fuchsia-700">
+                          {summary.gamesLabel}
+                        </span>
+                        <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">
+                          {summary.equivalentLabel}
+                        </span>
+                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                          {formatCurrency(previewPool.sharePrice)}/cota
+                        </span>
+                      </div>
 
-                    <div className="rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/60 p-4">
-                      <p className="text-sm leading-6 text-slate-600">{previewPool.description}</p>
-                    </div>
+                      <div className="rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/60 p-4">
+                        <p className="text-sm leading-6 text-slate-600">{previewPool.description}</p>
+                      </div>
 
-                    <div className="space-y-3">
-                      {previewPool.games.slice(0, 10).map((game) => (
-                        <div key={game.id} className="rounded-[24px] border border-fuchsia-100 bg-white p-4">
-                          <p className="mb-3 text-sm font-semibold text-slate-900">{game.title}</p>
-                          <NumberGrid numbers={game.numbers} size="sm" />
-                        </div>
-                      ))}
-                    </div>
-
-                    {previewPool.games.length > 10 ? (
-                      <p className="text-sm text-slate-500">
-                        Mostrando os 10 primeiros jogos. Abra o bolão para ver a composição completa.
-                      </p>
-                    ) : null}
-                  </>
-                );
-              })()}
+                      <div className="space-y-3">
+                        {previewPool.games.map((game) => (
+                          <div key={game.id} className="rounded-[24px] border border-fuchsia-100 bg-white p-4">
+                            <p className="mb-3 text-sm font-semibold text-slate-900">{game.title}</p>
+                            <NumberGrid numbers={game.numbers} size="sm" />
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
             </div>
 
             <div className="border-t border-fuchsia-100 px-4 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">

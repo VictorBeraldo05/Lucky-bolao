@@ -1,10 +1,10 @@
-import { prisma } from "@/lib/prisma";
-import { requireUser } from "@/lib/auth";
+import { ReferralLinkCard } from "@/components/referral-link-card";
 import { AccountShell } from "@/components/account-shell";
 import { StatCard } from "@/components/stat-card";
+import { requireUser } from "@/lib/auth";
 import { syncPendingCartPaymentsForUser } from "@/lib/cart";
+import { prisma } from "@/lib/prisma";
 import { formatCurrency, getWalletAvailableBalance, getWalletBonusBalance } from "@/lib/utils";
-import { ReferralLinkCard } from "@/components/referral-link-card";
 
 export default async function MyAccountPage() {
   const user = await requireUser();
@@ -17,7 +17,11 @@ export default async function MyAccountPage() {
   ]);
 
   return (
-    <AccountShell currentPath="/minha-conta" title={`Olá, ${user.name}`} description="Sua visão geral de saldo, compras, prêmios e notificações.">
+    <AccountShell
+      currentPath="/minha-conta"
+      title={`Olá, ${user.name}`}
+      description="Sua visão geral de saldo, compras, prêmios e notificações."
+    >
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard label="Saldo atual" value={formatCurrency(getWalletAvailableBalance(user.wallet))} />
         <StatCard label="Compras" value={String(purchases)} />
