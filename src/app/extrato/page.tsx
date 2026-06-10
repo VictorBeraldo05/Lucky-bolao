@@ -1,6 +1,6 @@
-import { prisma } from "@/lib/prisma";
-import { requireUser } from "@/lib/auth";
 import { AccountShell } from "@/components/account-shell";
+import { requireUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 export default async function StatementPage() {
@@ -11,8 +11,40 @@ export default async function StatementPage() {
   });
 
   return (
-    <AccountShell currentPath="/extrato" title="Extrato financeiro" description="Consulte todas as movimentações da sua conta com datas, valores e descrições.">
-      <div className="overflow-hidden rounded-[28px] border border-white/80 bg-white/90 shadow-sm">
+    <AccountShell
+      currentPath="/extrato"
+      title="Extrato financeiro"
+      description="Consulte todas as movimentações da sua conta com datas, valores e descrições."
+    >
+      <div className="space-y-3 md:hidden">
+        {transactions.map((transaction) => (
+          <article key={transaction.id} className="rounded-[24px] border border-white/80 bg-white/95 p-4 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-slate-900">{transaction.description}</p>
+                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-fuchsia-500">{transaction.type}</p>
+              </div>
+              <p className="text-base font-bold text-slate-900">{formatCurrency(transaction.amount)}</p>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-slate-600">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400">Data</p>
+                <p className="mt-1">{formatDate(transaction.createdAt)}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400">Saldo antes</p>
+                <p className="mt-1">{formatCurrency(transaction.balanceBefore)}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400">Saldo depois</p>
+                <p className="mt-1">{formatCurrency(transaction.balanceAfter)}</p>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="hidden overflow-hidden rounded-[28px] border border-white/80 bg-white/90 shadow-sm md:block">
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
             <thead className="bg-fuchsia-50 text-slate-600">

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
 import { Container } from "@/components/container";
 import { SectionHeading } from "@/components/section-heading";
+import { prisma } from "@/lib/prisma";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
@@ -22,57 +22,104 @@ export default async function LoteriasPage() {
   });
 
   return (
-    <Container className="space-y-8 py-10">
-      <SectionHeading
-        eyebrow="Loterias"
-        title="Escolha sua modalidade"
-        description="Encontre a loteria ideal para você e acompanhe os bolões disponíveis em cada concurso."
-      />
+    <>
+      <div className="space-y-4 px-4 py-4 md:hidden">
+        <section className="rounded-[28px] border border-white/80 bg-white/95 p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-fuchsia-500">Loterias</p>
+          <h1 className="mt-2 text-[2rem] font-black leading-[1.05] tracking-tight text-slate-900">
+            Escolha sua modalidade
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            Veja as modalidades cadastradas e entre na Lotofácil com poucos toques.
+          </p>
+        </section>
 
-      <section className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
-        <h2 className="text-2xl font-bold text-slate-900">Bolões online para quem busca praticidade</h2>
-        <div className="mt-4 space-y-4 text-sm leading-7 text-slate-600 sm:text-base">
-          <p>
-            Nesta página você encontra as modalidades cadastradas na plataforma e pode navegar até os bolões
-            disponíveis de cada loteria. Hoje o foco principal está em <strong>bolão Lotofácil online</strong>, mas a
-            estrutura já está preparada para expansão para outras loterias.
-          </p>
-          <p>
-            Se você procura <strong>loterias online</strong> com compra de cotas, resultados e acompanhamento em um só
-            lugar, esta seção ajuda a entender a modalidade, o intervalo de dezenas e os próximos concursos de cada
-            opção disponível.
-          </p>
+        <div className="space-y-3">
+          {lotteries.map((lottery) => (
+            <article key={lottery.id} className="rounded-[24px] border border-white/80 bg-white/95 p-5 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fuchsia-500">{lottery.name}</p>
+              <h2 className="mt-2 text-xl font-bold text-slate-900">{lottery.description}</h2>
+              <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-slate-600">
+                <p>
+                  <span className="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-400">Faixa</span>
+                  {lottery.numberStart} a {lottery.numberEnd}
+                </p>
+                <p>
+                  <span className="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-400">Aposta</span>
+                  {lottery.minNumbers} a {lottery.maxNumbers}
+                </p>
+                <p>
+                  <span className="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-400">Tipos</span>
+                  {lottery.gameTypes.length}
+                </p>
+                <p>
+                  <span className="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-400">Sorteios</span>
+                  {lottery.drawDays.join(", ")}
+                </p>
+              </div>
+              <Link
+                href={lottery.slug === "lotofacil" ? "/loterias/lotofacil" : "/"}
+                className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-fuchsia-700 px-4 py-3 text-sm font-semibold text-white"
+              >
+                Ver bolões
+              </Link>
+            </article>
+          ))}
         </div>
-      </section>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        {lotteries.map((lottery) => (
-          <article key={lottery.id} className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">{lottery.name}</p>
-            <h2 className="mt-3 text-2xl font-bold text-slate-900">{lottery.description}</h2>
-            <div className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-              <p>
-                <span className="font-semibold text-slate-900">Faixa:</span> {lottery.numberStart} a {lottery.numberEnd}
-              </p>
-              <p>
-                <span className="font-semibold text-slate-900">Aposta:</span> {lottery.minNumbers} a {lottery.maxNumbers} dezenas
-              </p>
-              <p>
-                <span className="font-semibold text-slate-900">Tipos:</span> {lottery.gameTypes.length}
-              </p>
-              <p>
-                <span className="font-semibold text-slate-900">Sorteios:</span> {lottery.drawDays.join(", ")}
-              </p>
-            </div>
-            <Link
-              href={lottery.slug === "lotofacil" ? "/loterias/lotofacil" : "/"}
-              className="mt-5 inline-flex rounded-full bg-fuchsia-600 px-5 py-3 text-sm font-semibold text-white"
-            >
-              Ver bolões
-            </Link>
-          </article>
-        ))}
       </div>
-    </Container>
+
+      <Container className="hidden space-y-8 py-10 md:block">
+        <SectionHeading
+          eyebrow="Loterias"
+          title="Escolha sua modalidade"
+          description="Encontre a loteria ideal para você e acompanhe os bolões disponíveis em cada concurso."
+        />
+
+        <section className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
+          <h2 className="text-2xl font-bold text-slate-900">Bolões online para quem busca praticidade</h2>
+          <div className="mt-4 space-y-4 text-sm leading-7 text-slate-600 sm:text-base">
+            <p>
+              Nesta página você encontra as modalidades cadastradas na plataforma e pode navegar até os bolões
+              disponíveis de cada loteria. Hoje o foco principal está em <strong>bolão Lotofácil online</strong>, mas a
+              estrutura já está preparada para expansão para outras loterias.
+            </p>
+            <p>
+              Se você procura <strong>loterias online</strong> com compra de cotas, resultados e acompanhamento em um só
+              lugar, esta seção ajuda a entender a modalidade, o intervalo de dezenas e os próximos concursos de cada
+              opção disponível.
+            </p>
+          </div>
+        </section>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          {lotteries.map((lottery) => (
+            <article key={lottery.id} className="rounded-[32px] border border-white/80 bg-white/90 p-6 shadow-sm">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">{lottery.name}</p>
+              <h2 className="mt-3 text-2xl font-bold text-slate-900">{lottery.description}</h2>
+              <div className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
+                <p>
+                  <span className="font-semibold text-slate-900">Faixa:</span> {lottery.numberStart} a {lottery.numberEnd}
+                </p>
+                <p>
+                  <span className="font-semibold text-slate-900">Aposta:</span> {lottery.minNumbers} a {lottery.maxNumbers} dezenas
+                </p>
+                <p>
+                  <span className="font-semibold text-slate-900">Tipos:</span> {lottery.gameTypes.length}
+                </p>
+                <p>
+                  <span className="font-semibold text-slate-900">Sorteios:</span> {lottery.drawDays.join(", ")}
+                </p>
+              </div>
+              <Link
+                href={lottery.slug === "lotofacil" ? "/loterias/lotofacil" : "/"}
+                className="mt-5 inline-flex rounded-full bg-fuchsia-600 px-5 py-3 text-sm font-semibold text-white"
+              >
+                Ver bolões
+              </Link>
+            </article>
+          ))}
+        </div>
+      </Container>
+    </>
   );
 }

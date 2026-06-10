@@ -1,12 +1,16 @@
-import { requireUser } from "@/lib/auth";
-import { AccountShell } from "@/components/account-shell";
 import { ProfileCpfForm } from "@/components/forms/profile-cpf-form";
+import { AccountShell } from "@/components/account-shell";
+import { requireUser } from "@/lib/auth";
 
 export default async function ProfilePage() {
   const user = await requireUser();
 
   return (
-    <AccountShell currentPath="/perfil" title="Perfil" description="Dados básicos do usuário e ponto central para futuras configurações de conta.">
+    <AccountShell
+      currentPath="/perfil"
+      title="Perfil"
+      description="Dados básicos do usuário e ponto central para futuras configurações de conta."
+    >
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="rounded-[28px] border border-white/80 bg-white/90 p-6 shadow-sm">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -17,6 +21,10 @@ export default async function ProfilePage() {
             <div>
               <p className="text-sm text-slate-500">E-mail</p>
               <p className="text-lg font-semibold text-slate-900">{user.email}</p>
+            </div>
+            <div>
+              <p className="text-sm text-slate-500">Telefone</p>
+              <p className="text-lg font-semibold text-slate-900">{user.phone ?? "Não informado"}</p>
             </div>
             <div>
               <p className="text-sm text-slate-500">Perfil</p>
@@ -34,4 +42,3 @@ export default async function ProfilePage() {
     </AccountShell>
   );
 }
-
