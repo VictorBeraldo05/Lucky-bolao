@@ -42,7 +42,7 @@ export function AccountShell({
   const secondaryMobileLinks = links.slice(4);
 
   return (
-    <Container className="py-10">
+    <Container className="overflow-x-hidden py-6 md:py-10">
       <div className={cn("grid gap-8", showAccountNavigation && "lg:grid-cols-[280px_minmax(0,1fr)]")}>
         {showAccountNavigation ? (
           <aside className="hidden rounded-[28px] border border-white/80 bg-white/90 p-4 shadow-sm lg:block">
@@ -70,14 +70,17 @@ export function AccountShell({
           </aside>
         ) : null}
 
-        <section className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">{title}</h1>
-            <p className="mt-2 text-slate-600">{description}</p>
+        <section className="min-w-0 space-y-5 overflow-x-hidden md:space-y-6">
+          <div className="min-w-0">
+            <h1 className="text-[2.15rem] font-bold leading-[1.05] tracking-tight text-slate-900 md:text-3xl">
+              {title}
+            </h1>
+            <p className="mt-2 max-w-full text-slate-600">{description}</p>
           </div>
+
           {showAccountNavigation ? (
             <div className="space-y-3 lg:hidden">
-              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+              <div className="-mx-1 flex max-w-full gap-2 overflow-x-auto px-1 pb-1">
                 {primaryMobileLinks.map((link) => {
                   const Icon = link.icon;
                   return (
@@ -96,6 +99,7 @@ export function AccountShell({
                     </Link>
                   );
                 })}
+
                 <details className="shrink-0">
                   <summary className="list-none rounded-full border border-white/80 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-fuchsia-200 hover:text-fuchsia-700">
                     <span className="inline-flex items-center gap-2">
@@ -103,7 +107,7 @@ export function AccountShell({
                       Mais
                     </span>
                   </summary>
-                  <div className="mt-2 min-w-56 rounded-[24px] border border-white/80 bg-white p-2 shadow-xl">
+                  <div className="mt-2 mr-1 min-w-56 max-w-[calc(100vw-2rem)] rounded-[24px] border border-white/80 bg-white p-2 shadow-xl">
                     {secondaryMobileLinks.map((link) => {
                       const Icon = link.icon;
                       return (
@@ -127,6 +131,7 @@ export function AccountShell({
               </div>
             </div>
           ) : null}
+
           {children}
         </section>
       </div>
