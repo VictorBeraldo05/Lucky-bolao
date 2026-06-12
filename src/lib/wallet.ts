@@ -1,7 +1,18 @@
 import { Prisma, PaymentStatus, WalletTransactionStatus, WalletTransactionType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { fetchPixPaymentStatus, determineTopupStatus, parsePaymentTopupData } from "@/lib/mercadopago";
+import { determineTopupStatus, fetchPixPaymentStatus, parsePaymentTopupData } from "@/lib/mercadopago";
 import { getWalletAvailableBalance } from "@/lib/utils";
+
+type WithdrawalRequestInput = {
+  pixKeyType: "CPF" | "EMAIL" | "PHONE" | "RANDOM";
+  pixKey: string;
+  amount: number;
+};
+
+type RequestMeta = {
+  ipAddress?: string | null;
+  userAgent?: string | null;
+};
 
 export async function syncWalletTopup(topupId: string, correlationId?: string) {
   const topup = await prisma.walletTopup.findUnique({ where: { id: topupId } });
@@ -87,4 +98,79 @@ export async function syncPendingWalletTopupsForUser(userId: string) {
       // ignore failures here so page still renders
     }
   }
+}
+
+export async function requestWalletWithdrawal(userId: string, input: WithdrawalRequestInput, meta?: RequestMeta) {
+  const amount = new Prisma.Decimal(input.amount);
+
+  return prisma.$transaction(async (tx) => {
+    const wallet = await tx.wallet.findUnique({ where: { userId } });
+    if (!wallet) {
+      throw new Error("Carteira nao encontrada.");
+    }
+
+    const withdrawableBalance = Number(wallet.balance);
+    if (withdrawableBalance < input.amount) {
+      throw new Error("Saldo disponivel insuficiente para saque.");
+    }
+
+    const balanceBefore = new Prisma.Decimal(getWalletAvailableBalance(wallet));
+    const updatedWallet = await tx.wallet.update({
+      where: { id: wallet.id },
+      data: {
+        balance: {
+          decrement: amount,
+        },
+      },
+    });
+    const balanceAfter = new Prisma.Decimal(getWalletAvailableBalance(updatedWallet));
+
+    const transaction = await tx.walletTransaction.create({
+      data: {
+        walletId: wallet.id,
+        userId,
+        type: WalletTransactionType.WITHDRAWAL,
+        status: WalletTransactionStatus.PENDING,
+        amount: amount.negated(),
+        balanceBefore,
+        balanceAfter,
+        description: "Solicitacao de saque via PIX",
+        referenceType: "withdrawal_request",
+        metadata: {
+          pixKeyType: input.pixKeyType,
+          pixKey: input.pixKey,
+          estimatedCompletionWindow: "24h",
+        },
+      },
+    });
+
+    await tx.notification.create({
+      data: {
+        userId,
+        type: "INFO",
+        title: "Saque solicitado",
+        message: "Recebemos sua solicitacao de saque via PIX. O processamento pode levar ate 24h.",
+      },
+    });
+
+    await tx.auditLog.create({
+      data: {
+        actorUserId: userId,
+        userId,
+        action: "STATUS_CHANGED",
+        entityType: "wallet_withdrawal_request",
+        entityId: transaction.id,
+        newData: {
+          amount: input.amount,
+          pixKeyType: input.pixKeyType,
+          pixKey: input.pixKey,
+          status: "PENDING",
+        },
+        ipAddress: meta?.ipAddress ?? null,
+        userAgent: meta?.userAgent ?? null,
+      },
+    });
+
+    return transaction;
+  });
 }

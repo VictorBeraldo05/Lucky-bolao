@@ -36,6 +36,12 @@ export const walletTopupSchema = z.object({
   packageId: z.number().int().positive(),
 });
 
+export const walletWithdrawalSchema = z.object({
+  pixKeyType: z.enum(["CPF", "EMAIL", "PHONE", "RANDOM"]),
+  pixKey: z.string().trim().min(3, "Informe a chave PIX.").max(255, "Chave PIX muito longa."),
+  amount: z.coerce.number().positive("Informe um valor maior que zero.").max(100000, "Valor acima do limite."),
+});
+
 export const pixPaymentSchema = z.object({
   email: z.email("Informe um e-mail valido."),
   name: z.string().min(2, "Informe o nome."),

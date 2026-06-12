@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthRequiredDialog } from "@/components/auth-required-dialog";
 import { isTemporaryPoolAvailable } from "@/lib/temporary-pool-urgency";
@@ -12,9 +12,19 @@ type PurchaseFormProps = {
   poolCode: string;
   sharePrice: number;
   availableShares: number;
+  formId?: string;
+  hideSubmitButton?: boolean;
 };
 
-export function PurchaseForm({ poolId, poolTitle, poolCode, sharePrice, availableShares }: PurchaseFormProps) {
+export function PurchaseForm({
+  poolId,
+  poolTitle,
+  poolCode,
+  sharePrice,
+  availableShares,
+  formId,
+  hideSubmitButton = false,
+}: PurchaseFormProps) {
   const router = useRouter();
   const canBuy = isTemporaryPoolAvailable(poolCode) && availableShares > 0;
   const [quantity, setQuantity] = useState(1);
@@ -27,7 +37,7 @@ export function PurchaseForm({ poolId, poolTitle, poolCode, sharePrice, availabl
     setLoading(true);
     setMessage(null);
 
-    const response = await fetch(`/api/cart/items`, {
+    const response = await fetch("/api/cart/items", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ poolId, quantity }),
@@ -64,11 +74,22 @@ export function PurchaseForm({ poolId, poolTitle, poolCode, sharePrice, availabl
     router.refresh();
   }
 
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await handleAddToCart();
+  }
+
   return (
     <>
-      <div className="rounded-[28px] border border-fuchsia-100 bg-fuchsia-50/70 p-5">
+      <form
+        id={formId}
+        onSubmit={(event) => void handleSubmit(event)}
+        className="rounded-[28px] border border-fuchsia-100 bg-fuchsia-50/70 p-5"
+      >
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">Comprar cotas</p>
-        <p className="mt-2 text-sm text-slate-600">Escolha a quantidade desejada e confirme sua participação usando o saldo da sua conta.</p>
+        <p className="mt-2 text-sm text-slate-600">
+          Escolha a quantidade desejada e confirme sua participação usando o saldo da sua conta.
+        </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <label className="space-y-2 text-sm font-medium text-slate-700">
             Quantidade
@@ -77,7 +98,9 @@ export function PurchaseForm({ poolId, poolTitle, poolCode, sharePrice, availabl
               min={1}
               max={availableShares}
               value={quantity}
-              onChange={(event) => setQuantity(Math.max(1, Math.min(availableShares, Number(event.target.value) || 1)))}
+              onChange={(event) =>
+                setQuantity(Math.max(1, Math.min(availableShares, Number(event.target.value) || 1)))
+              }
               className="w-full rounded-2xl border border-fuchsia-100 bg-white px-4 py-3 text-base outline-none"
               disabled={!canBuy}
             />
@@ -88,19 +111,29 @@ export function PurchaseForm({ poolId, poolTitle, poolCode, sharePrice, availabl
           </div>
         </div>
         <p className="mt-3 text-sm text-slate-500">Disponíveis: {availableShares} cotas</p>
-        <p className="mt-1 text-sm text-slate-500">Depois de adicionar ao carrinho, finalize a compra no carrinho com PIX.</p>
-        {!canBuy ? <p className="mt-3 text-sm font-medium text-amber-700">Este bolão está esgotado no momento.</p> : null}
+        <p className="mt-1 text-sm text-slate-500">
+          Depois de adicionar ao carrinho, finalize a compra no carrinho com PIX.
+        </p>
+        {!canBuy ? (
+          <p className="mt-3 text-sm font-medium text-amber-700">Este bolão está esgotado no momento.</p>
+        ) : null}
         {message ? <p className="mt-3 text-sm font-medium text-slate-700">{message}</p> : null}
-        <button
-          onClick={handleAddToCart}
-          disabled={loading || !canBuy}
-          className="mt-4 w-full rounded-full bg-fuchsia-600 px-5 py-3 font-semibold text-white transition hover:bg-fuchsia-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600"
-        >
-          {loading ? "Processando..." : canBuy ? "Adicionar ao carrinho" : "Bolão esgotado"}
-        </button>
-      </div>
+        {!hideSubmitButton ? (
+          <button
+            type="submit"
+            disabled={loading || !canBuy}
+            className="mt-4 w-full rounded-full bg-fuchsia-600 px-5 py-3 font-semibold text-white transition hover:bg-fuchsia-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600"
+          >
+            {loading ? "Processando..." : canBuy ? "Adicionar ao carrinho" : "Bolão esgotado"}
+          </button>
+        ) : null}
+      </form>
 
-      <AuthRequiredDialog isOpen={showAuthPrompt} onClose={() => setShowAuthPrompt(false)} redirectPath={`/boloes/${poolCode}`} />
+      <AuthRequiredDialog
+        isOpen={showAuthPrompt}
+        onClose={() => setShowAuthPrompt(false)}
+        redirectPath={`/boloes/${poolCode}`}
+      />
     </>
   );
 }

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Contest, Lottery, LotteryGameType, Pool, PoolGame } from "@prisma/client";
 import { NumberGrid } from "@/components/number-grid";
 import { PurchaseForm } from "@/components/forms/purchase-form";
@@ -24,6 +23,7 @@ export function MobilePoolDetail({ pool }: MobilePoolDetailProps) {
   });
 
   const canBuy = pool.status === "OPEN" && pool.availableShares > 0;
+  const purchaseFormId = `purchase-form-${pool.id}`;
 
   return (
     <div className="space-y-4 px-4 py-4 pb-36 md:hidden">
@@ -39,8 +39,12 @@ export function MobilePoolDetail({ pool }: MobilePoolDetailProps) {
         <p className="mt-3 text-sm leading-6 text-slate-600">{pool.description}</p>
 
         <div className="mt-4 flex flex-wrap gap-2">
-          <span className="rounded-full bg-fuchsia-100 px-3 py-1 text-xs font-semibold text-fuchsia-700">{summary.gamesLabel}</span>
-          <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">{summary.equivalentLabel}</span>
+          <span className="rounded-full bg-fuchsia-100 px-3 py-1 text-xs font-semibold text-fuchsia-700">
+            {summary.gamesLabel}
+          </span>
+          <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">
+            {summary.equivalentLabel}
+          </span>
           <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700">
             {pool.availableShares}/{pool.totalShares} cotas
           </span>
@@ -73,6 +77,8 @@ export function MobilePoolDetail({ pool }: MobilePoolDetailProps) {
           poolCode={pool.code}
           sharePrice={Number(pool.sharePrice)}
           availableShares={pool.availableShares}
+          formId={purchaseFormId}
+          hideSubmitButton
         />
       </section>
 
@@ -86,7 +92,9 @@ export function MobilePoolDetail({ pool }: MobilePoolDetailProps) {
             <div key={game.id} className="rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/50 p-4">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <p className="text-sm font-semibold text-slate-900">{game.title}</p>
-                {game.hits != null ? <span className="text-xs font-semibold text-fuchsia-700">{game.hits} acertos</span> : null}
+                {game.hits != null ? (
+                  <span className="text-xs font-semibold text-fuchsia-700">{game.hits} acertos</span>
+                ) : null}
               </div>
               <NumberGrid numbers={game.numbers} size="sm" />
             </div>
@@ -96,12 +104,13 @@ export function MobilePoolDetail({ pool }: MobilePoolDetailProps) {
 
       {canBuy ? (
         <div className="fixed inset-x-0 z-[72] px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:hidden" style={{ bottom: "84px" }}>
-          <Link
-            href="#comprar"
+          <button
+            type="submit"
+            form={purchaseFormId}
             className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-fuchsia-700 px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_34px_rgba(192,38,211,0.28)]"
           >
-            Comprar cota
-          </Link>
+            Adicionar ao carrinho
+          </button>
         </div>
       ) : null}
     </div>

@@ -1,6 +1,7 @@
 import { AccountShell } from "@/components/account-shell";
 import { StatCard } from "@/components/stat-card";
 import { WalletTopupPanel } from "@/components/wallet-topup-panel";
+import { WalletWithdrawPanel } from "@/components/wallet-withdraw-panel";
 import { requireUser } from "@/lib/auth";
 import { syncPendingCartPaymentsForUser } from "@/lib/cart";
 import { prisma } from "@/lib/prisma";
@@ -10,17 +11,23 @@ import { syncPendingWalletTopupsForUser } from "@/lib/wallet";
 export default async function WalletPage() {
   const user = await requireUser();
   await Promise.all([syncPendingWalletTopupsForUser(user.id), syncPendingCartPaymentsForUser(user.id)]);
-  const [packages, payments, transactions] = await Promise.all([
+
+  const [packages, payments, transactions, withdrawals] = await Promise.all([
     prisma.walletPackage.findMany({ orderBy: { price: "asc" } }),
     prisma.payment.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 5 }),
     prisma.walletTransaction.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 5 }),
+    prisma.walletTransaction.findMany({
+      where: { userId: user.id, type: "WITHDRAWAL" },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    }),
   ]);
 
   return (
     <AccountShell
       currentPath="/carteira"
       title="Carteira e créditos"
-      description="Acompanhe seu saldo, créditos recebidos e movimentações da conta."
+      description="Acompanhe seu saldo, créditos recebidos, saques e movimentações da conta."
     >
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard label="Saldo disponível" value={formatCurrency(getWalletAvailableBalance(user.wallet))} />
@@ -37,6 +44,25 @@ export default async function WalletPage() {
 
       <div className="mt-6">
         <WalletTopupPanel packages={packages} userCpf={user.cpf ?? null} />
+      </div>
+
+      <div className="mt-6">
+        <WalletWithdrawPanel
+          cashBalance={Number(user.wallet?.balance ?? 0)}
+          withdrawals={withdrawals.map((withdrawal) => ({
+            id: withdrawal.id,
+            amount: Math.abs(Number(withdrawal.amount)),
+            status: withdrawal.status,
+            createdAt: withdrawal.createdAt.toISOString(),
+            metadata:
+              withdrawal.metadata && typeof withdrawal.metadata === "object" && !Array.isArray(withdrawal.metadata)
+                ? {
+                    pixKeyType: String(withdrawal.metadata.pixKeyType ?? ""),
+                    pixKey: String(withdrawal.metadata.pixKey ?? ""),
+                  }
+                : null,
+          }))}
+        />
       </div>
 
       <div className="mt-6 rounded-[28px] border border-white/80 bg-white/90 p-6 shadow-sm">
