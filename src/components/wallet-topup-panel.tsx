@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import type { WalletPackage } from "@prisma/client";
 
@@ -24,20 +25,28 @@ type TopupState = {
 };
 
 export function WalletTopupPanel({ packages, userCpf }: WalletTopupPanelProps) {
-  const [selectedPackageId, setSelectedPackageId] = useState<number>(packages[0]?.id ?? 0);
+  const router = useRouter();
+  const [selectedPackageId, setSelectedPackageId] = useState<number | null>(packages[0]?.id ?? null);
+  const [customAmount, setCustomAmount] = useState<string>("");
   const [topup, setTopup] = useState<TopupState | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const selectedPackage = useMemo(
-    () => packages.find((item) => item.id === selectedPackageId) ?? packages[0],
+    () => packages.find((item) => item.id === selectedPackageId) ?? null,
     [packages, selectedPackageId],
   );
 
-  const canDeposit = Boolean(userCpf);
+  const parsedCustomAmount = Number(customAmount.replace(",", "."));
+  const depositAmount = selectedPackage ? Number(selectedPackage.price) : parsedCustomAmount;
+  const canDeposit = Boolean(userCpf) && Number.isFinite(depositAmount) && depositAmount > 0;
 
   async function createTopup() {
-    if (!selectedPackage) return;
+    if (!canDeposit) {
+      setStatusMessage("Informe um valor valido para gerar o pagamento.");
+      return;
+    }
+
     setIsLoading(true);
     setStatusMessage(null);
 
@@ -45,19 +54,19 @@ export function WalletTopupPanel({ packages, userCpf }: WalletTopupPanelProps) {
       const response = await fetch("/api/wallet/topups", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ packageId: selectedPackage.id }),
+        body: JSON.stringify(selectedPackage ? { packageId: selectedPackage.id } : { amount: depositAmount }),
       });
 
       const data = await response.json();
       if (!response.ok) {
-        setStatusMessage(data.message ?? "Falha ao criar depósito.");
+        setStatusMessage(data.message ?? "Falha ao criar deposito.");
         return;
       }
 
       setTopup(data.topup);
-      setStatusMessage("Topup criado. Aguarde a confirmação do pagamento.");
+      setStatusMessage("Pagamento Pix gerado. Efetue o pagamento para creditar o saldo na sua conta.");
     } catch {
-      setStatusMessage("Erro ao criar topup. Tente novamente.");
+      setStatusMessage("Erro ao criar deposito. Tente novamente.");
     } finally {
       setIsLoading(false);
     }
@@ -72,6 +81,10 @@ export function WalletTopupPanel({ packages, userCpf }: WalletTopupPanelProps) {
         const data = await response.json();
         if (response.ok) {
           setTopup(data.topup);
+          if (topup.status === "PENDING" && data.topup?.status === "PAID") {
+            setStatusMessage("Pagamento aprovado. O valor foi creditado na sua conta.");
+            router.refresh();
+          }
         }
       } catch {
         // ignore refresh errors
@@ -79,12 +92,12 @@ export function WalletTopupPanel({ packages, userCpf }: WalletTopupPanelProps) {
     }, 5000);
 
     return () => window.clearInterval(interval);
-  }, [topup]);
+  }, [router, topup]);
 
   function handleCopy(value: string | null | undefined) {
     if (!value) return;
     navigator.clipboard.writeText(value);
-    setStatusMessage("Texto copiado para a área de transferência.");
+    setStatusMessage("Texto copiado para a area de transferencia.");
   }
 
   return (
@@ -92,40 +105,88 @@ export function WalletTopupPanel({ packages, userCpf }: WalletTopupPanelProps) {
       <div className="mb-6 grid gap-4 lg:grid-cols-[1.3fr_0.9fr]">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-fuchsia-500">Depositar saldo</p>
-          <h2 className="mt-3 text-2xl font-bold text-slate-900">Adicione crédito via Pix</h2>
+          <h2 className="mt-3 text-2xl font-bold text-slate-900">Adicione credito via Pix</h2>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Use Mercado Pago para gerar o QR code e creditar o valor diretamente na sua carteira.
+            Digite o valor que deseja depositar, gere o Pix e o saldo sera creditado na sua carteira assim que o pagamento for aprovado.
           </p>
         </div>
         <div className="rounded-[24px] bg-fuchsia-50/60 p-4">
           <p className="text-sm font-semibold text-slate-700">CPF cadastrado</p>
-          <p className="mt-2 text-lg font-bold text-slate-900">{userCpf ?? "Não cadastrado"}</p>
+          <p className="mt-2 text-lg font-bold text-slate-900">{userCpf ?? "Nao cadastrado"}</p>
           {!userCpf ? (
-            <p className="mt-2 text-sm text-rose-600">Atualize seu CPF em Perfil para usar o depósito.</p>
+            <p className="mt-2 text-sm text-rose-600">Atualize seu CPF em Perfil para usar o deposito.</p>
           ) : null}
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        {packages.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => setSelectedPackageId(item.id)}
-            className={`rounded-[24px] border p-4 text-left transition ${selectedPackageId === item.id ? "border-fuchsia-300 bg-fuchsia-50 shadow-sm" : "border-fuchsia-100 bg-white hover:border-fuchsia-200"}`}
-          >
-            <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-            <p className="mt-2 text-sm text-slate-500">{item.description ?? "Crédito de carteira."}</p>
-            <p className="mt-4 text-2xl font-black text-fuchsia-700">{formatCurrency(item.price)}</p>
-          </button>
-        ))}
+      {packages.length ? (
+        <div className="grid gap-3 md:grid-cols-3">
+          {packages.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => {
+                setSelectedPackageId(item.id);
+                setCustomAmount("");
+              }}
+              className={`rounded-[24px] border p-4 text-left transition ${
+                selectedPackageId === item.id
+                  ? "border-fuchsia-300 bg-fuchsia-50 shadow-sm"
+                  : "border-fuchsia-100 bg-white hover:border-fuchsia-200"
+              }`}
+            >
+              <p className="text-sm font-semibold text-slate-900">{item.title}</p>
+              <p className="mt-2 text-sm text-slate-500">{item.description ?? "Credito de carteira."}</p>
+              <p className="mt-4 text-2xl font-black text-fuchsia-700">{formatCurrency(item.price)}</p>
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      <div className="mt-5 rounded-[24px] border border-fuchsia-100 bg-fuchsia-50/60 p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-fuchsia-500">Valor livre</p>
+            <p className="mt-1 text-sm text-slate-600">Voce tambem pode digitar exatamente quanto quer depositar.</p>
+          </div>
+          {selectedPackageId === null ? (
+            <span className="rounded-full bg-fuchsia-100 px-3 py-1 text-xs font-semibold text-fuchsia-700">Ativo</span>
+          ) : null}
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+          <label className="space-y-2 text-sm font-medium text-slate-700">
+            Valor do deposito
+            <input
+              type="number"
+              min="1"
+              step="0.01"
+              inputMode="decimal"
+              placeholder="Ex: 25.00"
+              value={customAmount}
+              onChange={(event) => {
+                setSelectedPackageId(null);
+                setCustomAmount(event.target.value);
+              }}
+              className="w-full rounded-2xl border border-fuchsia-100 bg-white px-4 py-3 text-base outline-none"
+            />
+          </label>
+          <div className="rounded-2xl bg-white px-4 py-3">
+            <p className="text-sm text-slate-500">Total a gerar</p>
+            <p className="text-2xl font-bold text-slate-900">
+              {depositAmount > 0 && Number.isFinite(depositAmount) ? formatCurrency(depositAmount) : "R$ 0,00"}
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-slate-600">Selecione o pacote e gere o pagamento via Pix imediatamente.</p>
+        <p className="text-sm text-slate-600">
+          Gere um pagamento Pix com o valor escolhido e aguarde a aprovacao para o credito cair na conta.
+        </p>
         <button
           type="button"
-          onClick={createTopup}
+          onClick={() => void createTopup()}
           disabled={!canDeposit || isLoading}
           className="inline-flex items-center justify-center rounded-full bg-fuchsia-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800 disabled:opacity-60"
         >
@@ -143,8 +204,12 @@ export function WalletTopupPanel({ packages, userCpf }: WalletTopupPanelProps) {
               <p className="mt-1 text-lg font-bold text-slate-900">{topup.status}</p>
             </div>
             <div>
+              <p className="text-sm uppercase tracking-[0.16em] text-slate-600">Valor</p>
+              <p className="mt-1 text-lg font-bold text-slate-900">{formatCurrency(topup.package.price)}</p>
+            </div>
+            <div>
               <p className="text-sm uppercase tracking-[0.16em] text-slate-600">Expira em</p>
-              <p className="mt-1 text-lg font-bold text-slate-900">{topup.expiresAt ? formatDate(topup.expiresAt) : "—"}</p>
+              <p className="mt-1 text-lg font-bold text-slate-900">{topup.expiresAt ? formatDate(topup.expiresAt) : "-"}</p>
             </div>
           </div>
 
@@ -173,7 +238,7 @@ export function WalletTopupPanel({ packages, userCpf }: WalletTopupPanelProps) {
                   onClick={() => handleCopy(topup.qrCodeText)}
                   className="inline-flex items-center justify-center rounded-full border border-fuchsia-200 bg-white px-4 py-3 text-sm font-semibold text-fuchsia-700 transition hover:bg-fuchsia-50"
                 >
-                  Copiar código Pix
+                  Copiar codigo Pix
                 </button>
                 {topup.paymentLinkUrl ? (
                   <a

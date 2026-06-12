@@ -32,9 +32,14 @@ export const cartItemSchema = z.object({
   quantity: z.number().int().positive().max(50),
 });
 
-export const walletTopupSchema = z.object({
-  packageId: z.number().int().positive(),
-});
+export const walletTopupSchema = z
+  .object({
+    packageId: z.number().int().positive().optional(),
+    amount: z.coerce.number().positive("Informe um valor maior que zero.").max(100000, "Valor acima do limite.").optional(),
+  })
+  .refine((value) => value.packageId || value.amount, {
+    message: "Informe um valor para deposito.",
+  });
 
 export const walletWithdrawalSchema = z.object({
   pixKeyType: z.enum(["CPF", "EMAIL", "PHONE", "RANDOM"]),

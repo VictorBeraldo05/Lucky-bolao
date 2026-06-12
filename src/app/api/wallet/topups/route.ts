@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
 import { getCurrentUserFromRequest } from "@/lib/auth";
+import { createPixPayment, determineTopupStatus, normalizeCpf, parsePaymentTopupData } from "@/lib/mercadopago";
 import { prisma } from "@/lib/prisma";
 import { walletTopupSchema } from "@/lib/validations";
-import { createPixPayment, normalizeCpf, parsePaymentTopupData, determineTopupStatus } from "@/lib/mercadopago";
+
+function normalizeAmount(value: number) {
+  return value.toFixed(2);
+}
+
+function getCustomWalletPackageTitle(amount: number) {
+  return `Deposito livre R$ ${normalizeAmount(amount).replace(".", ",")}`;
+}
 
 export async function POST(request: Request) {
   const currentUser = await getCurrentUserFromRequest(request);
@@ -16,9 +24,41 @@ export async function POST(request: Request) {
 
   try {
     const payload = walletTopupSchema.parse(await request.json());
-    const walletPackage = await prisma.walletPackage.findUnique({ where: { id: payload.packageId } });
-    if (!walletPackage) {
-      return NextResponse.json({ message: "Pacote não encontrado." }, { status: 404 });
+
+    let walletPackage = null;
+    let depositAmount = 0;
+
+    if (payload.packageId) {
+      walletPackage = await prisma.walletPackage.findUnique({ where: { id: payload.packageId } });
+      if (!walletPackage) {
+        return NextResponse.json({ message: "Pacote não encontrado." }, { status: 404 });
+      }
+      depositAmount = Number(walletPackage.price);
+    } else if (payload.amount) {
+      depositAmount = Number(payload.amount);
+      const matchingPackage = await prisma.walletPackage.findFirst({
+        where: { price: depositAmount },
+        orderBy: { createdAt: "asc" },
+      });
+
+      walletPackage =
+        matchingPackage ??
+        (await prisma.walletPackage.upsert({
+          where: { title: getCustomWalletPackageTitle(depositAmount) },
+          update: {
+            price: depositAmount,
+            description: "Credito personalizado para carteira.",
+          },
+          create: {
+            title: getCustomWalletPackageTitle(depositAmount),
+            description: "Credito personalizado para carteira.",
+            price: depositAmount,
+          },
+        }));
+    }
+
+    if (!walletPackage || !depositAmount) {
+      return NextResponse.json({ message: "Informe um valor válido para depósito." }, { status: 400 });
     }
 
     const payment = await createPixPayment({
@@ -26,8 +66,8 @@ export async function POST(request: Request) {
       name: currentUser.name,
       cpf: currentUser.cpf,
       title: walletPackage.title,
-      amount: Number(walletPackage.price),
-      referenceId: `topup-${walletPackage.id}`,
+      amount: depositAmount,
+      referenceId: `topup-${walletPackage.id}-${Date.now()}`,
     });
 
     const paymentData = parsePaymentTopupData(payment);
@@ -51,6 +91,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ topup });
   } catch (error) {
-    return NextResponse.json({ message: error instanceof Error ? error.message : "Falha ao criar topup." }, { status: 400 });
+    return NextResponse.json(
+      { message: error instanceof Error ? error.message : "Falha ao criar topup." },
+      { status: 400 },
+    );
   }
 }
