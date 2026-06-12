@@ -39,6 +39,21 @@ export function getErrorMessage(error: unknown) {
   return "Ocorreu um erro inesperado.";
 }
 
+export function getSafeExternalUrl(value?: string | null) {
+  if (!value) return null;
+
+  try {
+    const url = new URL(value);
+    if (url.protocol === "http:" || url.protocol === "https:") {
+      return url.toString();
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export function getPoolCommercialSummary(input: {
   relativeChance?: string | null;
   description?: string | null;

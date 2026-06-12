@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { getSafeExternalUrl } from "@/lib/utils";
 
 type MercadoPagoPayment = {
   id?: string;
@@ -264,11 +265,14 @@ export function determineTopupStatus(payment: MercadoPagoPayment, expectedCpf?: 
 export function parsePaymentTopupData(payment: MercadoPagoPayment) {
   const interaction = payment.point_of_interaction?.transaction_data;
   const qrCodeBase64 = interaction?.qr_code_base64 ? `data:image/png;base64,${interaction.qr_code_base64}` : "";
+  const safePaymentLinkUrl = getSafeExternalUrl(
+    String(interaction?.ticket_url ?? payment.transaction_details?.external_resource_url ?? ""),
+  );
   return {
     providerChargeId: String(payment.id ?? ""),
     qrCodeText: String(interaction?.qr_code ?? ""),
     qrCodeImageBase64: qrCodeBase64,
-    paymentLinkUrl: String(interaction?.ticket_url ?? payment.transaction_details?.external_resource_url ?? ""),
+    paymentLinkUrl: safePaymentLinkUrl,
     expiresAt: payment.date_of_expiration || interaction?.expiration_date ? new Date(payment.date_of_expiration ?? interaction?.expiration_date ?? "").toISOString() : null,
     providerPayload: payment,
   };

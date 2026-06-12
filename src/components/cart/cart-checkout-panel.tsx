@@ -205,18 +205,8 @@ export function CartCheckoutPanel({
             </div>
           ) : null}
           <div className="mt-4">
-            <PixCopyActions qrCodeText={paymentData.qrCodeText} paymentLinkUrl={paymentData.paymentLinkUrl} />
+            <PixCopyActions qrCodeText={paymentData.qrCodeText} />
           </div>
-          {paymentData.paymentLinkUrl ? (
-            <a
-              href={paymentData.paymentLinkUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-fuchsia-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800"
-            >
-              Abrir link de pagamento
-            </a>
-          ) : null}
           {paymentData.expiresAt ? <p className="mt-3 text-xs text-slate-500">Expira em {formatDate(paymentData.expiresAt)}</p> : null}
         </div>
       ) : null}

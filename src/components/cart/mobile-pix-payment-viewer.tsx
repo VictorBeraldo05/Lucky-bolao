@@ -126,18 +126,7 @@ export function MobilePixPaymentViewer({ paymentId }: { paymentId: string }) {
               </div>
             ) : null}
 
-            <PixCopyActions qrCodeText={paymentData.qrCodeText} paymentLinkUrl={paymentData.paymentLinkUrl} />
-
-            {paymentData.paymentLinkUrl ? (
-              <a
-                href={paymentData.paymentLinkUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex w-full items-center justify-center rounded-full bg-fuchsia-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800"
-              >
-                Abrir link de pagamento
-              </a>
-            ) : null}
+            <PixCopyActions qrCodeText={paymentData.qrCodeText} />
 
             {paymentData.expiresAt ? (
               <p className="text-center text-xs text-slate-500">Expira em {formatDate(paymentData.expiresAt)}</p>

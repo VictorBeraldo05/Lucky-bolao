@@ -36,7 +36,6 @@ export function WalletTopupPanel({ packages, userCpf }: WalletTopupPanelProps) {
     () => packages.find((item) => item.id === selectedPackageId) ?? null,
     [packages, selectedPackageId],
   );
-
   const parsedCustomAmount = Number(customAmount.replace(",", "."));
   const depositAmount = selectedPackage ? Number(selectedPackage.price) : parsedCustomAmount;
   const canDeposit = Boolean(userCpf) && Number.isFinite(depositAmount) && depositAmount > 0;
@@ -240,16 +239,6 @@ export function WalletTopupPanel({ packages, userCpf }: WalletTopupPanelProps) {
                 >
                   Copiar codigo Pix
                 </button>
-                {topup.paymentLinkUrl ? (
-                  <a
-                    href={topup.paymentLinkUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center justify-center rounded-full bg-fuchsia-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800"
-                  >
-                    Abrir link de pagamento
-                  </a>
-                ) : null}
               </div>
             </div>
           ) : null}
