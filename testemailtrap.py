@@ -12,7 +12,7 @@ mail = mt.Mail(
         name="Lucky Bolões"
     ),
     to=[
-        mt.Address(email="cleitonsousadeoliveira690@gmail.com", name="Cleiton")
+        mt.Address(email="vianadeoliveiramarcos98@gmail.com", name="Marcos")
     ],
     subject="Sua participação no bolão de hoje",
     html="""
@@ -41,7 +41,7 @@ mail = mt.Mail(
                     <tr>
                         <td style="padding-top:25px;color:#333;font-size:16px;line-height:1.7;">
 
-                            <p>Olá, Cleiton!</p>
+                            <p>Olá, Marcos!</p>
 
                             <p>
                                 Vi que você acessou a <strong>Lucky Bolões</strong>,
@@ -49,7 +49,7 @@ mail = mt.Mail(
                             </p>
 
                             <p>
-                                O bolão de hoje da <strong>Lotofácil - R$ 5 milhões</strong>
+                                O bolão de hoje da <strong>Lotofácil - R$ 2 milhões</strong>
                                 ainda possui algumas cotas disponíveis.
                             </p>
 
