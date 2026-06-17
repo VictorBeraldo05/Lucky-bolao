@@ -1,0 +1,406 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight, Trophy, X } from "lucide-react";
+import { NumberGrid } from "@/components/number-grid";
+import { StatusBadge } from "@/components/status-badge";
+import { formatStatusLabel } from "@/lib/status";
+import { formatCurrency, formatDate } from "@/lib/utils";
+
+type AdminPoolRow = {
+  id: string;
+  code: string;
+  title: string;
+  status: string;
+  sharePrice: string;
+  totalShares: number;
+  availableShares: number;
+  lotteryName: string;
+  gameTypeName: string;
+  contestNumber: number;
+  drawDate: string;
+  resultNumbers: number[];
+  games: Array<{
+    id: string;
+    title: string;
+    numbers: number[];
+    hits: number | null;
+    prizeAmount: string | null;
+  }>;
+};
+
+type ActiveTab = "resumo" | "sorteio" | "premiados" | "todos";
+const GAMES_PER_PAGE = 8;
+
+function SummaryCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-fuchsia-100 bg-fuchsia-50/70 p-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-fuchsia-500">{label}</p>
+      <p className="mt-2 text-base font-bold text-slate-900">{value}</p>
+    </div>
+  );
+}
+
+function isWinningGame(pool: AdminPoolRow, hits: number | null) {
+  if (hits === null) return false;
+
+  if (pool.lotteryName.toLowerCase().includes("lotofacil")) {
+    return hits >= 11 && hits <= 15;
+  }
+
+  return hits > 0;
+}
+
+export function AdminPoolsAnalysisTable({ pools }: { pools: AdminPoolRow[] }) {
+  const [selectedPool, setSelectedPool] = useState<AdminPoolRow | null>(null);
+  const [activeTab, setActiveTab] = useState<ActiveTab>("resumo");
+  const [gamesPage, setGamesPage] = useState(0);
+
+  const awardedGames = useMemo(
+    () => selectedPool?.games.filter((game) => isWinningGame(selectedPool, game.hits)) ?? [],
+    [selectedPool],
+  );
+
+  const paginatedGames = useMemo(() => {
+    if (!selectedPool) return [];
+    return selectedPool.games.slice(gamesPage * GAMES_PER_PAGE, gamesPage * GAMES_PER_PAGE + GAMES_PER_PAGE);
+  }, [gamesPage, selectedPool]);
+
+  const totalGamePages = selectedPool ? Math.max(1, Math.ceil(selectedPool.games.length / GAMES_PER_PAGE)) : 1;
+
+  function openPool(pool: AdminPoolRow) {
+    setSelectedPool(pool);
+    setActiveTab("resumo");
+    setGamesPage(0);
+  }
+
+  return (
+    <>
+      <div className="space-y-4 md:hidden">
+        {pools.map((pool) => {
+          const awardedCount = pool.games.filter((game) => isWinningGame(pool, game.hits)).length;
+
+          return (
+            <div key={pool.id} className="rounded-[28px] border border-white/80 bg-white/90 p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold uppercase tracking-[0.16em] text-fuchsia-500">{pool.lotteryName}</p>
+                  <p className="mt-1 text-base font-bold text-slate-900">{pool.title}</p>
+                  <p className="mt-1 text-sm text-slate-500">
+                    {pool.code} • Concurso #{pool.contestNumber}
+                  </p>
+                </div>
+                <StatusBadge status={pool.status} />
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-3 rounded-[24px] bg-fuchsia-50/60 p-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-fuchsia-500">Cota</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-900">{formatCurrency(pool.sharePrice)}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-fuchsia-500">Jogos</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-900">{pool.games.length}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-fuchsia-500">Premiados</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-900">{awardedCount}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-fuchsia-500">Disponíveis</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-900">
+                    {pool.availableShares}/{pool.totalShares}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => openPool(pool)}
+                className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-fuchsia-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800"
+              >
+                Analisar bolão
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="hidden overflow-hidden rounded-[28px] border border-white/80 bg-white/90 shadow-sm md:block">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-left text-sm">
+            <thead className="bg-fuchsia-50 text-slate-600">
+              <tr>
+                <th className="px-4 py-3">Código</th>
+                <th className="px-4 py-3">Título</th>
+                <th className="px-4 py-3">Concurso</th>
+                <th className="px-4 py-3">Cota</th>
+                <th className="px-4 py-3">Disponibilidade</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Premiados</th>
+                <th className="px-4 py-3">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pools.map((pool) => (
+                <tr key={pool.id} className="border-t border-fuchsia-50">
+                  <td className="px-4 py-3">{pool.code}</td>
+                  <td className="px-4 py-3">{pool.title}</td>
+                  <td className="px-4 py-3">
+                    #{pool.contestNumber}
+                    <div className="text-xs text-slate-500">{formatDate(pool.drawDate)}</div>
+                  </td>
+                  <td className="px-4 py-3">{formatCurrency(pool.sharePrice)}</td>
+                  <td className="px-4 py-3">
+                    {pool.availableShares}/{pool.totalShares}
+                  </td>
+                  <td className="px-4 py-3">
+                    <StatusBadge status={pool.status} />
+                  </td>
+                  <td className="px-4 py-3">
+                    {pool.games.filter((game) => isWinningGame(pool, game.hits)).length}
+                  </td>
+                  <td className="px-4 py-3">
+                    <button
+                      type="button"
+                      onClick={() => openPool(pool)}
+                      className="font-semibold text-fuchsia-700 transition hover:text-fuchsia-800"
+                    >
+                      Analisar bolão
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {selectedPool ? (
+        <div className="fixed inset-0 z-[90] flex items-end justify-center bg-slate-950/45 px-0 py-0 backdrop-blur-sm sm:items-center sm:px-4 sm:py-6">
+          <div className="flex max-h-[100dvh] w-full max-w-5xl flex-col overflow-hidden rounded-t-[32px] border border-white/70 bg-white shadow-2xl sm:max-h-[92vh] sm:rounded-[32px]">
+            <div className="flex justify-center border-b border-fuchsia-100 px-4 pt-3 sm:hidden">
+              <span className="h-1.5 w-16 rounded-full bg-slate-200" />
+            </div>
+
+            <div className="sticky top-0 z-10 bg-white/95 backdrop-blur">
+              <div className="flex items-start justify-between gap-4 border-b border-fuchsia-100 px-5 py-4 sm:px-6">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-500">
+                    {selectedPool.lotteryName}
+                  </p>
+                  <h2 className="mt-2 text-2xl font-bold text-slate-900">{selectedPool.title}</h2>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Bolão {selectedPool.code} • Concurso #{selectedPool.contestNumber}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedPool(null)}
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-fuchsia-100 bg-white text-slate-500 transition hover:border-fuchsia-200 hover:text-fuchsia-700"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="border-b border-fuchsia-100 px-5 py-3 sm:px-6">
+                <div className="-mx-1 flex flex-nowrap gap-2 overflow-x-auto px-1 pb-1 pr-4">
+                  {[
+                    { id: "resumo", label: "Resumo" },
+                    { id: "sorteio", label: "Sorteio" },
+                    { id: "premiados", label: "Premiados" },
+                    { id: "todos", label: "Todos os jogos" },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveTab(tab.id as ActiveTab)}
+                      className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
+                        activeTab === tab.id
+                          ? "bg-fuchsia-600 text-white"
+                          : "bg-fuchsia-50 text-fuchsia-700 hover:bg-fuchsia-100"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div
+              className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-5"
+              style={{ WebkitOverflowScrolling: "touch" }}
+            >
+              <div className="pb-[calc(6.5rem+env(safe-area-inset-bottom))] sm:pb-4">
+                {activeTab === "resumo" ? (
+                  <div className="space-y-6">
+                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                      <SummaryCard label="Status" value={formatStatusLabel(selectedPool.status)} />
+                      <SummaryCard label="Preço da cota" value={formatCurrency(selectedPool.sharePrice)} />
+                      <SummaryCard label="Jogos" value={String(selectedPool.games.length)} />
+                      <SummaryCard label="Premiados" value={String(awardedGames.length)} />
+                    </div>
+
+                    <div className="rounded-[28px] border border-fuchsia-100 bg-fuchsia-50/40 p-5">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <h3 className="text-lg font-bold text-slate-900">Resumo administrativo do bolão</h3>
+                          <p className="mt-1 text-sm text-slate-600">
+                            Analise os jogos, o resultado do concurso e as faixas premiadas deste bolão sem depender de compra vinculada.
+                          </p>
+                        </div>
+                        <StatusBadge status={selectedPool.status} />
+                      </div>
+
+                      <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                        <SummaryCard
+                          label="Disponibilidade"
+                          value={`${selectedPool.availableShares}/${selectedPool.totalShares} cotas`}
+                        />
+                        <SummaryCard label="Tipo de jogo" value={selectedPool.gameTypeName} />
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {activeTab === "sorteio" ? (
+                  <div className="space-y-6">
+                    <div className="rounded-[28px] border border-fuchsia-100 bg-fuchsia-50/40 p-5">
+                      <h3 className="text-lg font-bold text-slate-900">Resultado do sorteio</h3>
+                      <p className="mt-1 text-sm text-slate-600">
+                        Concurso #{selectedPool.contestNumber} • Sorteio em {formatDate(selectedPool.drawDate)}
+                      </p>
+                      {selectedPool.resultNumbers.length > 0 ? (
+                        <div className="mt-5">
+                          <NumberGrid numbers={selectedPool.resultNumbers} highlight={selectedPool.resultNumbers} />
+                        </div>
+                      ) : (
+                        <div className="mt-5 rounded-2xl border border-dashed border-fuchsia-200 bg-white p-5 text-sm text-slate-500">
+                          O resultado deste concurso ainda não foi publicado.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : null}
+
+                {activeTab === "premiados" ? (
+                  <div className="space-y-4">
+                    <div className="rounded-[28px] border border-fuchsia-100 bg-fuchsia-50/40 p-5">
+                      <h3 className="text-lg font-bold text-slate-900">Bilhetes premiados do bolão</h3>
+                      <p className="mt-1 text-sm text-slate-600">
+                        Visualize somente os jogos que atingiram a faixa premiada desta loteria.
+                      </p>
+                    </div>
+
+                    {awardedGames.length > 0 ? (
+                      <div className="grid gap-4">
+                        {awardedGames.map((game) => (
+                          <div key={game.id} className="rounded-[28px] border border-emerald-100 bg-emerald-50/60 p-5 shadow-sm">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                              <div className="flex items-center gap-3">
+                                <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                                  <Trophy className="h-5 w-5" />
+                                </span>
+                                <div>
+                                  <p className="font-bold text-slate-900">{game.title}</p>
+                                  <p className="text-sm text-slate-600">{game.hits ?? 0} acertos</p>
+                                </div>
+                              </div>
+                              <div className="text-left sm:text-right">
+                                <p className="text-sm text-slate-500">Prêmio apurado</p>
+                                <p className="text-lg font-bold text-emerald-700">
+                                  {formatCurrency(game.prizeAmount ?? 0)}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="mt-4">
+                              <NumberGrid numbers={game.numbers} highlight={selectedPool.resultNumbers} size="sm" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="rounded-[28px] border border-dashed border-fuchsia-200 bg-white p-6 text-sm text-slate-500">
+                        Ainda não há bilhetes premiados neste bolão.
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+
+                {activeTab === "todos" ? (
+                  <div className="space-y-5">
+                    <div className="rounded-[28px] border border-fuchsia-100 bg-fuchsia-50/40 p-5">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <h3 className="text-lg font-bold text-slate-900">Todos os jogos do bolão</h3>
+                          <p className="mt-1 text-sm text-slate-600">
+                            Navegue pelos jogos em blocos menores. As dezenas destacadas representam os números sorteados.
+                          </p>
+                        </div>
+                        <div className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm">
+                          Página {gamesPage + 1} de {totalGamePages}
+                        </div>
+                      </div>
+
+                      <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                        {paginatedGames.map((game) => (
+                          <div key={game.id} className="rounded-[24px] border border-white/80 bg-white p-4 shadow-sm">
+                            <div className="flex items-center justify-between gap-3">
+                              <p className="font-semibold text-slate-900">{game.title}</p>
+                              {game.hits !== null ? (
+                                <span className="rounded-full bg-fuchsia-50 px-3 py-1 text-xs font-semibold text-fuchsia-700">
+                                  {game.hits} acertos
+                                </span>
+                              ) : null}
+                            </div>
+                            <div className="mt-4">
+                              <NumberGrid numbers={game.numbers} highlight={selectedPool.resultNumbers} size="sm" />
+                            </div>
+                            {Number(game.prizeAmount ?? 0) > 0 ? (
+                              <p className="mt-4 text-sm font-semibold text-emerald-700">
+                                Premiado: {formatCurrency(game.prizeAmount ?? 0)}
+                              </p>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-sm text-slate-500">
+                          Exibindo jogos {gamesPage * GAMES_PER_PAGE + 1} a{" "}
+                          {Math.min((gamesPage + 1) * GAMES_PER_PAGE, selectedPool.games.length)} de{" "}
+                          {selectedPool.games.length}.
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setGamesPage((page) => Math.max(0, page - 1))}
+                            disabled={gamesPage === 0}
+                            className="inline-flex items-center gap-2 rounded-full border border-fuchsia-200 bg-white px-4 py-2 text-sm font-semibold text-fuchsia-700 transition hover:bg-fuchsia-50 disabled:opacity-50"
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                            Anterior
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setGamesPage((page) => Math.min(totalGamePages - 1, page + 1))}
+                            disabled={gamesPage >= totalGamePages - 1}
+                            className="inline-flex items-center gap-2 rounded-full bg-fuchsia-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-fuchsia-700 disabled:opacity-50"
+                          >
+                            Próxima
+                            <ChevronRight className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
+  );
+}
